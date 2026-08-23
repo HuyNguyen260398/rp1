@@ -229,7 +229,7 @@ git commit -m "docs: mark Task 1 (Project bootstrap and Godot wrapper) complete"
 - Consumes: `./tools/godot.sh` from Task 1
 - Produces: `./tools/run_tests.sh` — runs the import pass then the full GUT suite; exits 0 when all tests pass, non-zero otherwise. Every later task runs its tests through this script. Test files live in `tests/`, are named `test_*.gd`, and extend `GutTest`.
 
-- [ ] **Step 1: Vendor GUT 9.7.1**
+- [x] **Step 1: Vendor GUT 9.7.1**
 
 GUT is committed to the repo rather than installed from the Asset Library, so CI needs no network and the version cannot drift.
 
@@ -242,7 +242,7 @@ rm -rf /tmp/gut.zip /tmp/gutsrc
 ls addons/gut/gut_cmdln.gd
 ```
 
-- [ ] **Step 2: Write the test runner**
+- [x] **Step 2: Write the test runner**
 
 The import pass is mandatory and easy to forget. Without it GUT prints `Some GUT class_names have not been imported` **and exits 0**, so a broken suite reports success. The runner also greps for that message and forces a failure, because an exit code alone cannot be trusted here.
 
@@ -272,7 +272,7 @@ SH
 chmod +x tools/run_tests.sh
 ```
 
-- [ ] **Step 3: Write the failing harness test**
+- [x] **Step 3: Write the failing harness test**
 
 ```bash
 mkdir -p tests
@@ -293,12 +293,12 @@ func test_byte_encoding_available() -> void:
 GD
 ```
 
-- [ ] **Step 4: Run the suite and verify it passes**
+- [x] **Step 4: Run the suite and verify it passes**
 
 Run: `./tools/run_tests.sh`
 Expected: `All tests passed!`, 2 passing tests, exit code 0.
 
-- [ ] **Step 5: Verify a failing test actually fails the run**
+- [x] **Step 5: Verify a failing test actually fails the run**
 
 A test harness that cannot report failure is worse than none. Prove the signal works before trusting it.
 
@@ -314,7 +314,7 @@ rm tests/test_temp_fail.gd
 
 Expected: `1 failing tests`, `exit=1`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add addons/gut tools/run_tests.sh tests/test_harness.gd
@@ -325,7 +325,7 @@ resolve GutTest and exits 0, which would make a broken suite look
 green in CI."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
