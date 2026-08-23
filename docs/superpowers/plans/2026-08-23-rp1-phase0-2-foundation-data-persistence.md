@@ -3676,7 +3676,7 @@ git commit -m "docs: mark Task 15 (Smoke test and screenshot tooling) complete"
 - Consumes: `tools/run_tests.sh`, `tools/guard.gd`, `tools/smoke.gd`
 - Produces: a GitHub Actions workflow running all five spec gates on every push and pull request.
 
-- [ ] **Step 1: Write the asset licence checker**
+- [x] **Step 1: Write the asset licence checker**
 
 ```bash
 mkdir -p assets/tiles
@@ -3741,7 +3741,7 @@ _None imported yet. Phase 3 adds the first Kenney tileset._
 MD
 ```
 
-- [ ] **Step 2: Verify the licence gate works in both directions**
+- [x] **Step 2: Verify the licence gate works in both directions**
 
 ```bash
 ./tools/check_asset_licences.sh; echo "clean_exit=$?"
@@ -3752,7 +3752,7 @@ rmdir assets/unlicensed_thing
 
 Expected: `Asset licences: OK` / `clean_exit=0`, then `MISSING LICENCE` / `violation_exit=1`.
 
-- [ ] **Step 3: Write the CI workflow**
+- [x] **Step 3: Write the CI workflow**
 
 ```bash
 mkdir -p .github/workflows
@@ -3867,7 +3867,7 @@ jobs:
 YML
 ```
 
-- [ ] **Step 4: Commit `export_presets.cfg` rather than ignoring it**
+- [x] **Step 4: Commit `export_presets.cfg` rather than ignoring it**
 
 The `.gitignore` written before Phase 0 excludes `export_presets.cfg`, which is the usual default because the file can hold signing paths and keystore passwords. CI cannot export without it. Commit the file and keep secrets in repository secrets instead.
 
@@ -3882,7 +3882,7 @@ Both presets set `include_filter="*.json"`. This is required, not cosmetic: Godo
 
 Verify locally: `./tools/godot.sh --headless --path . --export-release "Linux" /tmp/rp1_test.x86_64`
 
-- [ ] **Step 5: Run every gate locally before pushing**
+- [x] **Step 5: Run every gate locally before pushing**
 
 ```bash
 ./tools/run_tests.sh                                        && echo "GATE 1 OK"
@@ -3893,7 +3893,7 @@ Verify locally: `./tools/godot.sh --headless --path . --export-release "Linux" /
 
 Expected: all four print OK. Gate 5 runs in CI.
 
-- [ ] **Step 6: Commit and verify CI goes green, then red**
+- [x] **Step 6: Commit and verify CI goes green, then red**
 
 ```bash
 git add .github assets tools/check_asset_licences.sh .gitignore export_presets.cfg
@@ -3903,7 +3903,7 @@ git push -u origin HEAD
 
 Then prove the gates work by opening a throwaway branch that adds `extends Node2D` to `src/core/coords.gd`, confirming CI goes red on gate 2, and deleting the branch. A gate never observed failing is not known to work.
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
