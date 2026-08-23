@@ -3876,7 +3876,9 @@ sed -i.bak '/^export_presets.cfg$/d' .gitignore && rm -f .gitignore.bak
 grep -c export_presets .gitignore || echo "no longer ignored"
 ```
 
-Then create the presets by opening the project once in the Godot editor: **Project → Export → Add… → Linux/X11** (name it exactly `Linux`) and **Windows Desktop** (name it exactly `Windows`). The names must match the `--export-release` arguments above.
+The presets are committed as `export_presets.cfg` with names exactly `Linux` and `Windows`, matching the `--export-release` arguments above. They can also be regenerated from the editor via **Project → Export → Add…**.
+
+Both presets set `include_filter="*.json"`. This is required, not cosmetic: Godot 4.7.2 does **not** import `.json` as a resource (verified — no `.import` files are produced for `data/**/*.json`), so `export_filter="all_resources"` alone would omit every content definition and the exported game would boot with an empty registry. The "Verify the exported build loads its content" CI step exists to catch exactly that.
 
 Verify locally: `./tools/godot.sh --headless --path . --export-release "Linux" /tmp/rp1_test.x86_64`
 

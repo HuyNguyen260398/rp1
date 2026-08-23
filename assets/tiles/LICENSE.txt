@@ -1,0 +1,6 @@
+Source: (none yet -- placeholder folder)
+Author: n/a
+Licence: n/a
+
+Replace this file when the first tileset is imported. Record the pack
+name, download URL, author, and exact licence.
