@@ -3295,7 +3295,7 @@ git commit -m "docs: mark Task 13 (Save manager) complete"
 
 The migration function does nothing today and that is the point — the skeleton and its test exist before they are needed, because retrofitting versioning onto a live save format is what kills hobby projects. The committed fixture is the real asset: when format version 2 arrives, this test proves version 1 files still load.
 
-- [ ] **Step 1: Write the fixture generator and generate the fixture**
+- [x] **Step 1: Write the fixture generator and generate the fixture**
 
 ```bash
 cat > tools/make_fixture.gd <<'GD'
@@ -3329,7 +3329,7 @@ ls -la tests/fixtures/
 
 Expected: `wrote res://tests/fixtures/v1_chunk.chunk` and the file exists.
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 ```bash
 cat > tests/test_migrations.gd <<'GD'
@@ -3380,12 +3380,12 @@ func test_committed_v1_fixture_still_loads() -> void:
 GD
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Migrations" not declared in the current scope`.
 
-- [ ] **Step 4: Implement Migrations**
+- [x] **Step 4: Implement Migrations**
 
 ```bash
 cat > src/core/save/migrations.gd <<'GD'
@@ -3424,12 +3424,12 @@ static func migrate_chunk(version: int, chunk: Chunk) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 5 migration tests green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/save/migrations.gd tools/make_fixture.gd tests/test_migrations.gd tests/fixtures
@@ -3439,7 +3439,7 @@ The fixture is the asset here: when FORMAT_VERSION becomes 2, this test
 proves version 1 saves from shipped builds still open."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
