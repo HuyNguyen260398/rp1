@@ -55,6 +55,14 @@ written for Godot 3. Correct that once here rather than every session.
   missing class_names **and exits 0**, so a broken suite looks green.
 - New content types require a schema validation test.
 
+## Commits
+
+- Conventional prefixes: `feat:`, `test:`, `ci:`, `docs:`, `fix:`.
+- When working through an implementation plan, each task produces two commits:
+  the code, then a `docs:` commit ticking that task's checkboxes in the plan.
+- Tick plan checkboxes with `python3 tools/mark_task_done.py <task-number>`,
+  never by hand — the plan files are long and it is easy to mark the wrong task.
+
 ## Art
 
 - Tile size is 32×32. Character sprites are 32×64.

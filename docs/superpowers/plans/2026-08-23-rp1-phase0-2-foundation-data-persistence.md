@@ -27,6 +27,29 @@ Every task's requirements implicitly include this section.
 - **`godot --headless --path . --import` must succeed before any GUT run.** Without it GUT reports missing class_names **and exits 0**, so a broken setup looks green. The test runner in Task 2 always imports first.
 - **TDD.** Every task writes a failing test, watches it fail, implements minimally, watches it pass, commits.
 
+## Commit rhythm
+
+Each task produces **two commits**:
+
+1. **The code commit** — the task's deliverable, written as the second-to-last
+   step. Conventional-commit prefixes: `feat:`, `test:`, `ci:`.
+2. **The progress commit** — the task's final step ticks its own checkboxes in
+   this plan and commits that, so the file is an accurate ledger of what has
+   actually been done. Prefix `docs:`.
+
+Never tick checkboxes by hand — a 3,700-line file makes it easy to mark the
+wrong task. Use the helper, which ticks exactly one task's boxes and refuses an
+unknown task number:
+
+```bash
+python3 tools/mark_task_done.py 5          # tick every checkbox in Task 5
+python3 tools/mark_task_done.py 5 --undo   # revert if a task is reopened
+```
+
+The eleven checkboxes under *Definition of done* are **not** part of any task
+and the helper deliberately leaves them alone. Tick those by hand once every
+task is complete.
+
 ---
 
 ## Spec coverage
@@ -54,6 +77,7 @@ deliberately absent here.
 |---|---|
 | `project.godot` | Engine settings: Nearest filter, canvas_items stretch, integer scaling, 1280x720 |
 | `tools/godot.sh` | Resolves the Godot binary across dev machines and CI |
+| `tools/mark_task_done.py` | Ticks one task's checkboxes in this plan (already committed) |
 | `tools/run_tests.sh` | Import pass, then GUT; the single entry point for the test suite |
 | `tools/guard.gd` | Architecture gate: allowlisted base classes + banned identifiers in core/ and systems/ |
 | `tools/smoke.gd` | Boots headless, runs 300 frames, non-zero exit on any error |
@@ -180,6 +204,18 @@ git add project.godot icon.svg tools/godot.sh
 git commit -m "feat: bootstrap Godot 4.7.2 project with pixel-art render settings"
 ```
 
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 1
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 1 (Project bootstrap and Godot wrapper) complete"
+```
+
+
 ---
 
 ## Task 2: GUT test harness
@@ -288,6 +324,18 @@ The runner always runs an import pass first. Without it GUT cannot
 resolve GutTest and exits 0, which would make a broken suite look
 green in CI."
 ```
+
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 2
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 2 (GUT test harness) complete"
+```
+
 
 ---
 
@@ -505,6 +553,18 @@ Allowlist of base classes plus banned identifiers. A blocklist
 containing only 'extends Node' would pass 'extends Node2D'."
 ```
 
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 3
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 3 (Architecture guard gate) complete"
+```
+
+
 ---
 
 ## Task 4: Coordinate conversion
@@ -651,6 +711,18 @@ git rm -q --cached src/core/placeholder.gd 2>/dev/null || true
 git add -A src/core
 git commit -m "feat: add coordinate conversion with exact negative floor division"
 ```
+
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 4
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 4 (Coordinate conversion) complete"
+```
+
 
 ---
 
@@ -871,6 +943,18 @@ Expected: PASS, 10 chunk tests green.
 git add src/core/chunk.gd tests/test_chunk.gd
 git commit -m "feat: add Chunk with five parallel byte columns"
 ```
+
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 5
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 5 (Chunk tile storage) complete"
+```
+
 
 ---
 
@@ -1161,6 +1245,18 @@ Ids are never reused within a save so a stale reference fails loudly
 rather than aliasing a different entity."
 ```
 
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 6
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 6 (Entity store) complete"
+```
+
+
 ---
 
 ## Task 7: Content schema validator
@@ -1355,6 +1451,18 @@ git commit -m "feat: add content schema validator
 Rejects unknown fields, which is what catches typos like
 'block_movement' that would otherwise silently produce a walkable tree."
 ```
+
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 7
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 7 (Content schema validator) complete"
+```
+
 
 ---
 
@@ -1688,6 +1796,18 @@ Numeric ids are assigned in sorted string order so two registries built
 from the same data always agree."
 ```
 
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 8
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 8 (Content registry) complete"
+```
+
+
 ---
 
 ## Task 9: Zone
@@ -1949,6 +2069,18 @@ Expected: PASS, 13 zone tests green.
 git add src/core/zone.gd tests/test_zone.gd
 git commit -m "feat: add Zone with world-coordinate tile access and dirty tracking"
 ```
+
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 9
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 9 (Zone) complete"
+```
+
 
 ---
 
@@ -2269,6 +2401,18 @@ readable before a parse strategy is chosen. open_compressed() would
 bury it inside the stream."
 ```
 
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 10
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 10 (Chunk codec) complete"
+```
+
+
 ---
 
 ## Task 11: Entity codec
@@ -2488,6 +2632,18 @@ git add src/core/save/entity_codec.gd tests/test_entity_codec.gd
 git commit -m "feat: add entity codec preserving next_id across save and load"
 ```
 
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 11
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 11 (Entity codec) complete"
+```
+
+
 ---
 
 ## Task 12: Id map and the unknown-content policy
@@ -2682,6 +2838,18 @@ git commit -m "feat: add IdMap so adding content cannot corrupt existing saves
 Removed content becomes a placeholder that retains its original string,
 so saves round-trip losslessly rather than being silently zeroed."
 ```
+
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 12
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 12 (Id map and the unknown-content policy) complete"
+```
+
 
 ---
 
@@ -3070,6 +3238,18 @@ Covers the acceptance criterion that an old save still loads after new
 content shifts every numeric id."
 ```
 
+- [ ] **Step 6: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 13
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 13 (Save manager) complete"
+```
+
+
 ---
 
 ## Task 14: Migration skeleton and a version fixture
@@ -3229,6 +3409,18 @@ git commit -m "feat: add migration skeleton and committed v1 chunk fixture
 The fixture is the asset here: when FORMAT_VERSION becomes 2, this test
 proves version 1 saves from shipped builds still open."
 ```
+
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 14
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 14 (Migration skeleton and a version fixture) complete"
+```
+
 
 ---
 
@@ -3428,6 +3620,18 @@ git commit -m "feat: add smoke test and screenshot tooling
 Screenshots need a real rendering driver; --headless has no framebuffer.
 The smoke test stays genuinely headless."
 ```
+
+- [ ] **Step 8: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 15
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 15 (Smoke test and screenshot tooling) complete"
+```
+
 
 ---
 
@@ -3667,6 +3871,18 @@ git push -u origin HEAD
 ```
 
 Then prove the gates work by opening a throwaway branch that adds `extends Node2D` to `src/core/coords.gd`, confirming CI goes red on gate 2, and deleting the branch. A gate never observed failing is not known to work.
+
+- [ ] **Step 7: Mark the task complete**
+
+Tick this task's checkboxes and commit the progress, so the plan file itself
+records what has been done:
+
+```bash
+python3 tools/mark_task_done.py 16
+git add docs/superpowers/plans/2026-08-23-rp1-phase0-2-foundation-data-persistence.md
+git commit -m "docs: mark Task 16 (CI with five gates) complete"
+```
+
 
 ---
 
