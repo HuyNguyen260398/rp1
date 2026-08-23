@@ -244,7 +244,10 @@ ls addons/gut/gut_cmdln.gd
 
 - [x] **Step 2: Write the test runner**
 
-The import pass is mandatory and easy to forget. Without it GUT prints `Some GUT class_names have not been imported` **and exits 0**, so a broken suite reports success. The runner also greps for that message and forces a failure, because an exit code alone cannot be trusted here.
+GUT is quietly permissive in two ways that would each let a broken suite report success, and the runner closes both:
+
+1. **Missing import pass.** Without it GUT prints `Some GUT class_names have not been imported` **and exits 0**.
+2. **Unparseable test file.** A test script with a syntax error is skipped with only a `[GUT WARNING] Ignoring script ...` line, and the run **still exits 0**. Found during execution: a `preload` of a not-yet-written file made GUT report "All tests passed" while silently running one script fewer. The runner therefore also asserts that the script count in GUT's summary matches the number of `test_*.gd` files on disk.
 
 ```bash
 cat > tools/run_tests.sh <<'SH'
@@ -351,7 +354,7 @@ git commit -m "docs: mark Task 2 (GUT test harness) complete"
 
 The guard is an **allowlist** of permitted base classes plus a banned-identifier scan. A blocklist containing only `extends Node` would pass `extends Node2D`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_guard.gd <<'GD'
@@ -423,12 +426,12 @@ func test_multiple_violations_are_all_reported() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
-Expected: FAIL — `res://tools/guard.gd` does not exist, so the `preload` fails to compile.
+Expected: FAIL with exit code 3 — `res://tools/guard.gd` does not exist, so the `preload` fails to compile. Note this is caught by the runner's skipped-script check, not by GUT itself: GUT alone reports "All tests passed" and exits 0 here.
 
-- [ ] **Step 3: Implement the guard**
+- [x] **Step 3: Implement the guard**
 
 ```bash
 cat > tools/guard.gd <<'GD'
@@ -523,12 +526,12 @@ func _init() -> void:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all 8 guard tests green.
 
-- [ ] **Step 5: Verify the gate works end to end**
+- [x] **Step 5: Verify the gate works end to end**
 
 ```bash
 mkdir -p src/core
@@ -543,7 +546,7 @@ printf 'extends RefCounted\n' > src/core/placeholder.gd
 
 Expected: `clean_exit=0` then `violation_exit=1`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/guard.gd tests/test_guard.gd src/core/placeholder.gd
@@ -553,7 +556,7 @@ Allowlist of base classes plus banned identifiers. A blocklist
 containing only 'extends Node' would pass 'extends Node2D'."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
