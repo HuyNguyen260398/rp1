@@ -978,7 +978,7 @@ git commit -m "docs: mark Task 5 (Chunk tile storage) complete"
 
 Entities belong to a **zone**, not a chunk, so crossing a chunk boundary is a position update and nothing else. Slots are recycled through a free list, but **ids are never reused within a save**, so a dangling reference fails loudly instead of silently aliasing a different entity.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_entity_store.gd <<'GD'
@@ -1081,12 +1081,12 @@ func test_next_id_is_preserved_across_save_and_load() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "EntityStore" not declared in the current scope`.
 
-- [ ] **Step 3: Implement EntityStore**
+- [x] **Step 3: Implement EntityStore**
 
 ```bash
 cat > src/core/entity_store.gd <<'GD'
@@ -1233,12 +1233,12 @@ func restore_row(
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 12 entity-store tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/entity_store.gd tests/test_entity_store.gd
@@ -1248,7 +1248,7 @@ Ids are never reused within a save so a stale reference fails loudly
 rather than aliasing a different entity."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
