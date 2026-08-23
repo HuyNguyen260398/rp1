@@ -1284,7 +1284,7 @@ Schema shape (a plain JSON dictionary):
 
 This is what makes bulk agent-generated content safe to accept: without it, "add 20 furniture types" produces twenty files with three subtly different shapes, discovered only at runtime.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_schema_validator.gd <<'GD'
@@ -1369,12 +1369,12 @@ func test_all_problems_are_reported_at_once() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "SchemaValidator" not declared in the current scope`.
 
-- [ ] **Step 3: Implement SchemaValidator**
+- [x] **Step 3: Implement SchemaValidator**
 
 ```bash
 cat > src/core/schema_validator.gd <<'GD'
@@ -1440,12 +1440,12 @@ static func validate(def: Dictionary, schema: Dictionary) -> PackedStringArray:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 9 validator tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/schema_validator.gd tests/test_schema_validator.gd
@@ -1455,7 +1455,7 @@ Rejects unknown fields, which is what catches typos like
 'block_movement' that would otherwise silently produce a walkable tree."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
