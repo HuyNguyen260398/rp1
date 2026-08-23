@@ -2893,7 +2893,7 @@ git commit -m "docs: mark Task 12 (Id map and the unknown-content policy) comple
   - `static save_zone(save_root: String, zone: Zone, registry: ContentRegistry, all_chunks: bool = false) -> PackedStringArray` — writes `id_map.json`, `zone_meta.json`, dirty chunks (or all), and `entities.dat`; clears dirty flags on success. Returns errors, empty on success.
   - `static load_zone(save_root: String, zone_id: String, registry: ContentRegistry) -> DecodeResult` (`value` is a `Zone`), applying id translation to the three id columns and to entity types.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_save_manager.gd <<'GD'
@@ -3088,12 +3088,12 @@ func test_loading_a_corrupt_chunk_fails_cleanly() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "SaveManager" not declared in the current scope`.
 
-- [ ] **Step 3: Implement SaveManager**
+- [x] **Step 3: Implement SaveManager**
 
 ```bash
 cat > src/core/save/save_manager.gd <<'GD'
@@ -3252,12 +3252,12 @@ GD
 
 Note: loading installs pre-built chunks rather than creating empty ones, so it uses `Zone.install_chunk()` (added in Task 9) rather than reaching into the private `_chunks` dictionary or widening `get_chunk`.
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 save-manager tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd tests/test_save_manager.gd
@@ -3267,7 +3267,7 @@ Covers the acceptance criterion that an old save still loads after new
 content shifts every numeric id."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
