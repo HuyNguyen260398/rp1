@@ -3229,7 +3229,7 @@ static func load_zone(
 		_translate_column(chunk.floor_id, table)
 		_translate_column(chunk.object_id, table)
 		chunk.dirty = false
-		zone._chunks[chunk.coord] = chunk
+		zone.install_chunk(chunk)
 
 	var ent_path: String = zdir.path_join("entities.dat")
 	if FileAccess.file_exists(ent_path):
@@ -3242,7 +3242,7 @@ static func load_zone(
 GD
 ```
 
-Note: `zone._chunks` is touched directly here because loading installs pre-built chunks rather than creating empty ones. If a reviewer objects to reaching into a private field, add `Zone.install_chunk(chunk: Chunk) -> void` and call that instead — but do it as a deliberate change, not by widening `get_chunk`.
+Note: loading installs pre-built chunks rather than creating empty ones, so it uses `Zone.install_chunk()` (added in Task 9) rather than reaching into the private `_chunks` dictionary or widening `get_chunk`.
 
 - [ ] **Step 4: Run the tests to verify they pass**
 
