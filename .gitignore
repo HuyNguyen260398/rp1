@@ -1,0 +1,11 @@
+# Godot 4
+.godot/
+/android/
+export_presets.cfg
+
+# macOS
+.DS_Store
+
+# Build output
+/build/
+/exports/
