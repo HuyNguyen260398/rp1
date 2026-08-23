@@ -583,7 +583,7 @@ git commit -m "docs: mark Task 3 (Architecture guard gate) complete"
 
 Negative-coordinate floor division is where off-by-one bugs live, so this gets its own module and an exhaustive round-trip test.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_coords.gd <<'GD'
@@ -653,12 +653,12 @@ func test_local_index_is_unique_across_the_chunk() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Coords" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Coords**
+- [x] **Step 3: Implement Coords**
 
 Integer floor division is used rather than `floori(float(a) / float(b))` because it is exact at every magnitude and involves no float round-trip.
 
@@ -701,12 +701,12 @@ GD
 rm -f src/core/placeholder.gd
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 7 coords tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/coords.gd tests/test_coords.gd
@@ -715,7 +715,7 @@ git add -A src/core
 git commit -m "feat: add coordinate conversion with exact negative floor division"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
