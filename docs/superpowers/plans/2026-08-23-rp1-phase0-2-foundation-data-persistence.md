@@ -3919,16 +3919,17 @@ git commit -m "docs: mark Task 16 (CI with five gates) complete"
 
 ## Definition of done for Phases 0-2
 
-- [ ] `./tools/run_tests.sh` passes with roughly 110 assertions across 13 test files
-- [ ] `tools/guard.gd` exits 0, and exits 1 when a node is introduced into `src/core/`
-- [ ] `tools/smoke.gd` exits 0, and exits 1 when a check is broken
-- [ ] `tools/check_asset_licences.sh` exits 0, and exits 1 for an unlicensed folder
-- [ ] CI is green on `main` and observed going red for a deliberate violation
-- [ ] A 128x128 zone's chunk payloads round-trip byte-identical
-- [ ] A full zone save completes in under 100 ms
-- [ ] `tests/fixtures/v1_chunk.chunk` is committed and loads
-- [ ] An old save still loads after new content shifts every numeric id
-- [ ] Content removed from `data/` loads as a placeholder retaining its string
-- [ ] No file in `src/core/` or `src/systems/` references a Godot node
+- [x] `./tools/run_tests.sh` passes with roughly 110 assertions across 13 test files
+- [x] `tools/guard.gd` exits 0, and exits 1 when a node is introduced into `src/core/`
+- [x] `tools/smoke.gd` exits 0, and exits 1 when a check is broken
+- [x] `tools/check_asset_licences.sh` exits 0, and exits 1 for an unlicensed folder
+- [ ] CI is green on `main` and observed going red for a deliberate violation  
+      *(Not yet: CI is green on PR #1, but has not run on `main`, and no deliberate violation has been pushed to observe it go red.)*
+- [x] A 128x128 zone's chunk payloads round-trip byte-identical
+- [x] A full zone save completes in under 100 ms
+- [x] `tests/fixtures/v1_chunk.chunk` is committed and loads
+- [x] An old save still loads after new content shifts every numeric id
+- [x] Content removed from `data/` loads as a placeholder retaining its string
+- [x] No file in `src/core/` or `src/systems/` references a Godot node
 
 **Not done in this plan, by design:** rendering, player movement, world authoring, animals with behaviour, menus, audio. Those are Phases 3-6 and get their own plan.
