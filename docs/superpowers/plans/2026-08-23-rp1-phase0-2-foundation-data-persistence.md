@@ -3467,7 +3467,7 @@ git commit -m "docs: mark Task 14 (Migration skeleton and a version fixture) com
 
 **A correction to the spec.** Spec task 0.8 says the screenshot script "produces a PNG from a headless run". It cannot: `--headless` uses a dummy rendering driver with no framebuffer, so `get_texture().get_image()` returns nothing usable. The screenshot tool therefore runs with a **real display driver** — natively on the dev machine, and under `xvfb-run` in Linux CI. The smoke test stays genuinely headless.
 
-- [ ] **Step 1: Write the smoke test**
+- [x] **Step 1: Write the smoke test**
 
 ```bash
 cat > tools/smoke.gd <<'GD'
@@ -3525,12 +3525,12 @@ func _init() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the smoke test and verify it passes**
+- [x] **Step 2: Run the smoke test and verify it passes**
 
 Run: `./tools/godot.sh --headless --path . -s tools/smoke.gd; echo "exit=$?"`
 Expected: `Smoke test: OK (300 iterations)` and `exit=0`.
 
-- [ ] **Step 3: Verify the smoke test can fail**
+- [x] **Step 3: Verify the smoke test can fail**
 
 A gate that cannot go red is not a gate.
 
@@ -3542,7 +3542,7 @@ mv tools/smoke.gd.bak tools/smoke.gd
 
 Expected: `SMOKE FAILURE: deliberate failure` and `exit=1`.
 
-- [ ] **Step 4: Create a minimal main scene**
+- [x] **Step 4: Create a minimal main scene**
 
 ```bash
 mkdir -p scenes src/presentation
@@ -3578,7 +3578,7 @@ printf '\n[application]\n\nrun/main_scene="res://scenes/main.tscn"\n' >> project
 
 Verify the merge did not duplicate the `[application]` section; if it did, hand-edit `project.godot` so `run/main_scene` sits inside the existing one.
 
-- [ ] **Step 5: Write the screenshot tool**
+- [x] **Step 5: Write the screenshot tool**
 
 ```bash
 cat > tools/screenshot.gd <<'GD'
@@ -3628,7 +3628,7 @@ func _process(_delta: float) -> bool:
 GD
 ```
 
-- [ ] **Step 6: Verify the screenshot tool produces a PNG**
+- [x] **Step 6: Verify the screenshot tool produces a PNG**
 
 Run: `./tools/godot.sh --path . -s tools/screenshot.gd -- --out=/tmp/rp1_shot.png`
 Expected: a window flashes, `wrote /tmp/rp1_shot.png`, exit 0.
@@ -3640,7 +3640,7 @@ Then confirm the headless failure path is explicit rather than silent:
 Run: `./tools/godot.sh --headless --path . -s tools/screenshot.gd -- --out=/tmp/x.png; echo "exit=$?"`
 Expected: `screenshot: no framebuffer` and `exit=1`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add tools/smoke.gd tools/screenshot.gd scenes/main.tscn src/presentation/main.gd project.godot
@@ -3650,7 +3650,7 @@ Screenshots need a real rendering driver; --headless has no framebuffer.
 The smoke test stays genuinely headless."
 ```
 
-- [ ] **Step 8: Mark the task complete**
+- [x] **Step 8: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
