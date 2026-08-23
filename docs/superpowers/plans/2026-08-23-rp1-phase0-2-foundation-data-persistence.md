@@ -110,7 +110,7 @@ deliberately absent here.
 - Consumes: nothing
 - Produces: `./tools/godot.sh` — forwards all arguments to the Godot 4.7.2 binary; honours `$GODOT_BIN` when set, else falls back to `~/Applications/Godot.app/Contents/MacOS/Godot`. Every later task invokes Godot only through this script.
 
-- [ ] **Step 1: Create the Godot wrapper**
+- [x] **Step 1: Create the Godot wrapper**
 
 ```bash
 mkdir -p tools
@@ -142,12 +142,12 @@ SH
 chmod +x tools/godot.sh
 ```
 
-- [ ] **Step 2: Verify the wrapper reports the right version**
+- [x] **Step 2: Verify the wrapper reports the right version**
 
 Run: `./tools/godot.sh --version`
 Expected: `4.7.2.stable.official.<hash>` with **no** `.mono` in the string.
 
-- [ ] **Step 3: Create the project file**
+- [x] **Step 3: Create the project file**
 
 ```bash
 cat > project.godot <<'CFG'
@@ -179,7 +179,7 @@ CFG
 
 `default_texture_filter=0` is `Nearest`. This is the project-wide setting the art constants depend on; it is never overridden per-texture.
 
-- [ ] **Step 4: Create a placeholder icon**
+- [x] **Step 4: Create a placeholder icon**
 
 ```bash
 cat > icon.svg <<'SVG'
@@ -190,21 +190,21 @@ cat > icon.svg <<'SVG'
 SVG
 ```
 
-- [ ] **Step 5: Verify the project boots headless and exits cleanly**
+- [x] **Step 5: Verify the project boots headless and exits cleanly**
 
 Run: `./tools/godot.sh --headless --path . --import`
 Expected: exit code 0, and a `.godot/` directory is created.
 
 Check with: `echo $?` and `ls .godot/global_script_class_cache.cfg`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot icon.svg tools/godot.sh
 git commit -m "feat: bootstrap Godot 4.7.2 project with pixel-art render settings"
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
