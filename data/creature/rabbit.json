@@ -1,0 +1,3 @@
+{"id": "rabbit", "category": "creature", "display_name": "Rabbit",
+ "sprite": "res://assets/characters/rabbit.png", "wander_radius": 6,
+ "flees_player": true, "tags": ["animal", "prey"]}

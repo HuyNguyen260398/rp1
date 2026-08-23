@@ -1742,11 +1742,20 @@ func _read_json(path: String, errors: PackedStringArray) -> Variant:
 		return null
 	var text: String = f.get_as_text()
 	f.close()
-	var parsed: Variant = JSON.parse_string(text)
-	if parsed == null:
-		errors.append("%s: malformed JSON" % path)
+	# JSON.new().parse() rather than the static JSON.parse_string(): the
+	# static helper pushes an engine-level error on malformed input, which
+	# is noise in the log and fails the test that deliberately feeds it bad
+	# JSON. The instance API returns an error code quietly and carries the
+	# message and line number, which makes a better report anyway.
+	var json: JSON = JSON.new()
+	var err: int = json.parse(text)
+	if err != OK:
+		errors.append(
+			"%s: malformed JSON at line %d: %s"
+			% [path, json.get_error_line(), json.get_error_message()]
+		)
 		return null
-	return parsed
+	return json.data
 
 
 func load_from_dir(root: String) -> PackedStringArray:
@@ -2793,7 +2802,16 @@ func to_json_string() -> String:
 
 
 static func from_json_string(text: String) -> DecodeResult:
-	var parsed: Variant = JSON.parse_string(text)
+	# Instance API, not JSON.parse_string() -- see the note in
+	# ContentRegistry._read_json. The static helper pushes an engine error
+	# that GUT counts as a test failure.
+	var json: JSON = JSON.new()
+	if json.parse(text) != OK:
+		return DecodeResult.failure(
+			"id_map: malformed JSON at line %d: %s"
+			% [json.get_error_line(), json.get_error_message()]
+		)
+	var parsed: Variant = json.data
 	if not (parsed is Dictionary):
 		return DecodeResult.failure("id_map: malformed JSON")
 	var m: IdMap = IdMap.new()
