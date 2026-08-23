@@ -2124,7 +2124,7 @@ Header layout, all little-endian, **outside** the compressed region:
 
 Keeping the header plaintext is what lets a loader read the version and decide how to parse **before** decompressing. `FileAccess.open_compressed()` would bury it inside the compressed stream.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_chunk_codec.gd <<'GD'
@@ -2240,12 +2240,12 @@ func test_future_version_is_rejected_with_a_clear_message() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "ChunkCodec" not declared in the current scope`.
 
-- [ ] **Step 3: Implement DecodeResult and ChunkCodec**
+- [x] **Step 3: Implement DecodeResult and ChunkCodec**
 
 ```bash
 mkdir -p src/core/save
@@ -2402,12 +2402,12 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 chunk-codec tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/decode_result.gd src/core/save/chunk_codec.gd tests/test_chunk_codec.gd
@@ -2418,7 +2418,7 @@ readable before a parse strategy is chosen. open_compressed() would
 bury it inside the stream."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
