@@ -744,7 +744,7 @@ git commit -m "docs: mark Task 4 (Coordinate conversion) complete"
   - Accessors taking a local `Vector2i`: `get_terrain/set_terrain`, `get_floor/set_floor`, `get_object/set_object`, `get_height/set_height`, `get_flags/set_flags`, each `-> int` / `-> void`; plus `is_walkable(l: Vector2i) -> bool`.
   - Every setter sets `dirty = true`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_chunk.gd <<'GD'
@@ -834,12 +834,12 @@ func test_walkable_flag() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Chunk" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Chunk**
+- [x] **Step 3: Implement Chunk**
 
 ```bash
 cat > src/core/chunk.gd <<'GD'
@@ -935,19 +935,19 @@ func is_walkable(l: Vector2i) -> bool:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 10 chunk tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/chunk.gd tests/test_chunk.gd
 git commit -m "feat: add Chunk with five parallel byte columns"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
