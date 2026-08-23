@@ -1488,7 +1488,7 @@ git commit -m "docs: mark Task 7 (Content schema validator) complete"
 
 Numeric ids are assigned in **sorted string order** so a given set of content always produces the same mapping, which makes tests deterministic.
 
-- [ ] **Step 1: Create the schemas and seed content**
+- [x] **Step 1: Create the schemas and seed content**
 
 ```bash
 mkdir -p data/schema data/terrain data/object data/creature
@@ -1544,7 +1544,7 @@ cat > data/creature/rabbit.json <<'JSON'
 JSON
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 ```bash
 cat > tests/test_content_registry.gd <<'GD'
@@ -1653,12 +1653,12 @@ func test_real_content_is_not_a_placeholder() -> void:
 GD
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "ContentRegistry" not declared in the current scope`.
 
-- [ ] **Step 4: Implement ContentRegistry**
+- [x] **Step 4: Implement ContentRegistry**
 
 ```bash
 cat > src/core/content_registry.gd <<'GD'
@@ -1793,12 +1793,12 @@ func load_from_dir(root: String) -> PackedStringArray:
 GD
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 registry tests green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/content_registry.gd data tests/test_content_registry.gd
@@ -1808,7 +1808,7 @@ Numeric ids are assigned in sorted string order so two registries built
 from the same data always agree."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
