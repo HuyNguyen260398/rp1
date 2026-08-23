@@ -2446,7 +2446,7 @@ Header uses magic `RP1E`; offset 8 holds `entity_count` u32 and offset 12 holds 
 
 Only live rows are written, so despawned slots do not accumulate in save files.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_entity_codec.gd <<'GD'
@@ -2527,12 +2527,12 @@ func test_count_larger_than_payload_is_rejected() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "EntityCodec" not declared in the current scope`.
 
-- [ ] **Step 3: Implement EntityCodec**
+- [x] **Step 3: Implement EntityCodec**
 
 ```bash
 cat > src/core/save/entity_codec.gd <<'GD'
@@ -2637,19 +2637,19 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 8 entity-codec tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/entity_codec.gd tests/test_entity_codec.gd
 git commit -m "feat: add entity codec preserving next_id across save and load"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
