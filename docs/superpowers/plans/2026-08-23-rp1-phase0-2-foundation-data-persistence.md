@@ -2679,7 +2679,7 @@ git commit -m "docs: mark Task 11 (Entity codec) complete"
 
 This is the highest-value rule in the whole design: without it, inserting one new tile type renumbers the registry and corrupts every existing world.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_id_map.gd <<'GD'
@@ -2766,12 +2766,12 @@ func test_id_zero_always_translates_to_unknown() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "IdMap" not declared in the current scope`.
 
-- [ ] **Step 3: Implement IdMap**
+- [x] **Step 3: Implement IdMap**
 
 ```bash
 cat > src/core/save/id_map.gd <<'GD'
@@ -2850,12 +2850,12 @@ func build_translation(registry: ContentRegistry) -> PackedInt32Array:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 8 id-map tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/id_map.gd tests/test_id_map.gd
@@ -2865,7 +2865,7 @@ Removed content becomes a placeholder that retains its original string,
 so saves round-trip losslessly rather than being silently zeroed."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
