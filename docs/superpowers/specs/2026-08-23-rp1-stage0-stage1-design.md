@@ -2,7 +2,7 @@
 
 **Status:** approved
 **Date:** 2026-08-23
-**Supersedes:** `rp1-game-dev-plan.md` §§3, 6, 7 (the draft plan remains the source for art direction, asset sourcing, and the Stage 2+ roadmap)
+**Supersedes:** `docs/rp1-game-dev-plan.md` §§3, 6, 7 (the draft plan remains the source for art direction, asset sourcing, and the Stage 2+ roadmap)
 
 **Working title:** RP1
 **Engine:** Godot 4.7.2 stable, standard (non-Mono) build, GDScript only
