@@ -1839,7 +1839,7 @@ git commit -m "docs: mark Task 8 (Content registry) complete"
   - `in_bounds(w: Vector2i) -> bool`.
   - `dirty_chunk_coords() -> Array[Vector2i]`; `clear_dirty() -> void`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_zone.gd <<'GD'
@@ -1950,12 +1950,12 @@ func test_fifty_thousand_writes_read_back_correctly() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Zone" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Zone**
+- [x] **Step 3: Implement Zone**
 
 ```bash
 cat > src/core/zone.gd <<'GD'
@@ -2070,19 +2070,19 @@ func is_walkable(w: Vector2i) -> bool:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 13 zone tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/zone.gd tests/test_zone.gd
 git commit -m "feat: add Zone with world-coordinate tile access and dirty tracking"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
