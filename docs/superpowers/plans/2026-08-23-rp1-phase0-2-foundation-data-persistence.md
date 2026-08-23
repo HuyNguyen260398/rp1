@@ -2364,6 +2364,11 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 		)
 
 	var body: PackedByteArray = bytes.slice(HEADER_BYTES)
+	if body.is_empty():
+		# decompress() pushes an engine error on a zero-length buffer, and a
+		# header with no payload is detectably corrupt without asking it.
+		return DecodeResult.failure("chunk: header present but payload is empty (truncated?)")
+
 	var payload: PackedByteArray
 	match bytes.decode_u8(OFF_COMPRESSION):
 		COMPRESSION_NONE:
