@@ -3201,7 +3201,10 @@ static func load_zone(
 	if not FileAccess.file_exists(meta_path):
 		return DecodeResult.failure("zone '%s': no zone_meta.json at %s" % [zone_id, zdir])
 
-	var meta: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
+	var meta_json: JSON = JSON.new()
+	if meta_json.parse(FileAccess.get_file_as_string(meta_path)) != OK:
+		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
+	var meta: Variant = meta_json.data
 	if not (meta is Dictionary):
 		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
 
