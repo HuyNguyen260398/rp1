@@ -79,7 +79,18 @@ static func _region_size(def: Dictionary) -> Vector2i:
 	return Vector2i(int(rect[2]), int(rect[3]))
 
 
-## A sprite taller than one tile is drawn with its base on the tile, not
-## its top. y_offset carries that shift; oak_tree.json declares -16.
+## Where a sprite sits relative to its tile.
+##
+## Godot centres an oversized atlas region on the tile, so a 48px sprite on
+## a 32px tile hangs 8px below it. Base alignment is therefore (H - T) / 2,
+## derived from geometry so that any oversized art stands on its tile with
+## no data at all.
+##
+## y_offset is a deliberate nudge on top of that, for art that should NOT
+## stand flat -- a hanging sign, a bird. Negative moves the sprite up,
+## which is the intuitive direction. It is subtracted because the engine
+## subtracts texture_origin from the draw position, so the sign flips here
+## rather than in every content file.
 static func _texture_origin(def: Dictionary) -> Vector2i:
-	return Vector2i(0, int(def.get("y_offset", 0)))
+	var base_align: int = (_region_size(def).y - TILE_SIZE.y) / 2
+	return Vector2i(0, base_align - int(def.get("y_offset", 0)))

@@ -68,20 +68,39 @@ func test_absent_sprite_rect_defaults_to_the_tile_size() -> void:
 	assert_eq(grass.texture_region_size, Vector2i(32, 32), "grass falls back to 32x32")
 
 
-func test_y_offset_becomes_the_texture_origin() -> void:
-	# oak_tree.json declares y_offset -16, so a 48px sprite sits with its
-	# base on its tile instead of floating half a tile high.
+func test_oversized_sprites_sit_on_their_tile() -> void:
+	# Godot centres an oversized atlas region on its tile, which leaves a
+	# 48px sprite hanging 8px below a 32px tile. Base alignment is
+	# (H - T) / 2, derived from geometry rather than authored per asset.
+	# Verified against a real framebuffer: origin 8 puts the oak's base
+	# exactly on the tile's bottom edge.
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
 	var oak: TileSetAtlasSource = _source_of(res, "oak_tree")
 	var td: TileData = oak.get_tile_data(Vector2i.ZERO, 0)
-	assert_eq(td.texture_origin, Vector2i(0, -16), "y_offset reaches texture_origin")
+	assert_eq(td.texture_origin, Vector2i(0, 8), "a 48px sprite lifts 8 to stand on a 32px tile")
 
 
-func test_no_offset_means_no_origin_shift() -> void:
+func test_tile_sized_sprites_need_no_shift() -> void:
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
 	var grass: TileSetAtlasSource = _source_of(res, "grass")
 	var td: TileData = grass.get_tile_data(Vector2i.ZERO, 0)
-	assert_eq(td.texture_origin, Vector2i.ZERO, "grass is not shifted")
+	assert_eq(td.texture_origin, Vector2i.ZERO, "a 32px sprite is already aligned")
+
+
+func test_y_offset_nudges_from_the_base_aligned_position() -> void:
+	# y_offset is a deliberate override for art that should not stand flat
+	# on its tile -- a hanging sign, say. Negative moves the sprite up,
+	# which is the intuitive direction; texture_origin is subtracted by the
+	# engine, so the sign flips on the way in.
+	_r.register({
+		"id": "hanging_sign", "category": "object", "display_name": "Sign",
+		"sprite": "res://assets/objects/oak_tree.png",
+		"sprite_rect": [0, 0, 32, 48], "y_offset": -10,
+	})
+	var res: TilesetBuildResult = TilesetBuilder.build(_r)
+	var sign_src: TileSetAtlasSource = _source_of(res, "hanging_sign")
+	var td: TileData = sign_src.get_tile_data(Vector2i.ZERO, 0)
+	assert_eq(td.texture_origin, Vector2i(0, 18), "base-align 8, plus 10 more for a -10 nudge")
 
 
 func test_a_missing_sprite_is_recorded_and_skipped() -> void:

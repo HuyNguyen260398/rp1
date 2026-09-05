@@ -1,4 +1,4 @@
 {"id": "oak_tree", "category": "object", "display_name": "Oak Tree",
  "sprite": "res://assets/objects/oak_tree.png", "sprite_rect": [0, 0, 32, 48],
- "y_offset": -16, "blocks_movement": true, "blocks_light": true,
+ "y_offset": 0, "blocks_movement": true, "blocks_light": true,
  "harvestable": {"item": "wood", "amount": [2, 4]}, "tags": ["natural", "flammable", "tree"]}
