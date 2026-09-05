@@ -68,6 +68,9 @@ written for Godot 3. Correct that once here rather than every session.
 - Tile size is 32×32. Character sprites are 32×64.
 - Texture filter is `Nearest`, project-wide. Never override per-texture.
 - Palette is fixed — see `docs/palette.md`. Do not introduce new colours.
+- Imported art is **re-quantized onto the palette** at import time, never used
+  as-authored. A palette that governs only the art we draw ourselves is a style
+  guide, not a constraint.
 
 ## Assets
 
