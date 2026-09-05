@@ -110,19 +110,29 @@ already lists it in `GUARDED_ROOTS`, so it is covered from the first file.
 
 `extends RefCounted`. No nodes, no `get_tree()`, no `.tscn`.
 
+The result is its own file, `src/systems/tileset_build_result.gd`, rather than an
+inner class — matching the existing `src/core/save/decode_result.gd` precedent.
+
+```gdscript
+class_name TilesetBuildResult
+extends RefCounted
+
+var tileset: TileSet
+var source_id_by_numeric: Dictionary   ## int -> int (TileSet source id)
+var errors: PackedStringArray
+
+## The source id for a content id, or -1 when there is none. -1 is what
+## TileMapLayer itself uses for "no cell", so callers pass it through.
+func source_for(numeric_id: int) -> int
+```
+
 ```gdscript
 class_name TilesetBuilder
+extends RefCounted
 
 const TILE_SIZE: Vector2i = Vector2i(32, 32)
 
-## Result of a build: the assembled TileSet plus the mapping a renderer
-## needs to turn a numeric content id into a cell to paint.
-class BuildResult extends RefCounted:
-    var tileset: TileSet
-    var source_id_by_numeric: Dictionary   ## int -> int (TileSet source id)
-    var errors: PackedStringArray
-
-static func build(registry: ContentRegistry) -> BuildResult
+static func build(registry: ContentRegistry) -> TilesetBuildResult
 ```
 
 For each definition in the registry:
