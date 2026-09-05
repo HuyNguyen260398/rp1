@@ -13,6 +13,10 @@ var object_layer: TileMapLayer = null
 
 var _build: TilesetBuildResult = null
 
+## Set this and _process keeps the view current. Left null, the renderer
+## is inert and only repaints when called explicitly.
+var zone: Zone = null
+
 
 func _ready() -> void:
 	terrain_layer = _make_layer("TerrainLayer", false)
@@ -83,3 +87,22 @@ func cells_painted() -> int:
 	for layer: TileMapLayer in [terrain_layer, floor_layer, object_layer]:
 		total += layer.get_used_cells().size()
 	return total
+
+
+## Repaints only the chunks the zone has marked dirty, then clears the
+## flags. This is the only repaint permitted from _process: a full
+## render_zone() every frame would be 16,384 set_cell calls per frame.
+func refresh_dirty(p_zone: Zone) -> int:
+	var dirty: Array[Vector2i] = p_zone.dirty_chunk_coords()
+	if dirty.is_empty():
+		return 0
+	var painted: int = 0
+	for c: Vector2i in dirty:
+		painted += _paint_chunk(p_zone, c)
+	p_zone.clear_dirty()
+	return painted
+
+
+func _process(_delta: float) -> void:
+	if zone != null:
+		refresh_dirty(zone)
