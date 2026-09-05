@@ -30,6 +30,9 @@ static func build(registry: ContentRegistry) -> TilesetBuildResult:
 	numerics.sort()
 
 	for numeric: int in numerics:
+		# Content named in a save but absent from this build has no art.
+		if registry.is_placeholder(numeric):
+			continue
 		var def: Dictionary = registry.def_of(numeric)
 		if not TILE_CATEGORIES.has(str(def.get("category", ""))):
 			continue
@@ -37,17 +40,46 @@ static func build(registry: ContentRegistry) -> TilesetBuildResult:
 		if sprite_path.is_empty():
 			result.errors.append("%s: no sprite path" % str(def.get("id", numeric)))
 			continue
+
+		# Checked before load() rather than testing the result for null:
+		# load() on a missing path pushes an engine-level error, which is
+		# log noise and fails the test that deliberately feeds it one.
+		# Same reasoning as ContentRegistry preferring JSON.new().parse()
+		# over the static helper.
+		if not ResourceLoader.exists(sprite_path):
+			result.errors.append("%s: cannot load %s" % [str(def.get("id", numeric)), sprite_path])
+			continue
 		var tex: Texture2D = load(sprite_path) as Texture2D
 		if tex == null:
-			result.errors.append("%s: cannot load %s" % [str(def.get("id", numeric)), sprite_path])
+			result.errors.append("%s: not a texture: %s" % [str(def.get("id", numeric)), sprite_path])
 			continue
 
 		var src: TileSetAtlasSource = TileSetAtlasSource.new()
 		src.texture = tex
-		src.texture_region_size = TILE_SIZE
+		src.texture_region_size = _region_size(def)
 		src.create_tile(Vector2i.ZERO)
+
+		var td: TileData = src.get_tile_data(Vector2i.ZERO, 0)
+		td.texture_origin = _texture_origin(def)
 
 		var source_id: int = result.tileset.add_source(src)
 		result.source_id_by_numeric[numeric] = source_id
 
 	return result
+
+
+## sprite_rect is [x, y, w, h]; only the size is used, since each
+## definition currently owns its whole PNG.
+static func _region_size(def: Dictionary) -> Vector2i:
+	if not def.has("sprite_rect"):
+		return TILE_SIZE
+	var rect: Array = def["sprite_rect"]
+	if rect.size() != 4:
+		return TILE_SIZE
+	return Vector2i(int(rect[2]), int(rect[3]))
+
+
+## A sprite taller than one tile is drawn with its base on the tile, not
+## its top. y_offset carries that shift; oak_tree.json declares -16.
+static func _texture_origin(def: Dictionary) -> Vector2i:
+	return Vector2i(0, int(def.get("y_offset", 0)))
