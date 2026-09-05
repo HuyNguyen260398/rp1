@@ -19,6 +19,17 @@ var zone: Zone = null
 
 
 func _ready() -> void:
+	_ensure_layers()
+
+
+## Builds the three layers once, whether that happens via _ready() in the
+## normal scene-tree path or via setup() when a tool drives the renderer
+## directly. _ready() does not fire synchronously on add_child() from
+## SceneTree._init(), so depending on it alone made the renderer unusable
+## headless -- which is exactly where CI drives it.
+func _ensure_layers() -> void:
+	if terrain_layer != null:
+		return
 	terrain_layer = _make_layer("TerrainLayer", false)
 	floor_layer = _make_layer("FloorLayer", false)
 	object_layer = _make_layer("ObjectLayer", true)
@@ -36,6 +47,7 @@ func _make_layer(layer_name: String, y_sort: bool) -> TileMapLayer:
 ## which are reported rather than fatal: one missing PNG must not blank
 ## the world.
 func setup(registry: ContentRegistry) -> PackedStringArray:
+	_ensure_layers()
 	_build = TilesetBuilder.build(registry)
 	for layer: TileMapLayer in [terrain_layer, floor_layer, object_layer]:
 		layer.tile_set = _build.tileset
