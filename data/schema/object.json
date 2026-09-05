@@ -1,0 +1,8 @@
+{
+  "category": "object",
+  "required": {"id": "String", "category": "String", "display_name": "String", "sprite": "String"},
+  "optional": {
+    "sprite_rect": "Array", "y_offset": "int", "blocks_movement": "bool",
+    "blocks_light": "bool", "harvestable": "Dictionary", "tags": "Array"
+  }
+}

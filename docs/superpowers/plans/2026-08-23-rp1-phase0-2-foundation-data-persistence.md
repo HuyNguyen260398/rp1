@@ -110,7 +110,7 @@ deliberately absent here.
 - Consumes: nothing
 - Produces: `./tools/godot.sh` — forwards all arguments to the Godot 4.7.2 binary; honours `$GODOT_BIN` when set, else falls back to `~/Applications/Godot.app/Contents/MacOS/Godot`. Every later task invokes Godot only through this script.
 
-- [ ] **Step 1: Create the Godot wrapper**
+- [x] **Step 1: Create the Godot wrapper**
 
 ```bash
 mkdir -p tools
@@ -142,12 +142,12 @@ SH
 chmod +x tools/godot.sh
 ```
 
-- [ ] **Step 2: Verify the wrapper reports the right version**
+- [x] **Step 2: Verify the wrapper reports the right version**
 
 Run: `./tools/godot.sh --version`
 Expected: `4.7.2.stable.official.<hash>` with **no** `.mono` in the string.
 
-- [ ] **Step 3: Create the project file**
+- [x] **Step 3: Create the project file**
 
 ```bash
 cat > project.godot <<'CFG'
@@ -179,7 +179,7 @@ CFG
 
 `default_texture_filter=0` is `Nearest`. This is the project-wide setting the art constants depend on; it is never overridden per-texture.
 
-- [ ] **Step 4: Create a placeholder icon**
+- [x] **Step 4: Create a placeholder icon**
 
 ```bash
 cat > icon.svg <<'SVG'
@@ -190,21 +190,21 @@ cat > icon.svg <<'SVG'
 SVG
 ```
 
-- [ ] **Step 5: Verify the project boots headless and exits cleanly**
+- [x] **Step 5: Verify the project boots headless and exits cleanly**
 
 Run: `./tools/godot.sh --headless --path . --import`
 Expected: exit code 0, and a `.godot/` directory is created.
 
 Check with: `echo $?` and `ls .godot/global_script_class_cache.cfg`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot icon.svg tools/godot.sh
 git commit -m "feat: bootstrap Godot 4.7.2 project with pixel-art render settings"
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -229,7 +229,7 @@ git commit -m "docs: mark Task 1 (Project bootstrap and Godot wrapper) complete"
 - Consumes: `./tools/godot.sh` from Task 1
 - Produces: `./tools/run_tests.sh` — runs the import pass then the full GUT suite; exits 0 when all tests pass, non-zero otherwise. Every later task runs its tests through this script. Test files live in `tests/`, are named `test_*.gd`, and extend `GutTest`.
 
-- [ ] **Step 1: Vendor GUT 9.7.1**
+- [x] **Step 1: Vendor GUT 9.7.1**
 
 GUT is committed to the repo rather than installed from the Asset Library, so CI needs no network and the version cannot drift.
 
@@ -242,9 +242,12 @@ rm -rf /tmp/gut.zip /tmp/gutsrc
 ls addons/gut/gut_cmdln.gd
 ```
 
-- [ ] **Step 2: Write the test runner**
+- [x] **Step 2: Write the test runner**
 
-The import pass is mandatory and easy to forget. Without it GUT prints `Some GUT class_names have not been imported` **and exits 0**, so a broken suite reports success. The runner also greps for that message and forces a failure, because an exit code alone cannot be trusted here.
+GUT is quietly permissive in two ways that would each let a broken suite report success, and the runner closes both:
+
+1. **Missing import pass.** Without it GUT prints `Some GUT class_names have not been imported` **and exits 0**.
+2. **Unparseable test file.** A test script with a syntax error is skipped with only a `[GUT WARNING] Ignoring script ...` line, and the run **still exits 0**. Found during execution: a `preload` of a not-yet-written file made GUT report "All tests passed" while silently running one script fewer. The runner therefore also asserts that the script count in GUT's summary matches the number of `test_*.gd` files on disk.
 
 ```bash
 cat > tools/run_tests.sh <<'SH'
@@ -272,7 +275,7 @@ SH
 chmod +x tools/run_tests.sh
 ```
 
-- [ ] **Step 3: Write the failing harness test**
+- [x] **Step 3: Write the failing harness test**
 
 ```bash
 mkdir -p tests
@@ -293,12 +296,12 @@ func test_byte_encoding_available() -> void:
 GD
 ```
 
-- [ ] **Step 4: Run the suite and verify it passes**
+- [x] **Step 4: Run the suite and verify it passes**
 
 Run: `./tools/run_tests.sh`
 Expected: `All tests passed!`, 2 passing tests, exit code 0.
 
-- [ ] **Step 5: Verify a failing test actually fails the run**
+- [x] **Step 5: Verify a failing test actually fails the run**
 
 A test harness that cannot report failure is worse than none. Prove the signal works before trusting it.
 
@@ -314,7 +317,7 @@ rm tests/test_temp_fail.gd
 
 Expected: `1 failing tests`, `exit=1`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add addons/gut tools/run_tests.sh tests/test_harness.gd
@@ -325,7 +328,7 @@ resolve GutTest and exits 0, which would make a broken suite look
 green in CI."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -351,7 +354,7 @@ git commit -m "docs: mark Task 2 (GUT test harness) complete"
 
 The guard is an **allowlist** of permitted base classes plus a banned-identifier scan. A blocklist containing only `extends Node` would pass `extends Node2D`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_guard.gd <<'GD'
@@ -423,12 +426,12 @@ func test_multiple_violations_are_all_reported() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
-Expected: FAIL — `res://tools/guard.gd` does not exist, so the `preload` fails to compile.
+Expected: FAIL with exit code 3 — `res://tools/guard.gd` does not exist, so the `preload` fails to compile. Note this is caught by the runner's skipped-script check, not by GUT itself: GUT alone reports "All tests passed" and exits 0 here.
 
-- [ ] **Step 3: Implement the guard**
+- [x] **Step 3: Implement the guard**
 
 ```bash
 cat > tools/guard.gd <<'GD'
@@ -523,12 +526,12 @@ func _init() -> void:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all 8 guard tests green.
 
-- [ ] **Step 5: Verify the gate works end to end**
+- [x] **Step 5: Verify the gate works end to end**
 
 ```bash
 mkdir -p src/core
@@ -543,7 +546,7 @@ printf 'extends RefCounted\n' > src/core/placeholder.gd
 
 Expected: `clean_exit=0` then `violation_exit=1`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/guard.gd tests/test_guard.gd src/core/placeholder.gd
@@ -553,7 +556,7 @@ Allowlist of base classes plus banned identifiers. A blocklist
 containing only 'extends Node' would pass 'extends Node2D'."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -580,7 +583,7 @@ git commit -m "docs: mark Task 3 (Architecture guard gate) complete"
 
 Negative-coordinate floor division is where off-by-one bugs live, so this gets its own module and an exhaustive round-trip test.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_coords.gd <<'GD'
@@ -650,12 +653,12 @@ func test_local_index_is_unique_across_the_chunk() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Coords" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Coords**
+- [x] **Step 3: Implement Coords**
 
 Integer floor division is used rather than `floori(float(a) / float(b))` because it is exact at every magnitude and involves no float round-trip.
 
@@ -698,12 +701,12 @@ GD
 rm -f src/core/placeholder.gd
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 7 coords tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/coords.gd tests/test_coords.gd
@@ -712,7 +715,7 @@ git add -A src/core
 git commit -m "feat: add coordinate conversion with exact negative floor division"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -741,7 +744,7 @@ git commit -m "docs: mark Task 4 (Coordinate conversion) complete"
   - Accessors taking a local `Vector2i`: `get_terrain/set_terrain`, `get_floor/set_floor`, `get_object/set_object`, `get_height/set_height`, `get_flags/set_flags`, each `-> int` / `-> void`; plus `is_walkable(l: Vector2i) -> bool`.
   - Every setter sets `dirty = true`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_chunk.gd <<'GD'
@@ -831,12 +834,12 @@ func test_walkable_flag() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Chunk" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Chunk**
+- [x] **Step 3: Implement Chunk**
 
 ```bash
 cat > src/core/chunk.gd <<'GD'
@@ -932,19 +935,19 @@ func is_walkable(l: Vector2i) -> bool:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 10 chunk tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/chunk.gd tests/test_chunk.gd
 git commit -m "feat: add Chunk with five parallel byte columns"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -975,7 +978,7 @@ git commit -m "docs: mark Task 5 (Chunk tile storage) complete"
 
 Entities belong to a **zone**, not a chunk, so crossing a chunk boundary is a position update and nothing else. Slots are recycled through a free list, but **ids are never reused within a save**, so a dangling reference fails loudly instead of silently aliasing a different entity.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_entity_store.gd <<'GD'
@@ -1078,12 +1081,12 @@ func test_next_id_is_preserved_across_save_and_load() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "EntityStore" not declared in the current scope`.
 
-- [ ] **Step 3: Implement EntityStore**
+- [x] **Step 3: Implement EntityStore**
 
 ```bash
 cat > src/core/entity_store.gd <<'GD'
@@ -1230,12 +1233,12 @@ func restore_row(
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 12 entity-store tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/entity_store.gd tests/test_entity_store.gd
@@ -1245,7 +1248,7 @@ Ids are never reused within a save so a stale reference fails loudly
 rather than aliasing a different entity."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -1281,7 +1284,7 @@ Schema shape (a plain JSON dictionary):
 
 This is what makes bulk agent-generated content safe to accept: without it, "add 20 furniture types" produces twenty files with three subtly different shapes, discovered only at runtime.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_schema_validator.gd <<'GD'
@@ -1366,12 +1369,12 @@ func test_all_problems_are_reported_at_once() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "SchemaValidator" not declared in the current scope`.
 
-- [ ] **Step 3: Implement SchemaValidator**
+- [x] **Step 3: Implement SchemaValidator**
 
 ```bash
 cat > src/core/schema_validator.gd <<'GD'
@@ -1437,12 +1440,12 @@ static func validate(def: Dictionary, schema: Dictionary) -> PackedStringArray:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 9 validator tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/schema_validator.gd tests/test_schema_validator.gd
@@ -1452,7 +1455,7 @@ Rejects unknown fields, which is what catches typos like
 'block_movement' that would otherwise silently produce a walkable tree."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -1485,7 +1488,7 @@ git commit -m "docs: mark Task 7 (Content schema validator) complete"
 
 Numeric ids are assigned in **sorted string order** so a given set of content always produces the same mapping, which makes tests deterministic.
 
-- [ ] **Step 1: Create the schemas and seed content**
+- [x] **Step 1: Create the schemas and seed content**
 
 ```bash
 mkdir -p data/schema data/terrain data/object data/creature
@@ -1541,7 +1544,7 @@ cat > data/creature/rabbit.json <<'JSON'
 JSON
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 ```bash
 cat > tests/test_content_registry.gd <<'GD'
@@ -1650,12 +1653,12 @@ func test_real_content_is_not_a_placeholder() -> void:
 GD
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "ContentRegistry" not declared in the current scope`.
 
-- [ ] **Step 4: Implement ContentRegistry**
+- [x] **Step 4: Implement ContentRegistry**
 
 ```bash
 cat > src/core/content_registry.gd <<'GD'
@@ -1739,11 +1742,20 @@ func _read_json(path: String, errors: PackedStringArray) -> Variant:
 		return null
 	var text: String = f.get_as_text()
 	f.close()
-	var parsed: Variant = JSON.parse_string(text)
-	if parsed == null:
-		errors.append("%s: malformed JSON" % path)
+	# JSON.new().parse() rather than the static JSON.parse_string(): the
+	# static helper pushes an engine-level error on malformed input, which
+	# is noise in the log and fails the test that deliberately feeds it bad
+	# JSON. The instance API returns an error code quietly and carries the
+	# message and line number, which makes a better report anyway.
+	var json: JSON = JSON.new()
+	var err: int = json.parse(text)
+	if err != OK:
+		errors.append(
+			"%s: malformed JSON at line %d: %s"
+			% [path, json.get_error_line(), json.get_error_message()]
+		)
 		return null
-	return parsed
+	return json.data
 
 
 func load_from_dir(root: String) -> PackedStringArray:
@@ -1781,12 +1793,12 @@ func load_from_dir(root: String) -> PackedStringArray:
 GD
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 registry tests green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/content_registry.gd data tests/test_content_registry.gd
@@ -1796,7 +1808,7 @@ Numeric ids are assigned in sorted string order so two registries built
 from the same data always agree."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -1827,7 +1839,7 @@ git commit -m "docs: mark Task 8 (Content registry) complete"
   - `in_bounds(w: Vector2i) -> bool`.
   - `dirty_chunk_coords() -> Array[Vector2i]`; `clear_dirty() -> void`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_zone.gd <<'GD'
@@ -1938,12 +1950,12 @@ func test_fifty_thousand_writes_read_back_correctly() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Zone" not declared in the current scope`.
 
-- [ ] **Step 3: Implement Zone**
+- [x] **Step 3: Implement Zone**
 
 ```bash
 cat > src/core/zone.gd <<'GD'
@@ -2058,19 +2070,19 @@ func is_walkable(w: Vector2i) -> bool:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 13 zone tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/zone.gd tests/test_zone.gd
 git commit -m "feat: add Zone with world-coordinate tile access and dirty tracking"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -2112,7 +2124,7 @@ Header layout, all little-endian, **outside** the compressed region:
 
 Keeping the header plaintext is what lets a loader read the version and decide how to parse **before** decompressing. `FileAccess.open_compressed()` would bury it inside the compressed stream.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_chunk_codec.gd <<'GD'
@@ -2228,12 +2240,12 @@ func test_future_version_is_rejected_with_a_clear_message() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "ChunkCodec" not declared in the current scope`.
 
-- [ ] **Step 3: Implement DecodeResult and ChunkCodec**
+- [x] **Step 3: Implement DecodeResult and ChunkCodec**
 
 ```bash
 mkdir -p src/core/save
@@ -2352,6 +2364,11 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 		)
 
 	var body: PackedByteArray = bytes.slice(HEADER_BYTES)
+	if body.is_empty():
+		# decompress() pushes an engine error on a zero-length buffer, and a
+		# header with no payload is detectably corrupt without asking it.
+		return DecodeResult.failure("chunk: header present but payload is empty (truncated?)")
+
 	var payload: PackedByteArray
 	match bytes.decode_u8(OFF_COMPRESSION):
 		COMPRESSION_NONE:
@@ -2385,12 +2402,12 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 chunk-codec tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/decode_result.gd src/core/save/chunk_codec.gd tests/test_chunk_codec.gd
@@ -2401,7 +2418,7 @@ readable before a parse strategy is chosen. open_compressed() would
 bury it inside the stream."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -2429,7 +2446,7 @@ Header uses magic `RP1E`; offset 8 holds `entity_count` u32 and offset 12 holds 
 
 Only live rows are written, so despawned slots do not accumulate in save files.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_entity_codec.gd <<'GD'
@@ -2510,12 +2527,12 @@ func test_count_larger_than_payload_is_rejected() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "EntityCodec" not declared in the current scope`.
 
-- [ ] **Step 3: Implement EntityCodec**
+- [x] **Step 3: Implement EntityCodec**
 
 ```bash
 cat > src/core/save/entity_codec.gd <<'GD'
@@ -2620,19 +2637,19 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 8 entity-codec tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/entity_codec.gd tests/test_entity_codec.gd
 git commit -m "feat: add entity codec preserving next_id across save and load"
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -2662,7 +2679,7 @@ git commit -m "docs: mark Task 11 (Entity codec) complete"
 
 This is the highest-value rule in the whole design: without it, inserting one new tile type renumbers the registry and corrupts every existing world.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_id_map.gd <<'GD'
@@ -2749,12 +2766,12 @@ func test_id_zero_always_translates_to_unknown() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "IdMap" not declared in the current scope`.
 
-- [ ] **Step 3: Implement IdMap**
+- [x] **Step 3: Implement IdMap**
 
 ```bash
 cat > src/core/save/id_map.gd <<'GD'
@@ -2790,7 +2807,16 @@ func to_json_string() -> String:
 
 
 static func from_json_string(text: String) -> DecodeResult:
-	var parsed: Variant = JSON.parse_string(text)
+	# Instance API, not JSON.parse_string() -- see the note in
+	# ContentRegistry._read_json. The static helper pushes an engine error
+	# that GUT counts as a test failure.
+	var json: JSON = JSON.new()
+	if json.parse(text) != OK:
+		return DecodeResult.failure(
+			"id_map: malformed JSON at line %d: %s"
+			% [json.get_error_line(), json.get_error_message()]
+		)
+	var parsed: Variant = json.data
 	if not (parsed is Dictionary):
 		return DecodeResult.failure("id_map: malformed JSON")
 	var m: IdMap = IdMap.new()
@@ -2824,12 +2850,12 @@ func build_translation(registry: ContentRegistry) -> PackedInt32Array:
 GD
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 8 id-map tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/id_map.gd tests/test_id_map.gd
@@ -2839,7 +2865,7 @@ Removed content becomes a placeholder that retains its original string,
 so saves round-trip losslessly rather than being silently zeroed."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -2867,7 +2893,7 @@ git commit -m "docs: mark Task 12 (Id map and the unknown-content policy) comple
   - `static save_zone(save_root: String, zone: Zone, registry: ContentRegistry, all_chunks: bool = false) -> PackedStringArray` — writes `id_map.json`, `zone_meta.json`, dirty chunks (or all), and `entities.dat`; clears dirty flags on success. Returns errors, empty on success.
   - `static load_zone(save_root: String, zone_id: String, registry: ContentRegistry) -> DecodeResult` (`value` is a `Zone`), applying id translation to the three id columns and to entity types.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```bash
 cat > tests/test_save_manager.gd <<'GD'
@@ -3062,12 +3088,12 @@ func test_loading_a_corrupt_chunk_fails_cleanly() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "SaveManager" not declared in the current scope`.
 
-- [ ] **Step 3: Implement SaveManager**
+- [x] **Step 3: Implement SaveManager**
 
 ```bash
 cat > src/core/save/save_manager.gd <<'GD'
@@ -3175,7 +3201,10 @@ static func load_zone(
 	if not FileAccess.file_exists(meta_path):
 		return DecodeResult.failure("zone '%s': no zone_meta.json at %s" % [zone_id, zdir])
 
-	var meta: Variant = JSON.parse_string(FileAccess.get_file_as_string(meta_path))
+	var meta_json: JSON = JSON.new()
+	if meta_json.parse(FileAccess.get_file_as_string(meta_path)) != OK:
+		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
+	var meta: Variant = meta_json.data
 	if not (meta is Dictionary):
 		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
 
@@ -3208,7 +3237,7 @@ static func load_zone(
 		_translate_column(chunk.floor_id, table)
 		_translate_column(chunk.object_id, table)
 		chunk.dirty = false
-		zone._chunks[chunk.coord] = chunk
+		zone.install_chunk(chunk)
 
 	var ent_path: String = zdir.path_join("entities.dat")
 	if FileAccess.file_exists(ent_path):
@@ -3221,14 +3250,14 @@ static func load_zone(
 GD
 ```
 
-Note: `zone._chunks` is touched directly here because loading installs pre-built chunks rather than creating empty ones. If a reviewer objects to reaching into a private field, add `Zone.install_chunk(chunk: Chunk) -> void` and call that instead — but do it as a deliberate change, not by widening `get_chunk`.
+Note: loading installs pre-built chunks rather than creating empty ones, so it uses `Zone.install_chunk()` (added in Task 9) rather than reaching into the private `_chunks` dictionary or widening `get_chunk`.
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 11 save-manager tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd tests/test_save_manager.gd
@@ -3238,7 +3267,7 @@ Covers the acceptance criterion that an old save still loads after new
 content shifts every numeric id."
 ```
 
-- [ ] **Step 6: Mark the task complete**
+- [x] **Step 6: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -3266,7 +3295,7 @@ git commit -m "docs: mark Task 13 (Save manager) complete"
 
 The migration function does nothing today and that is the point — the skeleton and its test exist before they are needed, because retrofitting versioning onto a live save format is what kills hobby projects. The committed fixture is the real asset: when format version 2 arrives, this test proves version 1 files still load.
 
-- [ ] **Step 1: Write the fixture generator and generate the fixture**
+- [x] **Step 1: Write the fixture generator and generate the fixture**
 
 ```bash
 cat > tools/make_fixture.gd <<'GD'
@@ -3300,7 +3329,7 @@ ls -la tests/fixtures/
 
 Expected: `wrote res://tests/fixtures/v1_chunk.chunk` and the file exists.
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 ```bash
 cat > tests/test_migrations.gd <<'GD'
@@ -3351,12 +3380,12 @@ func test_committed_v1_fixture_still_loads() -> void:
 GD
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Identifier "Migrations" not declared in the current scope`.
 
-- [ ] **Step 4: Implement Migrations**
+- [x] **Step 4: Implement Migrations**
 
 ```bash
 cat > src/core/save/migrations.gd <<'GD'
@@ -3395,12 +3424,12 @@ static func migrate_chunk(version: int, chunk: Chunk) -> DecodeResult:
 GD
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, 5 migration tests green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/save/migrations.gd tools/make_fixture.gd tests/test_migrations.gd tests/fixtures
@@ -3410,7 +3439,7 @@ The fixture is the asset here: when FORMAT_VERSION becomes 2, this test
 proves version 1 saves from shipped builds still open."
 ```
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -3438,7 +3467,7 @@ git commit -m "docs: mark Task 14 (Migration skeleton and a version fixture) com
 
 **A correction to the spec.** Spec task 0.8 says the screenshot script "produces a PNG from a headless run". It cannot: `--headless` uses a dummy rendering driver with no framebuffer, so `get_texture().get_image()` returns nothing usable. The screenshot tool therefore runs with a **real display driver** — natively on the dev machine, and under `xvfb-run` in Linux CI. The smoke test stays genuinely headless.
 
-- [ ] **Step 1: Write the smoke test**
+- [x] **Step 1: Write the smoke test**
 
 ```bash
 cat > tools/smoke.gd <<'GD'
@@ -3496,12 +3525,12 @@ func _init() -> void:
 GD
 ```
 
-- [ ] **Step 2: Run the smoke test and verify it passes**
+- [x] **Step 2: Run the smoke test and verify it passes**
 
 Run: `./tools/godot.sh --headless --path . -s tools/smoke.gd; echo "exit=$?"`
 Expected: `Smoke test: OK (300 iterations)` and `exit=0`.
 
-- [ ] **Step 3: Verify the smoke test can fail**
+- [x] **Step 3: Verify the smoke test can fail**
 
 A gate that cannot go red is not a gate.
 
@@ -3513,7 +3542,7 @@ mv tools/smoke.gd.bak tools/smoke.gd
 
 Expected: `SMOKE FAILURE: deliberate failure` and `exit=1`.
 
-- [ ] **Step 4: Create a minimal main scene**
+- [x] **Step 4: Create a minimal main scene**
 
 ```bash
 mkdir -p scenes src/presentation
@@ -3549,7 +3578,7 @@ printf '\n[application]\n\nrun/main_scene="res://scenes/main.tscn"\n' >> project
 
 Verify the merge did not duplicate the `[application]` section; if it did, hand-edit `project.godot` so `run/main_scene` sits inside the existing one.
 
-- [ ] **Step 5: Write the screenshot tool**
+- [x] **Step 5: Write the screenshot tool**
 
 ```bash
 cat > tools/screenshot.gd <<'GD'
@@ -3599,7 +3628,7 @@ func _process(_delta: float) -> bool:
 GD
 ```
 
-- [ ] **Step 6: Verify the screenshot tool produces a PNG**
+- [x] **Step 6: Verify the screenshot tool produces a PNG**
 
 Run: `./tools/godot.sh --path . -s tools/screenshot.gd -- --out=/tmp/rp1_shot.png`
 Expected: a window flashes, `wrote /tmp/rp1_shot.png`, exit 0.
@@ -3611,7 +3640,7 @@ Then confirm the headless failure path is explicit rather than silent:
 Run: `./tools/godot.sh --headless --path . -s tools/screenshot.gd -- --out=/tmp/x.png; echo "exit=$?"`
 Expected: `screenshot: no framebuffer` and `exit=1`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add tools/smoke.gd tools/screenshot.gd scenes/main.tscn src/presentation/main.gd project.godot
@@ -3621,7 +3650,7 @@ Screenshots need a real rendering driver; --headless has no framebuffer.
 The smoke test stays genuinely headless."
 ```
 
-- [ ] **Step 8: Mark the task complete**
+- [x] **Step 8: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -3647,7 +3676,7 @@ git commit -m "docs: mark Task 15 (Smoke test and screenshot tooling) complete"
 - Consumes: `tools/run_tests.sh`, `tools/guard.gd`, `tools/smoke.gd`
 - Produces: a GitHub Actions workflow running all five spec gates on every push and pull request.
 
-- [ ] **Step 1: Write the asset licence checker**
+- [x] **Step 1: Write the asset licence checker**
 
 ```bash
 mkdir -p assets/tiles
@@ -3712,7 +3741,7 @@ _None imported yet. Phase 3 adds the first Kenney tileset._
 MD
 ```
 
-- [ ] **Step 2: Verify the licence gate works in both directions**
+- [x] **Step 2: Verify the licence gate works in both directions**
 
 ```bash
 ./tools/check_asset_licences.sh; echo "clean_exit=$?"
@@ -3723,7 +3752,7 @@ rmdir assets/unlicensed_thing
 
 Expected: `Asset licences: OK` / `clean_exit=0`, then `MISSING LICENCE` / `violation_exit=1`.
 
-- [ ] **Step 3: Write the CI workflow**
+- [x] **Step 3: Write the CI workflow**
 
 ```bash
 mkdir -p .github/workflows
@@ -3838,7 +3867,7 @@ jobs:
 YML
 ```
 
-- [ ] **Step 4: Commit `export_presets.cfg` rather than ignoring it**
+- [x] **Step 4: Commit `export_presets.cfg` rather than ignoring it**
 
 The `.gitignore` written before Phase 0 excludes `export_presets.cfg`, which is the usual default because the file can hold signing paths and keystore passwords. CI cannot export without it. Commit the file and keep secrets in repository secrets instead.
 
@@ -3847,11 +3876,13 @@ sed -i.bak '/^export_presets.cfg$/d' .gitignore && rm -f .gitignore.bak
 grep -c export_presets .gitignore || echo "no longer ignored"
 ```
 
-Then create the presets by opening the project once in the Godot editor: **Project → Export → Add… → Linux/X11** (name it exactly `Linux`) and **Windows Desktop** (name it exactly `Windows`). The names must match the `--export-release` arguments above.
+The presets are committed as `export_presets.cfg` with names exactly `Linux` and `Windows`, matching the `--export-release` arguments above. They can also be regenerated from the editor via **Project → Export → Add…**.
+
+Both presets set `include_filter="*.json"`. This is required, not cosmetic: Godot 4.7.2 does **not** import `.json` as a resource (verified — no `.import` files are produced for `data/**/*.json`), so `export_filter="all_resources"` alone would omit every content definition and the exported game would boot with an empty registry. The "Verify the exported build loads its content" CI step exists to catch exactly that.
 
 Verify locally: `./tools/godot.sh --headless --path . --export-release "Linux" /tmp/rp1_test.x86_64`
 
-- [ ] **Step 5: Run every gate locally before pushing**
+- [x] **Step 5: Run every gate locally before pushing**
 
 ```bash
 ./tools/run_tests.sh                                        && echo "GATE 1 OK"
@@ -3862,7 +3893,7 @@ Verify locally: `./tools/godot.sh --headless --path . --export-release "Linux" /
 
 Expected: all four print OK. Gate 5 runs in CI.
 
-- [ ] **Step 6: Commit and verify CI goes green, then red**
+- [x] **Step 6: Commit and verify CI goes green, then red**
 
 ```bash
 git add .github assets tools/check_asset_licences.sh .gitignore export_presets.cfg
@@ -3872,7 +3903,7 @@ git push -u origin HEAD
 
 Then prove the gates work by opening a throwaway branch that adds `extends Node2D` to `src/core/coords.gd`, confirming CI goes red on gate 2, and deleting the branch. A gate never observed failing is not known to work.
 
-- [ ] **Step 7: Mark the task complete**
+- [x] **Step 7: Mark the task complete**
 
 Tick this task's checkboxes and commit the progress, so the plan file itself
 records what has been done:
@@ -3888,16 +3919,22 @@ git commit -m "docs: mark Task 16 (CI with five gates) complete"
 
 ## Definition of done for Phases 0-2
 
-- [ ] `./tools/run_tests.sh` passes with roughly 110 assertions across 13 test files
-- [ ] `tools/guard.gd` exits 0, and exits 1 when a node is introduced into `src/core/`
-- [ ] `tools/smoke.gd` exits 0, and exits 1 when a check is broken
-- [ ] `tools/check_asset_licences.sh` exits 0, and exits 1 for an unlicensed folder
-- [ ] CI is green on `main` and observed going red for a deliberate violation
-- [ ] A 128x128 zone's chunk payloads round-trip byte-identical
-- [ ] A full zone save completes in under 100 ms
-- [ ] `tests/fixtures/v1_chunk.chunk` is committed and loads
-- [ ] An old save still loads after new content shifts every numeric id
-- [ ] Content removed from `data/` loads as a placeholder retaining its string
-- [ ] No file in `src/core/` or `src/systems/` references a Godot node
+- [x] `./tools/run_tests.sh` passes with roughly 110 assertions across 13 test files
+- [x] `tools/guard.gd` exits 0, and exits 1 when a node is introduced into `src/core/`
+- [x] `tools/smoke.gd` exits 0, and exits 1 when a check is broken
+- [x] `tools/check_asset_licences.sh` exits 0, and exits 1 for an unlicensed folder
+- [ ] CI is green on `main` and observed going red for a deliberate violation  
+      *(Half done. **Redness proven** on 2026-09-05: PR #2 added a `Node2D` with a
+      `get_tree()` call to `src/core/`; the `verify` job failed at Gate 2 with the
+      expected message, Gate 1 passed, Gates 3-4 were skipped by `bash -e`, and the
+      `export` job was skipped via `needs: verify`. Run 33940193065; PR closed
+      unmerged and branch deleted. **Still outstanding:** the workflow has never run
+      on `main` — it triggers there only on `push`, and PR #1 is unmerged.)*
+- [x] A 128x128 zone's chunk payloads round-trip byte-identical
+- [x] A full zone save completes in under 100 ms
+- [x] `tests/fixtures/v1_chunk.chunk` is committed and loads
+- [x] An old save still loads after new content shifts every numeric id
+- [x] Content removed from `data/` loads as a placeholder retaining its string
+- [x] No file in `src/core/` or `src/systems/` references a Godot node
 
 **Not done in this plan, by design:** rendering, player movement, world authoring, animals with behaviour, menus, audio. Those are Phases 3-6 and get their own plan.

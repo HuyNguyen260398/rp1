@@ -1,0 +1,2 @@
+{"id": "water", "category": "terrain", "display_name": "Water",
+ "sprite": "res://assets/tiles/water.png", "walkable": false, "tags": ["natural", "liquid"]}

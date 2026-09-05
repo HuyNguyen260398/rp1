@@ -1,0 +1,5 @@
+{
+  "category": "creature",
+  "required": {"id": "String", "category": "String", "display_name": "String", "sprite": "String"},
+  "optional": {"wander_radius": "int", "flees_player": "bool", "tags": "Array"}
+}

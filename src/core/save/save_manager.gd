@@ -1,0 +1,150 @@
+class_name SaveManager
+extends RefCounted
+## Orchestrates zone persistence.
+##
+## Metadata is JSON because it is small, cold, and worth reading with `cat`.
+## Bulk tile and entity data is binary. Every write is atomic: a crash
+## mid-save must never leave a half-written world.
+
+const SAVE_VERSION: int = 1
+
+
+static func atomic_write(path: String, bytes: PackedByteArray) -> String:
+	var dir: String = path.get_base_dir()
+	if not DirAccess.dir_exists_absolute(dir):
+		var mk: int = DirAccess.make_dir_recursive_absolute(dir)
+		if mk != OK:
+			return "cannot create directory %s (error %d)" % [dir, mk]
+
+	var tmp: String = path + ".tmp"
+	var f: FileAccess = FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		return "cannot open %s (error %d)" % [tmp, FileAccess.get_open_error()]
+	f.store_buffer(bytes)
+	f.flush()
+	f.close()
+
+	var err: int = DirAccess.rename_absolute(tmp, path)
+	if err != OK:
+		return "cannot rename %s -> %s (error %d)" % [tmp, path, err]
+	return ""
+
+
+static func _zone_dir(save_root: String, zone_id: String) -> String:
+	return save_root.path_join("zones").path_join(zone_id)
+
+
+static func save_zone(
+	save_root: String, zone: Zone, registry: ContentRegistry, all_chunks: bool = false
+) -> PackedStringArray:
+	var errors: PackedStringArray = []
+	var zdir: String = _zone_dir(save_root, zone.id)
+
+	var map_err: String = atomic_write(
+		save_root.path_join("id_map.json"),
+		IdMap.from_registry(registry).to_json_string().to_utf8_buffer()
+	)
+	if map_err != "":
+		errors.append(map_err)
+
+	var meta: Dictionary = {
+		"save_version": SAVE_VERSION,
+		"id": zone.id,
+		"display_name": zone.display_name,
+		"size_x": zone.size_tiles.x,
+		"size_y": zone.size_tiles.y,
+		"biome": zone.biome,
+		"generation_seed": zone.generation_seed,
+	}
+	var meta_err: String = atomic_write(
+		zdir.path_join("zone_meta.json"),
+		JSON.stringify(meta, "  ", true).to_utf8_buffer()
+	)
+	if meta_err != "":
+		errors.append(meta_err)
+
+	var targets: Array[Vector2i] = zone.chunk_coords() if all_chunks else zone.dirty_chunk_coords()
+	for c: Vector2i in targets:
+		var chunk: Chunk = zone.get_chunk(c)
+		var err: String = atomic_write(
+			zdir.path_join("chunks").path_join("%d_%d.chunk" % [c.x, c.y]),
+			ChunkCodec.encode(chunk)
+		)
+		if err != "":
+			errors.append(err)
+
+	var ent_err: String = atomic_write(
+		zdir.path_join("entities.dat"), EntityCodec.encode(zone.entities)
+	)
+	if ent_err != "":
+		errors.append(ent_err)
+
+	if errors.is_empty():
+		zone.clear_dirty()
+	return errors
+
+
+## Rewrites a u16 id column through the translation table in place.
+static func _translate_column(column: PackedByteArray, table: PackedInt32Array) -> void:
+	for i: int in range(Coords.TILES_PER_CHUNK):
+		var saved: int = column.decode_u16(i * 2)
+		if saved < table.size():
+			column.encode_u16(i * 2, table[saved])
+		else:
+			column.encode_u16(i * 2, ContentRegistry.ID_UNKNOWN)
+
+
+static func load_zone(
+	save_root: String, zone_id: String, registry: ContentRegistry
+) -> DecodeResult:
+	var zdir: String = _zone_dir(save_root, zone_id)
+	var meta_path: String = zdir.path_join("zone_meta.json")
+	if not FileAccess.file_exists(meta_path):
+		return DecodeResult.failure("zone '%s': no zone_meta.json at %s" % [zone_id, zdir])
+
+	var meta_json: JSON = JSON.new()
+	if meta_json.parse(FileAccess.get_file_as_string(meta_path)) != OK:
+		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
+	var meta: Variant = meta_json.data
+	if not (meta is Dictionary):
+		return DecodeResult.failure("zone '%s': malformed zone_meta.json" % zone_id)
+
+	var map_path: String = save_root.path_join("id_map.json")
+	if not FileAccess.file_exists(map_path):
+		return DecodeResult.failure("save: no id_map.json; cannot resolve content ids")
+	var map_result: DecodeResult = IdMap.from_json_string(FileAccess.get_file_as_string(map_path))
+	if not map_result.ok:
+		return map_result
+	var table: PackedInt32Array = (map_result.value as IdMap).build_translation(registry)
+
+	var zone: Zone = Zone.new(
+		str(meta.get("id", zone_id)),
+		Vector2i(int(meta.get("size_x", 128)), int(meta.get("size_y", 128)))
+	)
+	zone.display_name = str(meta.get("display_name", zone.id))
+	zone.biome = str(meta.get("biome", "temperate"))
+	zone.generation_seed = int(meta.get("generation_seed", 0))
+
+	var chunk_dir: String = zdir.path_join("chunks")
+	for file_name: String in DirAccess.get_files_at(chunk_dir):
+		if not file_name.ends_with(".chunk"):
+			continue
+		var bytes: PackedByteArray = FileAccess.get_file_as_bytes(chunk_dir.path_join(file_name))
+		var decoded: DecodeResult = ChunkCodec.decode(bytes)
+		if not decoded.ok:
+			return DecodeResult.failure("%s: %s" % [file_name, decoded.error])
+		var chunk: Chunk = decoded.value
+		_translate_column(chunk.terrain_id, table)
+		_translate_column(chunk.floor_id, table)
+		_translate_column(chunk.object_id, table)
+		chunk.dirty = false
+		zone.install_chunk(chunk)
+
+	var ent_path: String = zdir.path_join("entities.dat")
+	if FileAccess.file_exists(ent_path):
+		var ent: DecodeResult = EntityCodec.decode(FileAccess.get_file_as_bytes(ent_path))
+		if not ent.ok:
+			return DecodeResult.failure("entities.dat: %s" % ent.error)
+		zone.entities = ent.value
+
+	return DecodeResult.success(zone)

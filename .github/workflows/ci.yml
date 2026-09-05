@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-linux
+
+      - name: Install Godot (standard build, not Mono)
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot-bin
+          curl -sSLo /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot-bin
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+
+      - name: Expose Godot
+        run: echo "GODOT_BIN=$HOME/godot-bin/godot" >> "$GITHUB_ENV"
+
+      - name: Verify engine build
+        run: |
+          ./tools/godot.sh --version
+          ./tools/godot.sh --version | grep -qv mono
+
+      # Gate 1
+      - name: Tests
+        run: ./tools/run_tests.sh
+
+      # Gate 2
+      - name: Architecture guard
+        run: ./tools/godot.sh --headless --path . -s tools/guard.gd
+
+      # Gate 3
+      - name: Smoke test
+        run: ./tools/godot.sh --headless --path . -s tools/smoke.gd
+
+      # Gate 4
+      - name: Asset licences
+        run: ./tools/check_asset_licences.sh
+
+  export:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot and export templates
+        run: |
+          mkdir -p ~/godot-bin
+          curl -sSLo /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot-bin
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+          curl -sSLo /tmp/templates.tpz \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p ~/.local/share/godot/export_templates
+          unzip -q /tmp/templates.tpz -d /tmp/tpl
+          mv /tmp/tpl/templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+
+      - name: Expose Godot
+        run: echo "GODOT_BIN=$HOME/godot-bin/godot" >> "$GITHUB_ENV"
+
+      - name: Install xvfb
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+
+      # Gate 5
+      - name: Export Linux and Windows
+        run: |
+          ./tools/godot.sh --headless --path . --import
+          mkdir -p build/linux build/windows
+          ./tools/godot.sh --headless --path . --export-release "Linux" build/linux/rp1.x86_64
+          ./tools/godot.sh --headless --path . --export-release "Windows" build/windows/rp1.exe
+
+      # Godot may treat data/*.json as importable resources, in which case
+      # the exported PCK will not contain them as plain files and
+      # ContentRegistry.load_from_dir finds nothing. The export gate only
+      # BUILDS, so this would ship silently. Run the build and check.
+      - name: Verify the exported build loads its content
+        run: |
+          chmod +x build/linux/rp1.x86_64
+          OUT="$(xvfb-run -a ./build/linux/rp1.x86_64 --quit-after 30 2>&1 || true)"
+          echo "$OUT"
+          echo "$OUT" | grep -qE "RP1 booted with [1-9][0-9]* content definitions" \
+            || { echo "Exported build loaded no content: data/ is not reaching the PCK." >&2
+                 echo "Fix: Export preset -> Resources -> 'Filters to export non-resource files' -> add data/*" >&2
+                 exit 1; }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rp1-builds
+          path: build/
