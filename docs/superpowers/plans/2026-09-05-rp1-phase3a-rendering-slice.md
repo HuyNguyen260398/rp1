@@ -79,7 +79,7 @@ The JSON already names three sprite paths that do not exist. Create them as flat
 - Consumes: nothing
 - Produces: three loadable textures at the exact paths in `data/terrain/grass.json`, `data/terrain/water.json`, `data/object/oak_tree.json`
 
-- [ ] **Step 1: Write the generator script**
+- [x] **Step 1: Write the generator script**
 
 Create `tools/make_placeholder_art.gd`:
 
@@ -126,7 +126,7 @@ func _init() -> void:
 	quit(0)
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/make_placeholder_art.gd
@@ -134,7 +134,7 @@ func _init() -> void:
 
 Expected: three `wrote ...` lines, exit 0.
 
-- [ ] **Step 3: Import the new textures**
+- [x] **Step 3: Import the new textures**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -142,7 +142,7 @@ Expected: three `wrote ...` lines, exit 0.
 
 Expected: exit 0. This generates the `.import` files Godot needs; without it `load()` returns null.
 
-- [ ] **Step 4: Verify the files exist at the declared sizes**
+- [x] **Step 4: Verify the files exist at the declared sizes**
 
 ```bash
 ls -l assets/tiles/grass.png assets/tiles/water.png assets/objects/oak_tree.png
@@ -150,7 +150,7 @@ ls -l assets/tiles/grass.png assets/tiles/water.png assets/objects/oak_tree.png
 
 Expected: all three present. The oak must be 32x48, not 32x32.
 
-- [ ] **Step 5: Write the licence files**
+- [x] **Step 5: Write the licence files**
 
 Overwrite `assets/tiles/LICENSE.txt`:
 
@@ -167,7 +167,7 @@ source, author and licence.
 
 Create `assets/objects/LICENSE.txt` with the same content.
 
-- [ ] **Step 6: Record them in CREDITS.md**
+- [x] **Step 6: Record them in CREDITS.md**
 
 In `assets/CREDITS.md`, replace the line `_None imported yet. Phase 3 adds the first Kenney tileset._` with:
 
@@ -183,7 +183,7 @@ And add these rows under the `| Pack | Author | Source | Licence |` header:
 | Phase 3a debug swatches (objects) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
 ```
 
-- [ ] **Step 7: Run the licence gate**
+- [x] **Step 7: Run the licence gate**
 
 ```bash
 ./tools/check_asset_licences.sh
@@ -191,7 +191,7 @@ And add these rows under the `| Pack | Author | Source | Licence |` header:
 
 Expected: `Asset licences: OK`, exit 0. It checks every top-level folder under `assets/`, so the new `assets/objects/` folder would fail without its `LICENSE.txt`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add tools/make_placeholder_art.gd assets/
@@ -227,7 +227,7 @@ EOF
   - `TilesetBuilder.build(registry: ContentRegistry) -> TilesetBuildResult` (static)
   - `TilesetBuilder.TILE_SIZE: Vector2i` == `Vector2i(32, 32)`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_tileset_builder.gd`:
 
@@ -284,7 +284,7 @@ func test_tile_size_is_the_project_constant() -> void:
 	assert_eq(res.tileset.tile_size, Vector2i(32, 32), "32x32, per the art constants")
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 ./tools/run_tests.sh
@@ -292,7 +292,7 @@ func test_tile_size_is_the_project_constant() -> void:
 
 Expected: FAIL. GUT reports the script could not be loaded because `TilesetBuilder` and `TilesetBuildResult` do not exist — and `tools/run_tests.sh` turns that into **exit 3** with `ERROR: a test script failed to load`, rather than a silent pass. That is the runner working as designed.
 
-- [ ] **Step 3: Write the result type**
+- [x] **Step 3: Write the result type**
 
 Create `src/systems/tileset_build_result.gd`:
 
@@ -325,7 +325,7 @@ func source_for(numeric_id: int) -> int:
 	return source_id_by_numeric.get(numeric_id, -1)
 ```
 
-- [ ] **Step 4: Write the minimal builder**
+- [x] **Step 4: Write the minimal builder**
 
 Create `src/systems/tileset_builder.gd`:
 
@@ -385,7 +385,7 @@ static func build(registry: ContentRegistry) -> TilesetBuildResult:
 	return result
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -393,7 +393,7 @@ static func build(registry: ContentRegistry) -> TilesetBuildResult:
 
 Expected: PASS, all five new tests green, previous 114 still green.
 
-- [ ] **Step 6: Run the architecture guard**
+- [x] **Step 6: Run the architecture guard**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -401,7 +401,7 @@ Expected: PASS, all five new tests green, previous 114 still green.
 
 Expected: `Architecture guard: clean`, exit 0. This is the first time `src/systems/` has contained anything; the guard has always listed it in `GUARDED_ROOTS`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/systems/ tests/test_tileset_builder.gd
@@ -442,7 +442,7 @@ Task 2 hardcodes `texture_region_size` to 32x32 and ignores `y_offset`, so the o
 - Consumes: `TilesetBuilder.build()` and `TilesetBuildResult` from Task 2
 - Produces: no signature change. Behaviour changes only.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_tileset_builder.gd`:
 
@@ -510,7 +510,7 @@ func test_placeholder_content_is_skipped() -> void:
 	assert_eq(res.errors.size(), 0, "and are not reported as errors")
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 ```bash
 ./tools/run_tests.sh
@@ -518,7 +518,7 @@ func test_placeholder_content_is_skipped() -> void:
 
 Expected: FAIL. `test_sprite_rect_sets_the_region_size` reports 32x32 where 32x48 was expected, and `test_y_offset_becomes_the_texture_origin` reports `(0, 0)` where `(0, -16)` was expected.
 
-- [ ] **Step 3: Implement region size, origin, and placeholder skipping**
+- [x] **Step 3: Implement region size, origin, and placeholder skipping**
 
 In `src/systems/tileset_builder.gd`, replace the body of the `for numeric: int in numerics:` loop with:
 
@@ -582,7 +582,7 @@ static func _texture_origin(def: Dictionary) -> Vector2i:
 	return Vector2i(0, base_align - int(def.get("y_offset", 0)))
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -590,7 +590,7 @@ static func _texture_origin(def: Dictionary) -> Vector2i:
 
 Expected: PASS, all eleven builder tests green.
 
-- [ ] **Step 5: Run the architecture guard**
+- [x] **Step 5: Run the architecture guard**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -598,7 +598,7 @@ Expected: PASS, all eleven builder tests green.
 
 Expected: `Architecture guard: clean`, exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/tileset_builder.gd tests/test_tileset_builder.gd
@@ -634,7 +634,7 @@ EOF
   - `ZoneRenderer.render_zone(zone: Zone) -> int` — full paint, returns cells painted
   - `ZoneRenderer.cells_painted() -> int` — total non-empty cells across all layers
 
-- [ ] **Step 1: Write the renderer**
+- [x] **Step 1: Write the renderer**
 
 Create `src/presentation/zone_renderer.gd`:
 
@@ -726,7 +726,7 @@ func cells_painted() -> int:
 	return total
 ```
 
-- [ ] **Step 2: Verify it parses and the guard still passes**
+- [x] **Step 2: Verify it parses and the guard still passes**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -735,7 +735,7 @@ func cells_painted() -> int:
 
 Expected: import exits 0 with no parse errors; guard prints `Architecture guard: clean`. The guard does not scan `src/presentation/`, so `add_child(` here is fine — but a typo that breaks parsing would surface in the import.
 
-- [ ] **Step 3: Run the existing tests to confirm nothing regressed**
+- [x] **Step 3: Run the existing tests to confirm nothing regressed**
 
 ```bash
 ./tools/run_tests.sh
@@ -743,7 +743,7 @@ Expected: import exits 0 with no parse errors; guard prints `Architecture guard:
 
 Expected: PASS. Behaviour is asserted in Task 7 via the smoke test; this step only confirms the new file did not break the suite's ability to load.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/zone_renderer.gd
@@ -776,7 +776,7 @@ EOF
 - Consumes: `Zone.dirty_chunk_coords() -> Array[Vector2i]`, `Zone.clear_dirty() -> void`
 - Produces: `ZoneRenderer.refresh_dirty(zone: Zone) -> int` — repaints only dirty chunks, returns cells painted; `ZoneRenderer.zone` settable for `_process` to drive
 
-- [ ] **Step 1: Add the dirty path**
+- [x] **Step 1: Add the dirty path**
 
 In `src/presentation/zone_renderer.gd`, add near the other members:
 
@@ -808,7 +808,7 @@ func _process(_delta: float) -> void:
 		refresh_dirty(zone)
 ```
 
-- [ ] **Step 2: Verify it parses and the guard passes**
+- [x] **Step 2: Verify it parses and the guard passes**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -817,7 +817,7 @@ func _process(_delta: float) -> void:
 
 Expected: both exit 0.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/presentation/zone_renderer.gd
@@ -849,7 +849,7 @@ EOF
 - Consumes: `ZoneRenderer.setup()`, `render_zone()` from Tasks 4-5
 - Produces: stdout lines `RP1 booted with N content definitions` (unchanged, the export gate greps it) and `RP1 rendered N cells` (new, asserted by the export gate in Task 8)
 
-- [ ] **Step 1: Replace main.gd**
+- [x] **Step 1: Replace main.gd**
 
 ```gdscript
 extends Node2D
@@ -916,7 +916,7 @@ func _build_debug_zone(registry: ContentRegistry) -> Zone:
 	return zone
 ```
 
-- [ ] **Step 2: Run it headless**
+- [x] **Step 2: Run it headless**
 
 ```bash
 ./tools/godot.sh --headless --path . --quit-after 30
@@ -931,7 +931,7 @@ RP1 rendered N cells
 
 `N` must be greater than zero. With a 128x128 zone of solid terrain plus trees it will be in the region of 16,500 — 16,384 terrain cells plus roughly 130 oaks, minus none, since every tile gets terrain.
 
-- [ ] **Step 3: Run it windowed and look at it**
+- [x] **Step 3: Run it windowed and look at it**
 
 ```bash
 ./tools/godot.sh --path . --quit-after 300
@@ -941,7 +941,7 @@ Expected: a window showing a green field with a blue disc and brown blocks on a 
 
 This is the first time this project has drawn anything. If it looks wrong, stop and diagnose before continuing; every later task assumes this works.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/main.gd
@@ -976,7 +976,7 @@ EOF
 - Consumes: `ZoneRenderer.setup()`, `render_zone()`, `refresh_dirty()`, `cells_painted()`
 - Produces: no new interface. `tools/smoke.gd` still exits 0 on success, 1 on failure.
 
-- [ ] **Step 1: Update the file's doc comment**
+- [x] **Step 1: Update the file's doc comment**
 
 `tools/smoke.gd` currently claims `Runs genuinely headless -- no rendering involved.` That stops being true. Replace those lines with:
 
@@ -988,7 +988,7 @@ EOF
 ## works without a display server, which is what lets CI assert on it.
 ```
 
-- [ ] **Step 2: Add the render checks**
+- [x] **Step 2: Add the render checks**
 
 In `tools/smoke.gd`, immediately before the `for f: String in _failures:` loop, insert:
 
@@ -1019,7 +1019,7 @@ In `tools/smoke.gd`, immediately before the `for f: String in _failures:` loop, 
 	renderer.queue_free()
 ```
 
-- [ ] **Step 3: Run the smoke test**
+- [x] **Step 3: Run the smoke test**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/smoke.gd
@@ -1027,13 +1027,13 @@ In `tools/smoke.gd`, immediately before the `for f: String in _failures:` loop, 
 
 Expected: `Smoke test: OK (300 iterations)`, exit 0.
 
-- [ ] **Step 4: Prove the new checks can fail**
+- [x] **Step 4: Prove the new checks can fail**
 
 Temporarily change `_check(painted > 0, ...)` to `_check(painted > 999999, ...)`, run the smoke test again, and confirm it prints `SMOKE FAILURE: render painted no cells at all` and exits 1. **Then revert the change.**
 
 A check that has never been seen to fail is not yet known to be a check.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/smoke.gd
@@ -1066,7 +1066,7 @@ The export gate already runs the built game and greps for the content line, beca
 - Consumes: the `RP1 rendered N cells` line from Task 6
 - Produces: no new gate. The existing export gate learns one assertion.
 
-- [ ] **Step 1: Extend the export verification step**
+- [x] **Step 1: Extend the export verification step**
 
 In `.github/workflows/ci.yml`, in the `export` job, replace the `Verify the exported build loads its content` step with:
 
@@ -1095,7 +1095,7 @@ In `.github/workflows/ci.yml`, in the `export` job, replace the `Verify the expo
 
 Note the frame budget rose from 30 to 60: the exported build now paints 16,000-odd cells during `_ready` before the count is printed.
 
-- [ ] **Step 2: Verify the workflow is valid YAML**
+- [x] **Step 2: Verify the workflow is valid YAML**
 
 ```bash
 python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml')); print('ci.yml parses')"
@@ -1103,7 +1103,7 @@ python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml')); p
 
 Expected: `ci.yml parses`.
 
-- [ ] **Step 3: Run every gate locally before pushing**
+- [x] **Step 3: Run every gate locally before pushing**
 
 ```bash
 ./tools/run_tests.sh \
@@ -1115,7 +1115,7 @@ Expected: `ci.yml parses`.
 
 Expected: `ALL LOCAL GATES GREEN`. Gate 5 (export) cannot run locally without export templates; CI covers it.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -1135,7 +1135,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Push and confirm CI is green**
+- [x] **Step 5: Push and confirm CI is green**
 
 ```bash
 git push -u origin feat/phase3a-rendering-slice
@@ -1149,14 +1149,19 @@ Expected: all five gates pass, including the new render assertion in the export 
 
 ## Definition of done for Phase 3a
 
-- [ ] Running the project shows a 128x128 zone: grass, a water pond, oaks
-- [ ] The oak renders 32x48, its base sitting on its tile rather than floating
-- [ ] Adding a terrain JSON + PNG puts it on screen with no GDScript change
-- [ ] `./tools/run_tests.sh` green, including eleven new builder tests
-- [ ] `tools/guard.gd` green — `src/systems/` stays node-free
-- [ ] `tools/smoke.gd` green, including the render assertions, and each new check has been seen to fail
-- [ ] The exported build paints a non-zero cell count, asserted in CI
-- [ ] A missing sprite logs an error and leaves an empty cell without crashing
+- [x] Running the project shows a 128x128 zone: grass, a water pond, oaks
+- [x] The oak renders 32x48, its base sitting on its tile rather than floating  
+      *(measured: y336..383 against tile row 11 at y352..383 — base exactly on the edge)*
+- [x] Adding a terrain JSON + PNG puts it on screen with no GDScript change  
+      *(sand.json + sand.png → "booted with 5 content definitions", git showed no source file modified)*
+- [x] `./tools/run_tests.sh` green, including **twelve** new builder tests  
+      *(eleven was the estimate when this plan was written; the y_offset correction replaced two tests with three)*
+- [x] `tools/guard.gd` green — `src/systems/` stays node-free
+- [x] `tools/smoke.gd` green, including the render assertions, and each new check has been seen to fail  
+      *(all 7 mutated in turn; every one failed with its own message, then restored)*
+- [x] The exported build paints a non-zero cell count, asserted in CI  
+      *(run 33957646604: the exported Linux build printed "RP1 rendered 16527 cells" under xvfb)*
+- [x] A missing sprite logs an error and leaves an empty cell without crashing
 
 ### Verifying the "no code change" criterion
 
