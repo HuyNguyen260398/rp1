@@ -144,7 +144,9 @@ For each definition in the registry:
 - Create a `TileSetAtlasSource` with that texture, `texture_region_size` from
   `sprite_rect` if present, otherwise `TILE_SIZE`.
 - Create the single tile at atlas coord `(0, 0)`.
-- Apply `y_offset` as the tile's `texture_origin`.
+- Set the tile's `texture_origin` to `(region_height - 32) / 2 - y_offset`.
+  Godot centres an oversized region on its tile, so base alignment is
+  geometric; `y_offset` is a nudge on top, negative meaning up.
 - Record `numeric id -> source id`.
 
 Definitions are processed in ascending numeric id so source ids are
@@ -227,8 +229,9 @@ single-colour PNGs.
 | `assets/objects/oak_tree.png` | 32x48 | matches the declared `sprite_rect` |
 
 The oak is deliberately **not** square. `oak_tree.json` already declares
-`"sprite_rect": [0, 0, 32, 48]` and `"y_offset": -16`, so oversized tiles with
-an origin offset are a live requirement on day one. A convenient 32x32 stand-in
+`"sprite_rect": [0, 0, 32, 48]`, so oversized tiles are a live requirement on
+day one. (`y_offset` was `-16` when this spec was written; it is now `0`, because
+base alignment is derived from geometry rather than hand-authored — see §3.2.) A convenient 32x32 stand-in
 would let a whole class of alignment bug hide until real art lands.
 
 These are debug swatches, not art. They are flat, obviously synthetic, and
@@ -266,7 +269,9 @@ it pass.
   `errors`, and does not abort the build or shift the ids of other entries.
 - `sprite_rect` produces the declared region size; its absence defaults to
   32x32.
-- `y_offset` reaches the tile's `texture_origin`.
+- An oversized sprite is base-aligned from geometry: a 48px region on a 32px
+  tile yields `texture_origin` `(0, 8)`, verified against a real framebuffer.
+- `y_offset` nudges from that base-aligned position, negative meaning up.
 - A placeholder definition is skipped and recorded.
 
 The missing-texture case is not hypothetical — `grass.png` is referenced and

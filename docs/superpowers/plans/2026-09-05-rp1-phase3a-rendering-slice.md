@@ -425,6 +425,13 @@ EOF
 
 ## Task 3: Oversized regions, origin offsets, and failure handling
 
+> **Corrected during execution.** This task originally mapped `y_offset`
+> straight onto `texture_origin`. That was wrong in both sign and magnitude:
+> Godot centres an oversized region on its tile, and the engine *subtracts*
+> `texture_origin`, so the oak hung 24px below its tile. Base alignment is now
+> derived from geometry and `oak_tree.json`'s `y_offset` is `0`. The code and
+> tests below reflect the corrected behaviour.
+
 Task 2 hardcodes `texture_region_size` to 32x32 and ignores `y_offset`, so the oak currently renders as its top 32 pixels with no offset. Fix that, and make failure modes explicit.
 
 **Files:**
@@ -558,10 +565,21 @@ static func _region_size(def: Dictionary) -> Vector2i:
 	return Vector2i(int(rect[2]), int(rect[3]))
 
 
-## A sprite taller than one tile is drawn with its base on the tile, not
-## its top. y_offset carries that shift; oak_tree.json declares -16.
+## Where a sprite sits relative to its tile.
+##
+## Godot centres an oversized atlas region on the tile, so a 48px sprite on
+## a 32px tile hangs 8px below it. Base alignment is therefore (H - T) / 2,
+## derived from geometry so that any oversized art stands on its tile with
+## no data at all.
+##
+## y_offset is a deliberate nudge on top of that, for art that should NOT
+## stand flat -- a hanging sign, a bird. Negative moves the sprite up,
+## which is the intuitive direction. It is subtracted because the engine
+## subtracts texture_origin from the draw position, so the sign flips here
+## rather than in every content file.
 static func _texture_origin(def: Dictionary) -> Vector2i:
-	return Vector2i(0, int(def.get("y_offset", 0)))
+	var base_align: int = (_region_size(def).y - TILE_SIZE.y) / 2
+	return Vector2i(0, base_align - int(def.get("y_offset", 0)))
 ```
 
 - [ ] **Step 4: Run the tests to verify they pass**
