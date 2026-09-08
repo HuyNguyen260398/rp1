@@ -1,9 +1,9 @@
 extends SceneTree
-## Generates the Phase 3a debug swatches.
+## Generates the Phase 3a and 3b debug swatches.
 ##
 ## These are NOT art. They are flat blocks in obviously-synthetic colours,
 ## sized to match what the content JSON declares, and they are deleted
-## wholesale when the real tileset is imported in Phase 3b.
+## wholesale when the real tileset is imported in Phase 3c.
 ##
 ## Colours are deliberately off-palette: docs/palette.md fixes the palette
 ## as Apollo and exempts these files by name, precisely so a throwaway
@@ -13,11 +13,14 @@ const SWATCHES: Array[Dictionary] = [
 	{"path": "res://assets/tiles/grass.png", "size": Vector2i(32, 32), "color": Color(0.36, 0.60, 0.34)},
 	{"path": "res://assets/tiles/water.png", "size": Vector2i(32, 32), "color": Color(0.25, 0.45, 0.72)},
 	{"path": "res://assets/objects/oak_tree.png", "size": Vector2i(32, 48), "color": Color(0.45, 0.32, 0.22)},
+	{"path": "res://assets/characters/player.png", "size": Vector2i(32, 64), "color": Color(0.82, 0.36, 0.58)},
+	{"path": "res://assets/characters/rabbit.png", "size": Vector2i(32, 32), "color": Color(0.86, 0.81, 0.74)},
 ]
 
 
 func _init() -> void:
 	DirAccess.make_dir_recursive_absolute("res://assets/objects")
+	DirAccess.make_dir_recursive_absolute("res://assets/characters")
 	for s: Dictionary in SWATCHES:
 		var size: Vector2i = s["size"]
 		var img: Image = Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)

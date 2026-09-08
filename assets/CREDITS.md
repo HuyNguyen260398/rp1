@@ -16,9 +16,10 @@ launch with 60 packs and no records is a genuinely miserable week.
 ## Packs
 
 _No third-party packs yet. The entries below are project-generated
-placeholders, deleted when the first real tileset is imported._
+placeholders, deleted when the first real tileset is imported in Phase 3c._
 
 | Pack | Author | Source | Licence |
 |---|---|---|---|
 | Phase 3a debug swatches (tiles) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
 | Phase 3a debug swatches (objects) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
+| Phase 3b debug swatches (characters) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
