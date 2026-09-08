@@ -214,10 +214,11 @@ code and more edge cases for no behavioural gain at these speeds.
 
 **Tunnelling is bounded by construction.** At 4.5 tiles/sec on a 60 Hz tick a step
 is 0.075 tiles against a body whose smaller dimension is 0.5 tiles — a margin of
-about 6.7x. That is comfortable but not vast, and a frame spike erases it outright:
-a 0.25-second hitch steps 1.125 tiles and passes clean through a one-tile wall. So
-`move()` **substeps**, splitting the move so no single step exceeds half the body's
-smaller dimension (0.25 tiles). Correctness then depends on the body size, which we
+about 6.7x. A frame spike erases it. Note the precise failure: a body that lands
+*inside* a wall is still pushed out correctly, so tunnelling requires clearing the
+far side entirely, which at this body width takes a step over 1.125 tiles — a hitch
+of roughly half a second. So `move()` **substeps**, splitting the move so no single
+step exceeds half the body's smaller dimension (0.25 tiles). Correctness then depends on the body size, which we
 control, rather than on the frame rate, which we do not.
 
 **Position is the feet point**, the bottom-centre of a `0.625 x 0.5` tile box
