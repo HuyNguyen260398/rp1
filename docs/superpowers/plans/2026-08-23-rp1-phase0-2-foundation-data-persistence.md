@@ -3923,13 +3923,13 @@ git commit -m "docs: mark Task 16 (CI with five gates) complete"
 - [x] `tools/guard.gd` exits 0, and exits 1 when a node is introduced into `src/core/`
 - [x] `tools/smoke.gd` exits 0, and exits 1 when a check is broken
 - [x] `tools/check_asset_licences.sh` exits 0, and exits 1 for an unlicensed folder
-- [ ] CI is green on `main` and observed going red for a deliberate violation  
-      *(Half done. **Redness proven** on 2026-09-05: PR #2 added a `Node2D` with a
-      `get_tree()` call to `src/core/`; the `verify` job failed at Gate 2 with the
+- [x] CI is green on `main` and observed going red for a deliberate violation  
+      *(Both halves verified 2026-09-05. **Red:** PR #2 put a `Node2D` with a
+      `get_tree()` call into `src/core/`; the `verify` job failed at Gate 2 with the
       expected message, Gate 1 passed, Gates 3-4 were skipped by `bash -e`, and the
-      `export` job was skipped via `needs: verify`. Run 33940193065; PR closed
-      unmerged and branch deleted. **Still outstanding:** the workflow has never run
-      on `main` — it triggers there only on `push`, and PR #1 is unmerged.)*
+      `export` job was skipped via `needs: verify` — run 33940193065, closed unmerged.
+      **Green:** PR #1 merged as b6b08e2 and the push-triggered run on `main` passed
+      all five gates — run 33942422240.)*
 - [x] A 128x128 zone's chunk payloads round-trip byte-identical
 - [x] A full zone save completes in under 100 ms
 - [x] `tests/fixtures/v1_chunk.chunk` is committed and loads

@@ -91,16 +91,23 @@ jobs:
 
       # Godot may treat data/*.json as importable resources, in which case
       # the exported PCK will not contain them as plain files and
-      # ContentRegistry.load_from_dir finds nothing. The export gate only
-      # BUILDS, so this would ship silently. Run the build and check.
-      - name: Verify the exported build loads its content
+      # ContentRegistry.load_from_dir finds nothing. Textures can fail the
+      # same way one layer on: the TileSet is assembled at runtime, so a
+      # PCK without them exports cleanly and renders an empty world. The
+      # export gate only BUILDS, so both would ship silently. Run it and check.
+      - name: Verify the exported build loads its content and renders
         run: |
           chmod +x build/linux/rp1.x86_64
-          OUT="$(xvfb-run -a ./build/linux/rp1.x86_64 --quit-after 30 2>&1 || true)"
+          OUT="$(xvfb-run -a ./build/linux/rp1.x86_64 --quit-after 60 2>&1 || true)"
           echo "$OUT"
           echo "$OUT" | grep -qE "RP1 booted with [1-9][0-9]* content definitions" \
             || { echo "Exported build loaded no content: data/ is not reaching the PCK." >&2
                  echo "Fix: Export preset -> Resources -> 'Filters to export non-resource files' -> add data/*" >&2
+                 exit 1; }
+          echo "$OUT" | grep -qE "RP1 rendered [1-9][0-9]* cells" \
+            || { echo "Exported build rendered nothing: textures are not reaching the PCK," >&2
+                 echo "or the runtime TileSet build failed in an exported context." >&2
+                 echo "Check for 'tileset:' errors in the output above." >&2
                  exit 1; }
 
       - uses: actions/upload-artifact@v4
