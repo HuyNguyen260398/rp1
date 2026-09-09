@@ -13,6 +13,11 @@ extends RefCounted
 ## Both functions return the number of tiles whose flag CHANGED, which is what
 ## makes the staleness guard testable: recompute an already-correct chunk and
 ## expect zero.
+##
+## Note for whoever authors zones in Phase 4: the `floor` column is
+## deliberately not consulted here. That is correct for Stage 1, but it means
+## a path or bridge authored as a `floor` over `water` will come out
+## unwalkable, with no error anywhere to flag it.
 
 
 static func recompute_chunk(chunk: Chunk, registry: ContentRegistry) -> int:

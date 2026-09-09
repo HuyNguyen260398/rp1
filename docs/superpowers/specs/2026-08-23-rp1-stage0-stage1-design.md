@@ -304,13 +304,13 @@ Point Steam Cloud at `user://saves/` when the Steamworks app exists. Configurati
 
 `EntityRenderer` maintains a pool of `Sprite2D` nodes that read positions from `EntityStore` each frame and own no state of their own.
 
-`Player` is a thin `Node2D` owning input and no position of its own: it reads the input actions, asks `MovementSystem` to resolve the move, and writes the result back to its `EntityStore` row. Movement is 8-direction, Y-sorted against objects. `Camera2D` follows with pixel snapping and zone-bounds limits.
+`Player` is a thin `Node` owning input and no position of its own: it reads the input actions, asks `MovementSystem` to resolve the move, and writes the result back to its `EntityStore` row. Movement is 8-direction, Y-sorted against objects. `Camera2D` follows with pixel snapping and zone-bounds limits.
 
 **Corrected by Phase 3b.** This section previously specified a `CharacterBody2D`, which contradicted §3.2's `MovementSystem` ("collision resolution against flags") — `move_and_slide()` *is* collision resolution, and `src/systems/` may not touch a node. Resolved in §3.2's favour so that acceptance criterion #1 is a headless test rather than a play-session. See `docs/superpowers/specs/2026-09-08-rp1-phase3b-player-movement-design.md` §2.
 
 **Collision** in Stage 1 is generated as merged rectangles per chunk from the walkable flags, via the interface `Chunk -> Array[Rect2i]`. Rects are in **world tile coordinates** and the builder is a **cached instance**, not a pure static, because rebuilding 1024 tiles per chunk per frame is not affordable. Stage 1 may use a naive row-merge implementation; Stage 2 replaces it with greedy meshing behind the same interface. Per-tile collision shapes are never used — a 32x32 chunk of solid tiles would be 1024 colliders.
 
-The `FLAG_WALKABLE` bit those rects read is derived from content by `systems/walkability.gd` as `terrain.walkable AND NOT object.blocks_movement`, recomputed when a zone is built, loaded, or mutated. Invalidation is an explicit call rather than a subscription to the zone's dirty flags, which `ZoneRenderer` already consumes and clears.
+The `FLAG_WALKABLE` bit those rects read is derived from content by `systems/walkability.gd` as `terrain.walkable AND NOT object.blocks_movement`, recomputed when a zone is built or mutated. Recomputing on load is Phase 5's concern, once save wiring lands; today `SaveManager.load_zone` returns flags verbatim from disk. Invalidation is an explicit call rather than a subscription to the zone's dirty flags, which `ZoneRenderer` already consumes and clears.
 
 ### 7.1 Art constants
 

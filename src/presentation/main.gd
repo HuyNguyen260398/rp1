@@ -85,8 +85,9 @@ func _build_debug_zone(registry: ContentRegistry) -> Zone:
 	# from terrain alone is what left the oaks standing on walkable tiles.
 	Walkability.recompute_zone(zone, registry)
 
-	# The renderer has just painted everything; the flags this generator
-	# set are not pending work for it. recompute_zone() dirties chunks as
-	# it writes, so this must stay AFTER it.
+	# The initial paint below is a full render_zone(), not a dirty-driven
+	# repaint, so the dirty flags this generator set are not pending work
+	# for the renderer. recompute_zone() dirties chunks as it writes, so
+	# this must stay AFTER it.
 	zone.clear_dirty()
 	return zone

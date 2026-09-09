@@ -5,8 +5,9 @@ extends Node2D
 ## Presentation reads world data and never writes it. Nothing in this file
 ## may mutate the Zone it is handed.
 
-## Terrain and floor are flat ground. Objects stand up and must sort
-## against the player, so only that layer gets y_sort_enabled.
+## Terrain and floor are flat ground and never sort. The object layer is
+## Y-sorted so its tiles interleave with entity sprites, and this renderer
+## is Y-sorted too so that nested sort flattens into the parent's.
 var terrain_layer: TileMapLayer = null
 var floor_layer: TileMapLayer = null
 var object_layer: TileMapLayer = null

@@ -24,7 +24,7 @@ by a bounds-limited camera, and sorts correctly in front of and behind oaks.
 - `MovementSystem`: node-free AABB resolution with wall sliding
 - `Player`: input, spawning, and writing the resolved position back to world data
 - `EntityRenderer`: `EntityStore` rows -> a pool of `Sprite2D`
-- `Camera`: follows an entity, snapped to pixels, clamped to zone bounds
+- `FollowCamera`: follows an entity, snapped to pixels, clamped to zone bounds
 - Placeholder character art, the `[input]` action map, and the Y-sorted node tree
 
 ### 1.2 Out of scope
@@ -264,7 +264,10 @@ feet. A 32x64 player and a 32x32 rabbit both stand correctly with no content fie
 and no per-type tuning. This is the principle commit `ad8956c` established when it
 replaced a hand-authored `y_offset` with geometry in the tileset builder.
 
-### 3.8 `Camera` — `src/presentation/camera.gd`
+### 3.8 `FollowCamera` — `src/presentation/camera.gd`
+
+Named `FollowCamera` rather than `Camera`: a bare `Camera` risks colliding with
+engine-reserved names.
 
 `Camera2D` following an entity id. `zoom` is an `@export` defaulting to `2.0`:
 1280x720 at 2x shows 20 x 11.25 tiles, which frames a 128x128 zone as a place you
@@ -423,7 +426,7 @@ the same commit as this spec.
 
 | § | Said | Now says |
 |---|---|---|
-| §7 | "`Player` is a `CharacterBody2D`" | A thin `Node2D`; resolution runs in node-free `MovementSystem` |
+| §7 | "`Player` is a `CharacterBody2D`" | A thin `Node`; resolution runs in node-free `MovementSystem`. `Node` rather than `Node2D` because `Player` draws nothing and owns no transform of its own. |
 | §7 | `Chunk -> Array[Rect2i]` | Same signature; rects in world tile coords, builder is a cached instance |
 | §10 | Phase 3 = renderer + player + camera + Kenney; Phase 4 = collision + `EntityRenderer` | 3a = renderer; 3b = player, camera, collision, `EntityRenderer`; 3c = Kenney + palette tooling; Phase 4 = authored zone + `AnimalSystem` |
 

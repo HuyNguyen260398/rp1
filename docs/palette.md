@@ -168,8 +168,8 @@ Stage 1 does.
       of day, quantize them to Apollo, and confirm the result still reads as the
       intended reference. If it does not, this file changes — which is why the
       status above says provisional.
-- [ ] Build `tools/quantize.gd` and `tools/check_palette.sh` (Phase 3b).
-- [ ] Delete the Phase 3a debug swatches, or exempt them in the gate.
+- [ ] Build `tools/quantize.gd` and `tools/check_palette.sh` (Phase 3c).
+- [ ] Delete the Phase 3a and 3b debug swatches, or exempt them in the gate.
 
 ---
 
