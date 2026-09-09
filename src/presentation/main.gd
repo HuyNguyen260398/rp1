@@ -15,6 +15,7 @@ var _renderer: ZoneRenderer = null
 var _entity_renderer: EntityRenderer = null
 var _player: Player = null
 var _camera: FollowCamera = null
+var _collision: CollisionBuilder = null
 
 
 func _ready() -> void:
@@ -51,10 +52,12 @@ func _ready() -> void:
 	_entity_renderer.setup(registry)
 	_entity_renderer.entities = zone.entities
 
+	_collision = CollisionBuilder.new()
+
 	_player = Player.new()
 	_player.name = "Player"
 	add_child(_player)
-	var pid: int = _player.spawn(zone, registry, zone.size_tiles / 2)
+	var pid: int = _player.spawn(zone, registry, _collision, zone.size_tiles / 2)
 	print("RP1 player spawned at %s" % zone.entities.get_position(pid))
 
 	_camera = FollowCamera.new()

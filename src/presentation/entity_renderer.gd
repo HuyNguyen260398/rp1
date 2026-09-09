@@ -28,6 +28,10 @@ func _ready() -> void:
 
 func setup(registry: ContentRegistry) -> void:
 	_registry = registry
+	# Set here too, not just in _ready(): _ready() does not fire
+	# synchronously on add_child() from SceneTree._init(), which is how the
+	# headless smoke test drives this node. Same reasoning as
+	# zone_renderer.gd's _ensure_layers().
 	y_sort_enabled = true
 
 
@@ -75,7 +79,6 @@ func _sprite_at(index: int) -> Sprite2D:
 	while _pool.size() <= index:
 		var s: Sprite2D = Sprite2D.new()
 		s.centered = true
-		s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(s)
 		_pool.append(s)
 	return _pool[index]

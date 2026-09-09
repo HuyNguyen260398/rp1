@@ -76,7 +76,3 @@ func solids_near(zone: Zone, area: Rect2) -> Array[Rect2i]:
 
 func invalidate(chunk_coord: Vector2i) -> void:
 	_cache.erase(chunk_coord)
-
-
-func clear() -> void:
-	_cache.clear()
