@@ -1,0 +1,2 @@
+{"id": "player", "category": "creature", "display_name": "Player",
+ "sprite": "res://assets/characters/player.png", "tags": ["player"]}
