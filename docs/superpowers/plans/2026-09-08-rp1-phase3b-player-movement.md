@@ -1573,7 +1573,7 @@ EOF
 - Consumes: everything from Tasks 2-8
 - Produces: a running game. Prints `RP1 player spawned at (x, y)`, which Task 10's CI gate greps for.
 
-- [ ] **Step 1: Rewrite `_ready()`**
+- [x] **Step 1: Rewrite `_ready()`**
 
 In `src/presentation/main.gd`, replace `_ready()`:
 
@@ -1626,7 +1626,7 @@ func _ready() -> void:
 	_camera.make_current()
 ```
 
-- [ ] **Step 2: Add the new members**
+- [x] **Step 2: Add the new members**
 
 Alongside the existing `var _renderer: ZoneRenderer = null`:
 
@@ -1636,7 +1636,7 @@ var _player: Player = null
 var _camera: FollowCamera = null
 ```
 
-- [ ] **Step 3: Derive the walkable flags in the debug zone**
+- [x] **Step 3: Derive the walkable flags in the debug zone**
 
 In `_build_debug_zone()`, the generator currently sets `FLAG_WALKABLE` from terrain alone, which leaves the oaks standing on walkable tiles. Delete that hand-set flag and let `Walkability` derive it. Replace the loop body's flag line and add a recompute before `clear_dirty()`:
 
@@ -1661,7 +1661,7 @@ In `_build_debug_zone()`, the generator currently sets `FLAG_WALKABLE` from terr
 	return zone
 ```
 
-- [ ] **Step 4: Run it**
+- [x] **Step 4: Run it**
 
 ```bash
 ./tools/godot.sh --headless --path . --quit-after 120
@@ -1683,7 +1683,7 @@ RP1 player spawned at (64.5, 64.5)
 
 Walk with WASD and the arrow keys. Confirm by eye: eight directions work, diagonals are not faster, the pond and the oaks stop you, the zone edges stop you, and the camera stops at all four bounds instead of showing black.
 
-- [ ] **Step 6: Run every gate**
+- [x] **Step 6: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -1694,7 +1694,7 @@ Walk with WASD and the arrow keys. Confirm by eye: eight directions work, diagon
 
 Expected: all four green.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/presentation/main.gd
