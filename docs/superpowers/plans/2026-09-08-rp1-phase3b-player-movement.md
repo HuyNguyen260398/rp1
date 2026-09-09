@@ -1952,7 +1952,10 @@ EOF
 - [x] `./tools/run_tests.sh` green, including **37** new tests across four files (11 walkability, 10 collision, 11 movement, 5 spawn search) — 163 total, up from 126
 - [x] `tools/guard.gd` green — `walkability`, `collision_builder` and `movement_system` are node-free
 - [x] `tools/smoke.gd` green with ten new assertions, **each one seen to fail**
-- [ ] The exported build loads content, renders, and spawns the player
+- [x] The exported build loads content, renders, and spawns the player
+  *(CI gate 5 runs the exported Linux build under xvfb and requires all three
+  startup lines -- content definitions, cells rendered, player spawned. Green
+  on the Phase 3b branch: run 34354672017.)*
 - [x] `docs/palette.md` exemptions and `assets/CREDITS.md` updated, and no "deleted in Phase 3b" strings remain
 - [x] No new file over roughly 300 lines
   *(largest is movement_system.gd at 105)*
