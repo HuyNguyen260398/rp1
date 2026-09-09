@@ -941,7 +941,7 @@ EOF
 
 **Why substepping.** At 4.5 tiles/sec on a 60 Hz tick a step is 0.075 tiles against a body 0.5 tiles deep — a margin of about 6.7x. A frame spike erases it. Note that a body landing *inside* a wall is still pushed out correctly; tunnelling needs the body to clear the far side entirely, which at this body width takes a step over 1.125 tiles — a hitch of about half a second. Substepping makes correctness depend on the body size, which we control, rather than the frame rate, which we do not.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_movement_system.gd`:
 
@@ -982,7 +982,7 @@ func test_facing_is_held_when_velocity_is_zero() -> void:
 	)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 ```bash
 ./tools/run_tests.sh
@@ -990,7 +990,7 @@ func test_facing_is_held_when_velocity_is_zero() -> void:
 
 Expected: FAIL — `facing_from` is not defined, and the spike test lands at roughly `x = 7.75`, clean past the wall.
 
-- [ ] **Step 3: Add the constants and facing**
+- [x] **Step 3: Add the constants and facing**
 
 At the top of `src/systems/movement_system.gd`, below the docstring:
 
@@ -1021,7 +1021,7 @@ static func facing_from(velocity: Vector2, current: int) -> int:
 	return posmod(octant, 8)
 ```
 
-- [ ] **Step 4: Add substepping to `move()`**
+- [x] **Step 4: Add substepping to `move()`**
 
 Replace the body of `move()` in `src/systems/movement_system.gd`:
 
@@ -1051,7 +1051,7 @@ static func move(
 	return p
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -1059,7 +1059,7 @@ static func move(
 
 Expected: PASS, eleven tests in this file — the seven from Task 4 still green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/movement_system.gd tests/test_movement_system.gd
