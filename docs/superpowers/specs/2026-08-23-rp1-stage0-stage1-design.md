@@ -450,7 +450,7 @@ phase boundaries below moved with it.
 
 **Phase 3b — player, movement and collision**
 
-- `Player` as a thin `Node2D`, 8-direction, Y-sorted, position held in `EntityStore`
+- `Player` as a thin `Node`, 8-direction, Y-sorted, position held in `EntityStore`
 - `Walkability`, `CollisionBuilder` and node-free `MovementSystem`
 - `Camera2D` with pixel snapping and bounds
 - `EntityRenderer` pooling `Sprite2D` over entity rows
