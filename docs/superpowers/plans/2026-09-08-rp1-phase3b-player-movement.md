@@ -1860,7 +1860,7 @@ EOF
 
 Draw order is a rendering outcome, not node state, so no test can cover it. This task is a deliberate manual gate.
 
-- [ ] **Step 1: Capture the player standing above an oak**
+- [x] **Step 1: Capture the player standing above an oak**
 
 Temporarily spawn the player one tile north of the oak at `(66, 66)` — the lattice places trees every 11 tiles, so `(66, 66)` holds one. In `main.gd`, change the spawn call to:
 
@@ -1874,7 +1874,7 @@ Then capture:
 ./tools/godot.sh --path . -s tools/screenshot.gd -- --out=/tmp/ysort_above.png
 ```
 
-- [ ] **Step 2: Capture the player standing below the same oak**
+- [x] **Step 2: Capture the player standing below the same oak**
 
 ```gdscript
 	var pid: int = _player.spawn(zone, registry, Vector2i(66, 67))
@@ -1884,7 +1884,7 @@ Then capture:
 ./tools/godot.sh --path . -s tools/screenshot.gd -- --out=/tmp/ysort_below.png
 ```
 
-- [ ] **Step 3: Compare them**
+- [x] **Step 3: Compare them**
 
 Open both. Expected:
 
@@ -1893,7 +1893,7 @@ Open both. Expected:
 
 If the player is in front in both, the nested y-sort did not flatten. **Fallback:** restructure so `ObjectLayer` and `EntityRenderer` are children of one dedicated y-sorted `Node2D`, with `TerrainLayer` and `FloorLayer` outside it and drawn first. That requires `ZoneRenderer` to expose its object layer for reparenting, and the spec records it as the accepted fallback.
 
-- [ ] **Step 4: Restore the spawn point**
+- [x] **Step 4: Restore the spawn point**
 
 ```gdscript
 	var pid: int = _player.spawn(zone, registry, zone.size_tiles / 2)
@@ -1907,7 +1907,7 @@ git diff --stat
 
 Expected: empty, unless the fallback was needed.
 
-- [ ] **Step 5: Run every gate one final time**
+- [x] **Step 5: Run every gate one final time**
 
 ```bash
 ./tools/run_tests.sh
@@ -1918,7 +1918,7 @@ Expected: empty, unless the fallback was needed.
 
 Expected: all four green.
 
-- [ ] **Step 6: Commit only if the fallback was needed**
+- [x] **Step 6: Commit only if the fallback was needed**
 
 If Step 3 passed, there is nothing to commit — record the result in the definition of done below instead. If the fallback was needed:
 
@@ -1945,14 +1945,17 @@ EOF
 - [ ] The player cannot enter the pond or a tree tile, and slides along an edge rather than sticking
 - [ ] The player cannot leave the zone at any of the four edges
 - [ ] The camera follows and clamps at all four bounds without jitter
-- [ ] Screenshot: the player renders behind an oak from above, in front from below
-- [ ] `EntityRenderer` draws the player, and `rabbit.png` resolves
-- [ ] `./tools/run_tests.sh` green, including **32** new tests across three files (11 walkability, 10 collision, 11 movement)
-- [ ] `tools/guard.gd` green — `walkability`, `collision_builder` and `movement_system` are node-free
-- [ ] `tools/smoke.gd` green with ten new assertions, **each one seen to fail**
+- [x] Screenshot: the player renders behind an oak from above, in front from below
+  *(verified at /tmp/ysort_above2.png: the oak paints over the player's bottom 27px. The first attempt was inconclusive — see the Task 11 ruling.)*
+- [x] `EntityRenderer` draws the player, and `rabbit.png` resolves
+  *(smoke asserts one visible sprite; rabbit.png now exists, so the dangling reference in rabbit.json is fixed — nothing spawns a rabbit until Phase 4)*
+- [x] `./tools/run_tests.sh` green, including **37** new tests across four files (11 walkability, 10 collision, 11 movement, 5 spawn search) — 163 total, up from 126
+- [x] `tools/guard.gd` green — `walkability`, `collision_builder` and `movement_system` are node-free
+- [x] `tools/smoke.gd` green with ten new assertions, **each one seen to fail**
 - [ ] The exported build loads content, renders, and spawns the player
-- [ ] `docs/palette.md` exemptions and `assets/CREDITS.md` updated, and no "deleted in Phase 3b" strings remain
-- [ ] No new file over roughly 300 lines
+- [x] `docs/palette.md` exemptions and `assets/CREDITS.md` updated, and no "deleted in Phase 3b" strings remain
+- [x] No new file over roughly 300 lines
+  *(largest is movement_system.gd at 105)*
 
 ### Verifying the collision criterion by hand
 
