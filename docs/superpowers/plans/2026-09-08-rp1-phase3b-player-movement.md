@@ -728,7 +728,7 @@ EOF
 
 **The anchor.** `pos` is the **feet point**: the bottom-centre of the body box. So a body of `(0.625, 0.5)` at `(4.0, 3.0)` spans x from `3.6875` to `4.3125` and y from `2.5` to `3.0`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_movement_system.gd`:
 
@@ -800,7 +800,7 @@ func test_bounds_clamp_east_and_south() -> void:
 	assert_almost_eq(p.y, 32.0, 0.0001)
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 ./tools/run_tests.sh
@@ -808,7 +808,7 @@ func test_bounds_clamp_east_and_south() -> void:
 
 Expected: FAIL — `MovementSystem` is not declared.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/systems/movement_system.gd`:
 
@@ -888,7 +888,7 @@ static func _slide_axis(
 	return moved
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -896,7 +896,7 @@ static func _slide_axis(
 
 Expected: PASS, seven new tests.
 
-- [ ] **Step 5: Run the architecture guard**
+- [x] **Step 5: Run the architecture guard**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -904,7 +904,7 @@ Expected: PASS, seven new tests.
 
 Expected: `Architecture guard: clean`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/movement_system.gd tests/test_movement_system.gd
