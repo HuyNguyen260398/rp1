@@ -1725,7 +1725,7 @@ EOF
 - Consumes: `Walkability`, `CollisionBuilder`, `MovementSystem`, `EntityRenderer`
 - Produces: a smoke run that fails if movement stops working headless
 
-- [ ] **Step 1: Add the movement block to the smoke test**
+- [x] **Step 1: Add the movement block to the smoke test**
 
 In `tools/smoke.gd`, insert before the `renderer.queue_free()` line:
 
@@ -1780,7 +1780,7 @@ In `tools/smoke.gd`, insert before the `renderer.queue_free()` line:
 	entity_renderer.queue_free()
 ```
 
-- [ ] **Step 2: Run the smoke test**
+- [x] **Step 2: Run the smoke test**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/smoke.gd
@@ -1788,7 +1788,7 @@ In `tools/smoke.gd`, insert before the `renderer.queue_free()` line:
 
 Expected: `Smoke test: OK (300 iterations)`
 
-- [ ] **Step 3: Prove each new assertion can fail**
+- [x] **Step 3: Prove each new assertion can fail**
 
 Phase 3a mutated all seven of its new checks in turn and watched each fail with its own message. Do the same for all ten added above. One at a time: break it, run the smoke test, confirm it fails with *that* message, restore it.
 
@@ -1809,7 +1809,7 @@ Suggested mutations:
 
 Restore the file completely afterwards and re-run to confirm it is green again.
 
-- [ ] **Step 4: Add the player assertion to the export gate**
+- [x] **Step 4: Add the player assertion to the export gate**
 
 In `.github/workflows/ci.yml`, extend the "Verify the exported build loads its content and renders" step with a third check after the rendered-cells one:
 
@@ -1822,7 +1822,7 @@ In `.github/workflows/ci.yml`, extend the "Verify the exported build loads its c
 
 The comment above the step already explains why this gate exists: an export can succeed while the PCK silently omits `data/`. A player that fails to spawn fails in exactly that way, so it belongs in the same place.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/smoke.gd .github/workflows/ci.yml
