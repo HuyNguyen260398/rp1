@@ -5,8 +5,9 @@ extends Node2D
 ## Presentation reads world data and never writes it. Nothing in this file
 ## may mutate the Zone it is handed.
 
-## Terrain and floor are flat ground. Objects stand up and must sort
-## against the player, so only that layer gets y_sort_enabled.
+## Terrain and floor are flat ground and never sort. The object layer is
+## Y-sorted so its tiles interleave with entity sprites, and this renderer
+## is Y-sorted too so that nested sort flattens into the parent's.
 var terrain_layer: TileMapLayer = null
 var floor_layer: TileMapLayer = null
 var object_layer: TileMapLayer = null
@@ -30,9 +31,19 @@ func _ready() -> void:
 func _ensure_layers() -> void:
 	if terrain_layer != null:
 		return
+	# Nested Y-sorted nodes flatten into the parent's sort, which is what
+	# lets object tiles interleave with entity sprites. Without this the
+	# whole renderer sorts as one item at y = 0 and the player draws in
+	# front of every tree regardless of where they stand.
+	y_sort_enabled = true
 	terrain_layer = _make_layer("TerrainLayer", false)
 	floor_layer = _make_layer("FloorLayer", false)
 	object_layer = _make_layer("ObjectLayer", true)
+	# Ground never sorts. Without an explicit z_index these layers sit at
+	# y = 0 in the flattened sort and stay behind everything only by a
+	# tie-break on tree order, which is not a thing to depend on.
+	terrain_layer.z_index = -1
+	floor_layer.z_index = -1
 
 
 func _make_layer(layer_name: String, y_sort: bool) -> TileMapLayer:

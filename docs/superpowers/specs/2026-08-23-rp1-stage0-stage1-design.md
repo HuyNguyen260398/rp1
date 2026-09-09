@@ -174,10 +174,12 @@ Entities are stored per **zone**, not per chunk. An animal crossing a chunk boun
 |---|---|---|
 | `id` | `PackedInt32Array` | stable u32, never reused within a save |
 | `type_id` | `PackedByteArray` (u16) | resolves through `ContentRegistry` |
-| `x`, `y` | `PackedFloat32Array` | sub-tile world position |
+| `x`, `y` | `PackedFloat32Array` | sub-tile world position, **in tile units** |
 | `facing` | `PackedByteArray` (u8) | 8 directions |
 | `flags` | `PackedByteArray` (u8) | active, persisted, reserved |
 | `blob_offset` | `PackedInt32Array` | offset into side buffer; **all zero in Stage 1** |
+
+**One position unit is one tile**, not one pixel: an entity at `(40.5, 40.5)` stands at the centre of tile `(40, 40)`. Tile size is a *presentation* constant (§7.1), so measuring persisted positions in pixels would bake it into every save file and make changing it a migration. Presentation multiplies by `TILE_SIZE` at the boundary. (Pinned by Phase 3b; the column predates the decision.)
 
 The `blob` column carries variable-length per-entity state (an NPC's inventory, an animal's hunger memory). It is present in the format and unused in Stage 1, on the same reasoning as `height`.
 
@@ -302,9 +304,13 @@ Point Steam Cloud at `user://saves/` when the Steamworks app exists. Configurati
 
 `EntityRenderer` maintains a pool of `Sprite2D` nodes that read positions from `EntityStore` each frame and own no state of their own.
 
-`Player` is a `CharacterBody2D` with 8-direction movement, Y-sorted against objects. `Camera2D` follows with pixel snapping and zone-bounds limits.
+`Player` is a thin `Node` owning input and no position of its own: it reads the input actions, asks `MovementSystem` to resolve the move, and writes the result back to its `EntityStore` row. Movement is 8-direction, Y-sorted against objects. `Camera2D` follows with pixel snapping and zone-bounds limits.
 
-**Collision** in Stage 1 is generated as merged rectangles per chunk from the walkable flags, via the interface `Chunk -> Array[Rect2i]`. Stage 1 may use a naive row-merge implementation; Stage 2 replaces it with greedy meshing behind the same interface. Per-tile collision shapes are never used — a 32x32 chunk of solid tiles would be 1024 colliders.
+**Corrected by Phase 3b.** This section previously specified a `CharacterBody2D`, which contradicted §3.2's `MovementSystem` ("collision resolution against flags") — `move_and_slide()` *is* collision resolution, and `src/systems/` may not touch a node. Resolved in §3.2's favour so that acceptance criterion #1 is a headless test rather than a play-session. See `docs/superpowers/specs/2026-09-08-rp1-phase3b-player-movement-design.md` §2.
+
+**Collision** in Stage 1 is generated as merged rectangles per chunk from the walkable flags, via the interface `Chunk -> Array[Rect2i]`. Rects are in **world tile coordinates** and the builder is a **cached instance**, not a pure static, because rebuilding 1024 tiles per chunk per frame is not affordable. Stage 1 may use a naive row-merge implementation; Stage 2 replaces it with greedy meshing behind the same interface. Per-tile collision shapes are never used — a 32x32 chunk of solid tiles would be 1024 colliders.
+
+The `FLAG_WALKABLE` bit those rects read is derived from content by `systems/walkability.gd` as `terrain.walkable AND NOT object.blocks_movement`, recomputed when a zone is built or mutated. Recomputing on load is Phase 5's concern, once save wiring lands; today `SaveManager.load_zone` returns flags verbatim from disk. Invalidation is an explicit call rather than a subscription to the zone's dirty flags, which `ZoneRenderer` already consumes and clears.
 
 ### 7.1 Art constants
 
@@ -433,19 +439,36 @@ Still headless. Save and load are built **before** rendering; reversing this ord
 
 ### Phase 3 — Rendering and movement
 
-First visuals.
+First visuals. Split into three slices; the split is recorded here because the
+phase boundaries below moved with it.
+
+**Phase 3a — the rendering slice** *(done)*
 
 - `ZoneRenderer` with three `TileMapLayer`s and dirty-chunk batching
-- `Player` `CharacterBody2D`, 8-direction, Y-sorted
+- `TilesetBuilder`: a `TileSet` assembled at runtime from `ContentRegistry`
+- Placeholder art and the debug zone
+
+**Phase 3b — player, movement and collision**
+
+- `Player` as a thin `Node`, 8-direction, Y-sorted, position held in `EntityStore`
+- `Walkability`, `CollisionBuilder` and node-free `MovementSystem`
 - `Camera2D` with pixel snapping and bounds
-- Kenney tileset imported, `CREDITS.md` started
+- `EntityRenderer` pooling `Sprite2D` over entity rows
+
+**Phase 3c — the art pipeline**
+
+- Kenney tileset imported, `CREDITS.md` extended
+- `tools/quantize.gd` and `tools/check_palette.sh` as CI gate 6
+- Every placeholder swatch from 3a and 3b deleted
 
 ### Phase 4 — World content
 
 - Hand-author the 128x128 zone **as data** (JSON plus PNG heightmap the game reads), not in the Godot editor, so world data stays in the layer agents can manipulate
 - Trees, rocks, water, paths, three houses (exterior only)
-- Collision from walkable flags via merged rectangles
-- `EntityRenderer` plus `AnimalSystem`: wander within a radius, flee the player. Deliberately dumb — this validates the entity pipeline, not AI.
+- `AnimalSystem`: wander within a radius, flee the player. Deliberately dumb — this validates the entity pipeline, not AI.
+- A multi-consumer dirty channel, so the collision cache and `ZoneRenderer` can both react to zone mutation
+
+*(Collision from walkable flags and `EntityRenderer` moved earlier, into Phase 3b.)*
 
 ### Phase 5 — Game loop closure
 

@@ -3,6 +3,6 @@ Author: this project
 Licence: project-owned placeholder art, no third-party rights
 
 These are flat debug swatches, not artwork. They exist so the renderer has
-something to draw before the real tileset is imported in Phase 3b, at which
+something to draw before the real tileset is imported in Phase 3c, at which
 point they are deleted and this file is replaced with the real pack's
 source, author and licence.

@@ -12,9 +12,17 @@ const POND_RADIUS: int = 8
 const TREE_SPACING: int = 11
 
 var _renderer: ZoneRenderer = null
+var _entity_renderer: EntityRenderer = null
+var _player: Player = null
+var _camera: FollowCamera = null
+var _collision: CollisionBuilder = null
 
 
 func _ready() -> void:
+	# Nested Y-sorted nodes flatten into this one's sort, so the object
+	# layer's tiles and the entity sprites interleave by their y position.
+	y_sort_enabled = true
+
 	var registry: ContentRegistry = ContentRegistry.new()
 	var errs: PackedStringArray = registry.load_from_dir("res://data")
 	if not errs.is_empty():
@@ -38,6 +46,27 @@ func _ready() -> void:
 	# shipped without data/*.json.
 	print("RP1 rendered %d cells" % painted)
 
+	_entity_renderer = EntityRenderer.new()
+	_entity_renderer.name = "EntityRenderer"
+	add_child(_entity_renderer)
+	_entity_renderer.setup(registry)
+	_entity_renderer.entities = zone.entities
+
+	_collision = CollisionBuilder.new()
+
+	_player = Player.new()
+	_player.name = "Player"
+	add_child(_player)
+	var pid: int = _player.spawn(zone, registry, _collision, zone.size_tiles / 2)
+	print("RP1 player spawned at %s" % zone.entities.get_position(pid))
+
+	_camera = FollowCamera.new()
+	_camera.name = "FollowCamera"
+	add_child(_camera)
+	_camera.setup(zone)
+	_camera.target_id = pid
+	_camera.make_current()
+
 
 ## TEMPORARY -- deleted in Phase 4 when zones are authored as data.
 func _build_debug_zone(registry: ContentRegistry) -> Zone:
@@ -51,12 +80,17 @@ func _build_debug_zone(registry: ContentRegistry) -> Zone:
 			var w: Vector2i = Vector2i(x, y)
 			var in_pond: bool = Vector2(w - POND_CENTRE).length() <= float(POND_RADIUS)
 			zone.set_terrain(w, water if in_pond else grass)
-			zone.set_flags(w, 0 if in_pond else Chunk.FLAG_WALKABLE)
 			# A lattice, skipping the pond, so the result is easy to eyeball.
 			if not in_pond and x % TREE_SPACING == 0 and y % TREE_SPACING == 0:
 				zone.set_object(w, oak)
 
-	# The renderer has just painted everything; the flags this generator
-	# set are not pending work for it.
+	# Flags are derived from content, never hand-set. Setting them here
+	# from terrain alone is what left the oaks standing on walkable tiles.
+	Walkability.recompute_zone(zone, registry)
+
+	# The initial paint below is a full render_zone(), not a dirty-driven
+	# repaint, so the dirty flags this generator set are not pending work
+	# for the renderer. recompute_zone() dirties chunks as it writes, so
+	# this must stay AFTER it.
 	zone.clear_dirty()
 	return zone
