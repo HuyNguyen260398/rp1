@@ -67,6 +67,55 @@ func _init() -> void:
 	_check(renderer.cells_painted() == before_dirty,
 		"repainting a chunk does not change the total cell count")
 
+	# --- movement --------------------------------------------------------
+	# A purpose-built fixture: an 8x8 patch of grass with one oak in it.
+	# The zone above is scattered tiles and is not walkable enough to test
+	# against.
+	var mzone: Zone = Zone.new("move", Vector2i(32, 32))
+	var oak: int = registry.numeric_of("oak_tree")
+	_check(oak != ContentRegistry.ID_UNKNOWN, "oak_tree is registered")
+	for y: int in range(8):
+		for x: int in range(8):
+			mzone.set_terrain(Vector2i(x, y), grass)
+	mzone.set_object(Vector2i(4, 2), oak)
+
+	_check(Walkability.recompute_zone(mzone, registry) > 0, "walkability set some flags")
+	_check(mzone.is_walkable(Vector2i(2, 2)), "plain grass is walkable")
+	_check(not mzone.is_walkable(Vector2i(4, 2)), "grass under an oak is not walkable")
+
+	var collision: CollisionBuilder = CollisionBuilder.new()
+	var solids: Array[Rect2i] = collision.solids_near(
+		mzone, Rect2(Vector2.ZERO, Vector2(8.0, 8.0)))
+	_check(not solids.is_empty(), "collision builder produced rects")
+
+	var body: Vector2 = Vector2(0.625, 0.5)
+	var bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(mzone.size_tiles))
+	var tick: float = 1.0 / 60.0
+
+	# Row 2 has the oak at x = 4. Walking east must stop short of it.
+	var blocked: Vector2 = Vector2(2.5, 2.5)
+	for i: int in range(120):
+		blocked = MovementSystem.move(blocked, Vector2(4.5, 0.0), tick, body, solids, bounds)
+	_check(blocked.x < 4.0, "walking east into the oak stopped at %.3f" % blocked.x)
+
+	# Row 5 is clear, so the same walk must actually get somewhere.
+	var open: Vector2 = Vector2(2.5, 5.5)
+	for i: int in range(120):
+		open = MovementSystem.move(open, Vector2(4.5, 0.0), tick, body, solids, bounds)
+	_check(open.x > 5.0, "walking east across open grass reached only %.3f" % open.x)
+
+	# --- entity rendering ------------------------------------------------
+	var entity_renderer: EntityRenderer = EntityRenderer.new()
+	root.add_child(entity_renderer)
+	entity_renderer.setup(registry)
+	entity_renderer.entities = mzone.entities
+	var player_type: int = registry.numeric_of("player")
+	_check(player_type != ContentRegistry.ID_UNKNOWN, "player is registered")
+	mzone.entities.spawn(player_type, Vector2(2.5, 2.5))
+	_check(entity_renderer.refresh() == 1, "entity renderer drew the player")
+	_check(entity_renderer.visible_count() == 1, "exactly one sprite is visible")
+	entity_renderer.queue_free()
+
 	renderer.queue_free()
 
 	for f: String in _failures:

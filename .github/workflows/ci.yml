@@ -109,6 +109,10 @@ jobs:
                  echo "or the runtime TileSet build failed in an exported context." >&2
                  echo "Check for 'tileset:' errors in the output above." >&2
                  exit 1; }
+          echo "$OUT" | grep -qE "RP1 player spawned at" \
+            || { echo "Exported build spawned no player: data/creature/player.json is not" >&2
+                 echo "reaching the PCK, or the spawn search failed against the exported zone." >&2
+                 exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
