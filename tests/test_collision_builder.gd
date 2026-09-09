@@ -82,11 +82,26 @@ func test_a_missing_chunk_is_solid() -> void:
 
 func test_solids_near_gathers_every_overlapped_chunk() -> void:
 	var z: Zone = Zone.new("t", Vector2i(128, 128))
+	# Each of the four chunks gets ONE distinguishing blocked tile at the
+	# same local coordinate, so each contributes exactly one rect and the
+	# four rects land at four different, predictable world positions. A
+	# solids_near() that misses a chunk shows up as a missing rect, not as
+	# a size that happens to match by coincidence.
 	for c: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]:
-		z.install_chunk(_open_chunk(c))
+		var chunk: Chunk = _open_chunk(c)
+		chunk.set_flags(Vector2i(5, 5), 0)
+		z.install_chunk(chunk)
 	# A 2x2-tile area straddling the corner where all four chunks meet.
 	var rects: Array[Rect2i] = _b.solids_near(z, Rect2(Vector2(31.0, 31.0), Vector2(2.0, 2.0)))
-	assert_eq(rects.size(), 0, "all four chunks are open")
+	assert_eq(rects.size(), 4, "one blocked tile from each of the four overlapped chunks")
+	var expected: Array[Rect2i] = [
+		Rect2i(5, 5, 1, 1),
+		Rect2i(37, 5, 1, 1),
+		Rect2i(5, 37, 1, 1),
+		Rect2i(37, 37, 1, 1),
+	]
+	for r: Rect2i in expected:
+		assert_true(rects.has(r), "missing expected rect %s -- a chunk was not gathered" % [r])
 
 
 func test_invalidate_forces_a_rebuild() -> void:

@@ -86,7 +86,10 @@ func _init() -> void:
 	var collision: CollisionBuilder = CollisionBuilder.new()
 	var solids: Array[Rect2i] = collision.solids_near(
 		mzone, Rect2(Vector2.ZERO, Vector2(8.0, 8.0)))
-	_check(not solids.is_empty(), "collision builder produced rects")
+	# Not just "produced some rects": the fixture's 24 unpainted columns
+	# guarantee a non-empty result regardless of whether oak-blocking works
+	# at all, so assert the oak's own rect is actually in there.
+	_check(solids.has(Rect2i(4, 2, 1, 1)), "collision builder did not produce the oak's own rect at (4, 2)")
 
 	var body: Vector2 = Vector2(0.625, 0.5)
 	var bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(mzone.size_tiles))
@@ -98,11 +101,17 @@ func _init() -> void:
 		blocked = MovementSystem.move(blocked, Vector2(4.5, 0.0), tick, body, solids, bounds)
 	_check(blocked.x < 4.0, "walking east into the oak stopped at %.3f" % blocked.x)
 
-	# Row 5 is clear, so the same walk must actually get somewhere.
+	# Row 5 is clear, so the same walk must actually get somewhere -- but
+	# the fixture's unpainted region starts at x = 8, so collision working
+	# stops it there too, at exactly 7.6875 (8 minus half the 0.625-wide
+	# body). A lower bound alone would also pass with collision disabled
+	# entirely (the walk would reach 11.5), so check both sides: past the
+	# grass, short of the unpainted column.
 	var open: Vector2 = Vector2(2.5, 5.5)
 	for i: int in range(120):
 		open = MovementSystem.move(open, Vector2(4.5, 0.0), tick, body, solids, bounds)
-	_check(open.x > 5.0, "walking east across open grass reached only %.3f" % open.x)
+	_check(open.x > 7.0 and open.x < 8.0,
+		"walking east across open grass should stop just short of the unpainted column at x=8, reached %.4f" % open.x)
 
 	# --- entity rendering ------------------------------------------------
 	var entity_renderer: EntityRenderer = EntityRenderer.new()
