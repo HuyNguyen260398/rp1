@@ -1449,7 +1449,7 @@ EOF
 
 **The Y-sort change is the risky part of this task.** Godot sorts the direct children of a y-sorted node. Phase 3a set `y_sort_enabled` on `ObjectLayer` only, which sorts tiles among themselves but not against anything outside the renderer. Nested y-sorted nodes flatten into the parent's sort, so `ZoneRenderer` itself must be y-sorted too — otherwise its whole subtree sorts as a single item at `y = 0` and every entity draws in front of every tree.
 
-- [ ] **Step 1: Make `ZoneRenderer` participate in the parent's sort**
+- [x] **Step 1: Make `ZoneRenderer` participate in the parent's sort**
 
 In `src/presentation/zone_renderer.gd`, replace `_ensure_layers()`:
 
@@ -1472,7 +1472,7 @@ func _ensure_layers() -> void:
 	floor_layer.z_index = -1
 ```
 
-- [ ] **Step 2: Write the camera**
+- [x] **Step 2: Write the camera**
 
 Create `src/presentation/camera.gd`:
 
@@ -1513,7 +1513,7 @@ func _process(_delta: float) -> void:
 	global_position = _entities.get_position(target_id) * float(TILE_SIZE)
 ```
 
-- [ ] **Step 3: Add the pixel-snap project settings**
+- [x] **Step 3: Add the pixel-snap project settings**
 
 In `project.godot`, extend the existing `[rendering]` section:
 
@@ -1527,7 +1527,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 2d/snap/snap_2d_vertices_to_pixel=true
 ```
 
-- [ ] **Step 4: Run the tests, the guard and the smoke gate**
+- [x] **Step 4: Run the tests, the guard and the smoke gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -1537,7 +1537,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 Expected: all three green. The smoke test exercises `ZoneRenderer`, so this confirms the y-sort change did not break painting.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/presentation/camera.gd src/presentation/zone_renderer.gd project.godot
