@@ -63,3 +63,39 @@ func test_bounds_clamp_east_and_south() -> void:
 		p = MovementSystem.move(p, Vector2(4.5, 4.5), TICK, BODY, _none, BOUNDS)
 	assert_almost_eq(p.x, 31.6875, 0.0001)
 	assert_almost_eq(p.y, 32.0, 0.0001)
+
+
+func test_a_frame_spike_does_not_tunnel_through_a_wall() -> void:
+	# A half-second hitch steps 2.25 tiles. Landing INSIDE a wall is still
+	# resolved correctly, so a smaller spike proves nothing -- this one
+	# clears the far side of the wall entirely, which is real tunnelling.
+	var solids: Array[Rect2i] = [Rect2i(6, 0, 1, 32)]
+	var p: Vector2 = MovementSystem.move(
+		Vector2(5.5, 10.0), Vector2(4.5, 0.0), 0.5, BODY, solids, BOUNDS)
+	assert_almost_eq(p.x, 5.6875, 0.0001, "stopped by the wall, not teleported past it")
+
+
+func test_substepping_does_not_change_an_unobstructed_move() -> void:
+	var p: Vector2 = MovementSystem.move(
+		Vector2(4.0, 4.0), Vector2(4.5, 0.0), 0.25, BODY, _none, BOUNDS)
+	assert_almost_eq(p.x, 5.125, 0.0001, "4.0 + 4.5 * 0.25")
+
+
+func test_facing_covers_all_eight_octants() -> void:
+	assert_eq(MovementSystem.facing_from(Vector2(0, 1), 0), MovementSystem.FACING_S)
+	assert_eq(MovementSystem.facing_from(Vector2(1, 1), 0), MovementSystem.FACING_SE)
+	assert_eq(MovementSystem.facing_from(Vector2(1, 0), 0), MovementSystem.FACING_E)
+	assert_eq(MovementSystem.facing_from(Vector2(1, -1), 0), MovementSystem.FACING_NE)
+	assert_eq(MovementSystem.facing_from(Vector2(0, -1), 0), MovementSystem.FACING_N)
+	assert_eq(MovementSystem.facing_from(Vector2(-1, -1), 0), MovementSystem.FACING_NW)
+	assert_eq(MovementSystem.facing_from(Vector2(-1, 0), 0), MovementSystem.FACING_W)
+	assert_eq(MovementSystem.facing_from(Vector2(-1, 1), 0), MovementSystem.FACING_SW)
+
+
+func test_facing_is_held_when_velocity_is_zero() -> void:
+	# Releasing every key must not snap the character back to a default,
+	# or persisting `facing` in Phase 5 means nothing.
+	assert_eq(
+		MovementSystem.facing_from(Vector2.ZERO, MovementSystem.FACING_W),
+		MovementSystem.FACING_W
+	)
