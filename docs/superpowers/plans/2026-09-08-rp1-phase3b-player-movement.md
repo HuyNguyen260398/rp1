@@ -1300,7 +1300,7 @@ EOF
 
 Tested through `tools/smoke.gd` in Task 10 rather than a GUT file, matching how Phase 3a covered `ZoneRenderer`. `CLAUDE.md` requires a matching test for `core/` and `systems/`; presentation is covered by the smoke gate.
 
-- [ ] **Step 1: Write the implementation**
+- [x] **Step 1: Write the implementation**
 
 Create `src/presentation/entity_renderer.gd`:
 
@@ -1405,7 +1405,7 @@ func _texture_for(type_id: int) -> Texture2D:
 	return texture
 ```
 
-- [ ] **Step 2: Run the tests and the guard**
+- [x] **Step 2: Run the tests and the guard**
 
 ```bash
 ./tools/run_tests.sh
@@ -1414,7 +1414,7 @@ func _texture_for(type_id: int) -> Texture2D:
 
 Expected: tests still pass; `Architecture guard: clean`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/presentation/entity_renderer.gd
