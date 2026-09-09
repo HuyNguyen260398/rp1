@@ -1094,7 +1094,7 @@ EOF
 
 `player.json` reuses the existing **`creature`** category. A new category would need a new schema plus a schema validation test per `CLAUDE.md`, and buys nothing here — `wander_radius` and `flees_player` are optional and simply absent.
 
-- [ ] **Step 1: Write the content definition**
+- [x] **Step 1: Write the content definition**
 
 Create `data/creature/player.json`:
 
@@ -1103,7 +1103,7 @@ Create `data/creature/player.json`:
  "sprite": "res://assets/characters/player.png", "tags": ["player"]}
 ```
 
-- [ ] **Step 2: Verify the registry picks it up**
+- [x] **Step 2: Verify the registry picks it up**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -1112,7 +1112,7 @@ Create `data/creature/player.json`:
 
 Expected: `RP1 booted with 5 content definitions` (was 4).
 
-- [ ] **Step 3: Add the input actions**
+- [x] **Step 3: Add the input actions**
 
 Append to `project.godot`. There is no `[input]` section today — create it above `[rendering]`:
 
@@ -1147,7 +1147,7 @@ move_right={
 
 Physical keycodes: `87/83/65/68` are W/S/A/D, and `4194320/4194322/4194319/4194321` are the up/down/left/right arrows. Physical rather than logical, so the layout works on AZERTY.
 
-- [ ] **Step 4: Verify the actions registered**
+- [x] **Step 4: Verify the actions registered**
 
 ```bash
 ./tools/godot.sh --headless --path . --quit-after 60
@@ -1155,7 +1155,7 @@ Physical keycodes: `87/83/65/68` are W/S/A/D, and `4194320/4194322/4194319/41943
 
 Expected: exits 0 with no `input` parse errors. If Godot rewrites the section on exit, that is normal and fine.
 
-- [ ] **Step 5: Write the Player node**
+- [x] **Step 5: Write the Player node**
 
 Create `src/presentation/player.gd`:
 
@@ -1250,7 +1250,7 @@ func _physics_process(delta: float) -> void:
 	)
 ```
 
-- [ ] **Step 6: Run the tests and the guard**
+- [x] **Step 6: Run the tests and the guard**
 
 ```bash
 ./tools/run_tests.sh
@@ -1259,7 +1259,7 @@ func _physics_process(delta: float) -> void:
 
 Expected: tests still pass; `Architecture guard: clean` — `player.gd` lives in `presentation/`, so `extends Node` is fine there.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add data/creature/player.json project.godot src/presentation/player.gd
