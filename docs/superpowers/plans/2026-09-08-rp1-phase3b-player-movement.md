@@ -93,7 +93,7 @@ Phase 3a's art, licences and docs say the debug swatches are "deleted in Phase 3
 
 **Why the rabbit sprite is here.** `data/creature/rabbit.json` already points at `res://assets/characters/rabbit.png` and that directory does not exist. `TilesetBuilder` skips creatures, so nothing has ever tried to load it. `EntityRenderer` in Task 7 is the first thing that will.
 
-- [ ] **Step 1: Add the two character swatches to the generator**
+- [x] **Step 1: Add the two character swatches to the generator**
 
 In `tools/make_placeholder_art.gd`, extend `SWATCHES` and correct the docstring:
 
@@ -125,7 +125,7 @@ func _init() -> void:
 	DirAccess.make_dir_recursive_absolute("res://assets/characters")
 ```
 
-- [ ] **Step 2: Run the generator**
+- [x] **Step 2: Run the generator**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/make_placeholder_art.gd
@@ -133,7 +133,7 @@ func _init() -> void:
 
 Expected: five `wrote res://assets/...` lines, including `player.png (32x64)` and `rabbit.png (32x32)`.
 
-- [ ] **Step 3: Import the new PNGs**
+- [x] **Step 3: Import the new PNGs**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -141,7 +141,7 @@ Expected: five `wrote res://assets/...` lines, including `player.png (32x64)` an
 
 Expected: exits 0, and `assets/characters/player.png.import` and `rabbit.png.import` now exist.
 
-- [ ] **Step 4: Write the licence file**
+- [x] **Step 4: Write the licence file**
 
 Create `assets/characters/LICENSE.txt`:
 
@@ -156,11 +156,11 @@ Phase 3c, at which point they are deleted and this file is replaced with
 the real pack's source, author and licence.
 ```
 
-- [ ] **Step 5: Correct the two existing licence files**
+- [x] **Step 5: Correct the two existing licence files**
 
 In both `assets/tiles/LICENSE.txt` and `assets/objects/LICENSE.txt`, change `imported in Phase 3b` to `imported in Phase 3c`. The phase that deletes them moved when Phase 3 was split.
 
-- [ ] **Step 6: Record the pack in CREDITS.md**
+- [x] **Step 6: Record the pack in CREDITS.md**
 
 In `assets/CREDITS.md`, add a row to the Packs table and correct the note above it:
 
@@ -175,7 +175,7 @@ placeholders, deleted when the first real tileset is imported in Phase 3c._
 | Phase 3b debug swatches (characters) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
 ```
 
-- [ ] **Step 7: Update the palette exemption list**
+- [x] **Step 7: Update the palette exemption list**
 
 In `docs/palette.md`, replace the exemption paragraph so it names all five files. The palette gate lands in Phase 3c and will fail on any off-palette file it was not told to skip:
 
@@ -192,7 +192,7 @@ deleted in Phase 3c.
 
 Also change the two `| Phase 3b |` status cells in the enforcement table at the top of §1 to `| Phase 3c |` — `tools/quantize.gd` and `tools/check_palette.sh` moved with the split.
 
-- [ ] **Step 8: Run the licence gate**
+- [x] **Step 8: Run the licence gate**
 
 ```bash
 ./tools/check_asset_licences.sh
@@ -200,7 +200,7 @@ Also change the two `| Phase 3b |` status cells in the enforcement table at the 
 
 Expected: `Asset licences: OK`
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add tools/make_placeholder_art.gd assets/ docs/palette.md
@@ -234,7 +234,7 @@ EOF
 - Consumes: `Chunk.get_terrain(Vector2i) -> int`, `Chunk.get_object(Vector2i) -> int`, `Chunk.get_flags(Vector2i) -> int`, `Chunk.set_flags(Vector2i, int)`, `Chunk.FLAG_WALKABLE`, `Chunk.FLAG_BLOCKS_LIGHT`, `ContentRegistry.def_of(int) -> Dictionary`, `ContentRegistry.is_placeholder(int) -> bool`, `ContentRegistry.ID_UNKNOWN`, `Zone.chunk_coords() -> Array[Vector2i]`, `Zone.get_chunk(Vector2i) -> Chunk`
 - Produces: `Walkability.recompute_chunk(chunk: Chunk, registry: ContentRegistry) -> int` and `Walkability.recompute_zone(zone: Zone, registry: ContentRegistry) -> int`, both returning the count of tiles whose flag changed
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_walkability.gd`:
 
@@ -340,7 +340,7 @@ func test_recompute_zone_covers_every_chunk() -> void:
 	assert_false(z.is_walkable(Vector2i(40, 40)))
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 ./tools/run_tests.sh
@@ -348,7 +348,7 @@ func test_recompute_zone_covers_every_chunk() -> void:
 
 Expected: FAIL — GUT reports `Walkability` is not declared.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/systems/walkability.gd`:
 
@@ -416,7 +416,7 @@ static func _tile_is_walkable(chunk: Chunk, l: Vector2i, registry: ContentRegist
 	return not bool(registry.def_of(obj).get("blocks_movement", false))
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -424,7 +424,7 @@ static func _tile_is_walkable(chunk: Chunk, l: Vector2i, registry: ContentRegist
 
 Expected: PASS, eleven new tests.
 
-- [ ] **Step 5: Run the architecture guard**
+- [x] **Step 5: Run the architecture guard**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -432,7 +432,7 @@ Expected: PASS, eleven new tests.
 
 Expected: `Architecture guard: clean`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/walkability.gd tests/test_walkability.gd
@@ -467,7 +467,7 @@ EOF
 - Consumes: `Chunk.is_walkable(Vector2i) -> bool`, `Chunk.coord`, `Coords.CHUNK_SIZE`, `Coords.chunk_origin(Vector2i) -> Vector2i`, `Coords.world_to_chunk(Vector2i) -> Vector2i`, `Zone.get_chunk(Vector2i) -> Chunk`
 - Produces: `CollisionBuilder.new()`, `rects_for_chunk(chunk: Chunk) -> Array[Rect2i]`, `solids_for(zone: Zone, chunk_coord: Vector2i) -> Array[Rect2i]`, `solids_near(zone: Zone, area: Rect2) -> Array[Rect2i]`, `invalidate(chunk_coord: Vector2i) -> void`, `clear() -> void`. All rects are in **world tile coordinates**.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_collision_builder.gd`:
 
@@ -575,7 +575,7 @@ func test_invalidate_forces_a_rebuild() -> void:
 	assert_eq(_b.solids_for(z, Vector2i(0, 0)).size(), 1, "rebuilt after invalidation")
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 ./tools/run_tests.sh
@@ -583,7 +583,7 @@ func test_invalidate_forces_a_rebuild() -> void:
 
 Expected: FAIL — `CollisionBuilder` is not declared.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/systems/collision_builder.gd`:
 
@@ -672,7 +672,7 @@ func clear() -> void:
 	_cache.clear()
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 ```bash
 ./tools/run_tests.sh
@@ -680,7 +680,7 @@ func clear() -> void:
 
 Expected: PASS, ten new tests.
 
-- [ ] **Step 5: Run the architecture guard**
+- [x] **Step 5: Run the architecture guard**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -688,7 +688,7 @@ Expected: PASS, ten new tests.
 
 Expected: `Architecture guard: clean`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/collision_builder.gd tests/test_collision_builder.gd
