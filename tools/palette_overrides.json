@@ -1,0 +1,4 @@
+{
+  "_comment": "Source colour -> chosen Apollo step, for cases where nearest-colour crosses a ramp and produces mud. See docs/palette.md section 3. Every entry needs a 'why'; the loader rejects it otherwise. Populated in Task 9 from the mapping report, if the art needs it.",
+  "overrides": []
+}

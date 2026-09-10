@@ -21,6 +21,7 @@ var _labs: Array[Vector3] = []
 var _ramp_by_index: PackedStringArray = PackedStringArray()
 var _exact: Dictionary = {}    ## hex string -> true
 var _memo: Dictionary = {}     ## hex string -> Color
+var _overrides: Dictionary = {}  ## source hex -> Color
 
 
 func size() -> int:
@@ -65,6 +66,62 @@ func load_palette(path: String) -> PackedStringArray:
 	return errs
 
 
+## Pins specific source colours to a chosen palette step.
+##
+## Nearest-colour honours palette.md section 5 and can violate section 3 by
+## mixing ramps within one sprite, which is what produces mud. Rather than
+## a ramp-aware heuristic -- which breaks on any multi-coloured sprite, and
+## a tree is a trunk plus a canopy -- the mapping stays simple and a human
+## pins the exceptions. Each one is a reviewable line with its reason
+## attached, and survives re-quantization; hand-editing the output PNG
+## instead would hide the decision in a binary and lose it on the next run.
+##
+## A missing file is not an error. Having no overrides is the healthy case.
+func load_overrides(path: String) -> PackedStringArray:
+	var errs: PackedStringArray = PackedStringArray()
+	if not FileAccess.file_exists(path):
+		return errs
+	var f: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		errs.append("cannot open overrides: %s" % path)
+		return errs
+	var text: String = f.get_as_text()
+	f.close()
+
+	var parser: JSON = JSON.new()
+	if parser.parse(text) != OK:
+		errs.append("overrides are not valid JSON: %s at line %d" % [
+			parser.get_error_message(), parser.get_error_line()])
+		return errs
+	var entries: Variant = parser.data.get("overrides", []) if typeof(parser.data) == TYPE_DICTIONARY else []
+
+	for e: Variant in entries:
+		if typeof(e) != TYPE_DICTIONARY:
+			errs.append("override is not an object: %s" % str(e))
+			continue
+		var src: String = str(e.get("from", "")).to_lower()
+		var dst: String = str(e.get("to", "")).to_lower()
+		if src.is_empty() or dst.is_empty():
+			errs.append("override needs 'from' and 'to': %s" % str(e))
+			continue
+		# The reason is required. An override with no explanation is
+		# indistinguishable from a mistake six months later.
+		if str(e.get("why", "")).strip_edges().is_empty():
+			errs.append("override %s -> %s has no 'why'" % [src, dst])
+			continue
+		# An override chooses between palette steps. It is never a way to
+		# smuggle a forty-seventh colour past the gate.
+		if not _exact.has(dst):
+			errs.append("override target #%s is not a palette colour" % dst)
+			continue
+		_overrides[src] = Color(dst)
+
+	# Overrides change what nearest() returns, so anything already memoised
+	# is stale.
+	_memo.clear()
+	return errs
+
+
 ## Exact membership. Distinct from nearest(): the gate asks whether a pixel
 ## is literally on the palette, not what it would round to.
 func has_colour(c: Color) -> bool:
@@ -73,6 +130,8 @@ func has_colour(c: Color) -> bool:
 
 func nearest(c: Color) -> Color:
 	var key: String = c.to_html(false)
+	if _overrides.has(key):
+		return _overrides[key]
 	if _memo.has(key):
 		return _memo[key]
 	var out: Color = _colours[_nearest_index(c)]

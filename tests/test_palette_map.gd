@@ -67,3 +67,50 @@ func test_a_missing_palette_file_reports_an_error_rather_than_crashing() -> void
 	var errs: PackedStringArray = m.load_palette("res://tools/palette/nope.json")
 	assert_gt(errs.size(), 0, "a missing file is an error, not a crash")
 	assert_eq(m.size(), 0, "nothing was loaded")
+
+
+func test_an_override_beats_the_nearest_colour() -> void:
+	# 33462a's nearest is 25562e (asserted above). An override must win.
+	var path: String = "user://test_overrides.json"
+	var f: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	f.store_string('{"overrides": [{"from": "33462a", "to": "19332d", "why": "test"}]}')
+	f.close()
+
+	var errs: PackedStringArray = _m.load_overrides(path)
+	assert_eq(errs.size(), 0, "overrides load: %s" % ", ".join(errs))
+	assert_eq(_m.nearest(Color("33462a")).to_html(false), "19332d",
+		"the override wins over the nearest colour")
+	assert_eq(_m.nearest(Color("808080")).to_html(false), "819796",
+		"an unlisted colour is unaffected")
+
+
+func test_an_override_to_a_non_palette_colour_is_rejected() -> void:
+	# An override is a choice between palette steps, never a way to smuggle
+	# a forty-seventh colour past the gate.
+	var path: String = "user://bad_overrides.json"
+	var f: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	f.store_string('{"overrides": [{"from": "33462a", "to": "ff00ff", "why": "test"}]}')
+	f.close()
+
+	var errs: PackedStringArray = _m.load_overrides(path)
+	assert_gt(errs.size(), 0, "an off-palette target is an error")
+	assert_eq(_m.nearest(Color("33462a")).to_html(false), "25562e",
+		"the rejected override did not take effect")
+
+
+func test_an_override_must_explain_itself() -> void:
+	var path: String = "user://why_overrides.json"
+	var f: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	f.store_string('{"overrides": [{"from": "33462a", "to": "19332d"}]}')
+	f.close()
+
+	var errs: PackedStringArray = _m.load_overrides(path)
+	assert_gt(errs.size(), 0, "an override without a reason is an error")
+
+
+func test_a_missing_override_file_is_not_an_error() -> void:
+	# Overrides are optional. A pipeline with none is the healthy case.
+	var m: PaletteMap = PaletteMap.new()
+	var _e: PackedStringArray = m.load_palette(PALETTE)
+	var errs: PackedStringArray = m.load_overrides("res://tools/nope.json")
+	assert_eq(errs.size(), 0, "absent overrides are fine")
