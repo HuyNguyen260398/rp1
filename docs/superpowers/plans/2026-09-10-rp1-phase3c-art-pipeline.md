@@ -250,7 +250,7 @@ git commit -m "docs: tick Phase 3c task 1"
 **Interfaces:**
 - Produces: `tools/palette/apollo.json` with shape `{name, author, source, outline, ramps: {<ramp>: [<hex>, ...]}}`. Hex values are lowercase, six digits, **no leading `#`**. Consumed by Task 3.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_palette.gd`:
 
@@ -355,7 +355,7 @@ func test_the_outline_colour_is_in_the_palette() -> void:
 	assert_true(_all_colours().has(outline), "the outline is a palette colour")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -363,7 +363,7 @@ func test_the_outline_colour_is_in_the_palette() -> void:
 
 Expected: FAIL — `apollo.json is readable` fails because the file does not exist.
 
-- [ ] **Step 3: Write the palette file**
+- [x] **Step 3: Write the palette file**
 
 Create `tools/palette/apollo.json`. Values are transcribed from `docs/palette.md` §3, in ramp order, dark to light:
 
@@ -388,7 +388,7 @@ Create `tools/palette/apollo.json`. Values are transcribed from `docs/palette.md
 
 It lives in `tools/`, not `data/`. `data/` is game content loaded by `ContentRegistry`; the palette is a build-time constraint the running game never reads. (`ContentRegistry.CATEGORIES` is an allowlist, so `data/palette/` would be silently ignored — safe, but wrong.)
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -396,7 +396,7 @@ It lives in `tools/`, not `data/`. `data/` is game content loaded by `ContentReg
 
 Expected: PASS. Totals: **19 scripts, 167 tests**.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/palette/apollo.json tests/test_palette.gd
@@ -417,7 +417,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
