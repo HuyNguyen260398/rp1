@@ -713,7 +713,7 @@ The fix is a human escape hatch rather than a cleverer algorithm — a ramp-awar
 **Interfaces:**
 - Produces: `func load_overrides(path: String) -> PackedStringArray`. Overrides take precedence over `nearest()`. File shape: `{"overrides": [{"from": "<hex>", "to": "<hex>", "why": "<reason>"}]}`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_palette_map.gd`:
 
@@ -765,7 +765,7 @@ func test_a_missing_override_file_is_not_an_error() -> void:
 	assert_eq(errs.size(), 0, "absent overrides are fine")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -773,7 +773,7 @@ func test_a_missing_override_file_is_not_an_error() -> void:
 
 Expected: FAIL — `load_overrides` is not a method.
 
-- [ ] **Step 3: Implement overrides**
+- [x] **Step 3: Implement overrides**
 
 In `tools/palette_map.gd`, add the field beside `_memo`:
 
@@ -854,7 +854,7 @@ func nearest(c: Color) -> Color:
 	return out
 ```
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -862,7 +862,7 @@ func nearest(c: Color) -> Color:
 
 Expected: PASS. Totals: **20 scripts, 178 tests**.
 
-- [ ] **Step 5: Create the (empty) override table**
+- [x] **Step 5: Create the (empty) override table**
 
 `tools/palette_overrides.json`:
 
@@ -875,7 +875,7 @@ Expected: PASS. Totals: **20 scripts, 178 tests**.
 
 Starting empty is deliberate. Overrides are added in Task 9 in response to a mapping report showing a real problem, never pre-emptively.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/palette_map.gd tools/palette_overrides.json tests/test_palette_map.gd
@@ -901,7 +901,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 7: Tick this task**
+- [x] **Step 7: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
