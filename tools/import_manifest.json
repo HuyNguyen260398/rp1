@@ -4,7 +4,7 @@
     {"source": "slates-outdoor/sheet.png", "rect": [32, 64, 32, 32],
      "out": "assets/tiles/grass.png"},
 
-    {"source": "slates-outdoor/sheet.png", "rect": [512, 416, 32, 32],
+    {"source": "slates-outdoor/sheet.png", "rect": [1728, 32, 32, 32],
      "out": "assets/tiles/water.png"},
 
     {"source": "slates-outdoor/sheet.png", "rect": [448, 576, 32, 32],

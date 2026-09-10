@@ -1,0 +1,15 @@
+Third-party art as downloaded. Never edited, never exported.
+
+Each pack in here carries its own LICENSE.txt with its real source, author
+and licence; this file exists because tools/check_asset_licences.sh checks
+every folder directly under assets/ and this one is a container, not a pack:
+
+  slates-outdoor/     Ivan Voirol, CC-BY 4.0     -- attribution required
+  bukket-characters/  Bukket Games, CC-BY 3.0    -- attribution required
+
+A .gdignore keeps this whole tree out of Godot's import pass, so nothing
+here reaches the exported PCK. It is committed anyway: import is a
+transform, not a copy, and re-deriving assets/ after a palette change has
+to be a re-run rather than a re-download of URLs that may be dead by then.
+
+Derived from here by tools/quantize.gd, per tools/import_manifest.json.

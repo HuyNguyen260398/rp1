@@ -63,7 +63,7 @@ func test_sprite_rect_sets_the_region_size() -> void:
 	# the behaviour covered and stops the test tracking content decisions.
 	_r.register({
 		"id": "tall_thing", "category": "object", "display_name": "Tall Thing",
-		"sprite": "res://assets/objects/oak_tree.png", "sprite_rect": [0, 0, 32, 48],
+		"sprite": "res://assets/characters/player.png", "sprite_rect": [0, 0, 32, 48],
 	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
 	var tall: TileSetAtlasSource = _source_of(res, "tall_thing")
@@ -85,7 +85,7 @@ func test_oversized_sprites_sit_on_their_tile() -> void:
 	# reason given in test_sprite_rect_sets_the_region_size.
 	_r.register({
 		"id": "tall_thing", "category": "object", "display_name": "Tall Thing",
-		"sprite": "res://assets/objects/oak_tree.png", "sprite_rect": [0, 0, 32, 48],
+		"sprite": "res://assets/characters/player.png", "sprite_rect": [0, 0, 32, 48],
 	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
 	var tall: TileSetAtlasSource = _source_of(res, "tall_thing")
@@ -105,9 +105,13 @@ func test_y_offset_nudges_from_the_base_aligned_position() -> void:
 	# on its tile -- a hanging sign, say. Negative moves the sprite up,
 	# which is the intuitive direction; texture_origin is subtracted by the
 	# engine, so the sign flips on the way in.
+	#
+	# The texture is player.png only because it is the one asset still tall
+	# enough to hold a 48px region: an atlas source cannot carve a rect
+	# bigger than its texture, and the oak became 32x32 in Phase 3c.
 	_r.register({
 		"id": "hanging_sign", "category": "object", "display_name": "Sign",
-		"sprite": "res://assets/objects/oak_tree.png",
+		"sprite": "res://assets/characters/player.png",
 		"sprite_rect": [0, 0, 32, 48], "y_offset": -10,
 	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
