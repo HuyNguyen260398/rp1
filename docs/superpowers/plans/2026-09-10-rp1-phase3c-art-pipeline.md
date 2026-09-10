@@ -1123,7 +1123,7 @@ The manifest is the committed record of what came from where. It has one dangero
 **Interfaces:**
 - Produces: `tools/import_manifest.json`, shape `{"slices": [{"source": "<path under assets/_source/>", "rect": [x, y, w, h], "out": "<path from project root>"}]}`. Consumed by Tasks 7 and 8.
 
-- [ ] **Step 1: Write the manifest**
+- [x] **Step 1: Write the manifest**
 
 Use the rects recorded in Task 1. Replace every value below with the real ones:
 
@@ -1140,7 +1140,7 @@ Use the rects recorded in Task 1. Replace every value below with the real ones:
 }
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `tests/test_import_manifest.gd`:
 
@@ -1249,7 +1249,7 @@ func test_declared_sprite_rects_match_the_slice_sizes() -> void:
 			"%s: sprite_rect height matches the slice" % sid)
 ```
 
-- [ ] **Step 3: Run it and watch it fail, then pass**
+- [x] **Step 3: Run it and watch it fail, then pass**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -25
@@ -1259,7 +1259,7 @@ If `test_declared_sprite_rects_match_the_slice_sizes` fails, the tree in Buch's 
 
 Expected once consistent: PASS. Totals: **21 scripts, 191 tests**.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tools/import_manifest.json tests/test_import_manifest.gd data/object/oak_tree.json
@@ -1281,7 +1281,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
