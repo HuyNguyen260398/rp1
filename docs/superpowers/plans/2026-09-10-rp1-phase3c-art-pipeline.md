@@ -2077,7 +2077,7 @@ Only worth doing if it stays under about 40 lines. `docs/palette.md` §6 still n
 **Files:**
 - Create: `tools/palette_report.gd`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```gdscript
 extends SceneTree
@@ -2129,7 +2129,7 @@ func _init() -> void:
 	quit(0)
 ```
 
-- [ ] **Step 2: Run it against a reference image**
+- [x] **Step 2: Run it against a reference image**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/palette_report.gd -- docs/reference/elin1.png
@@ -2137,7 +2137,7 @@ func _init() -> void:
 
 Expected: green around 85%, blue near 0% — matching the numbers already in `palette.md` §6, which is the check that this tool agrees with the design-time measurement.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tools/palette_report.gd
@@ -2153,7 +2153,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 4: Tick this task**
+- [x] **Step 4: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 12 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
