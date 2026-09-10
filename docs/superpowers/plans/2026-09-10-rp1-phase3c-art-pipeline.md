@@ -1298,7 +1298,7 @@ A thin driver. All colour logic is in `PaletteMap`; all provenance is in the man
 **Files:**
 - Create: `tools/quantize.gd`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```gdscript
 extends SceneTree
@@ -1449,7 +1449,7 @@ func _print_report(map: PaletteMap, totals: Dictionary) -> void:
 	print("")
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/quantize.gd
@@ -1457,7 +1457,7 @@ func _print_report(map: PaletteMap, totals: Dictionary) -> void:
 
 Expected: one line per asset, then the mapping report, then `quantize: wrote 5 asset(s) from 2 source sheet(s)`.
 
-- [ ] **Step 3: Verify it is reproducible**
+- [x] **Step 3: Verify it is reproducible**
 
 ```bash
 md5 assets/tiles/grass.png assets/objects/oak_tree.png assets/characters/player.png
@@ -1467,7 +1467,7 @@ md5 assets/tiles/grass.png assets/objects/oak_tree.png assets/characters/player.
 
 Expected: identical hashes both times. If they differ, something depends on iteration order — fix that before continuing, because it would make every future diff noise. (On Linux use `md5sum`.)
 
-- [ ] **Step 4: Commit the tool only**
+- [x] **Step 4: Commit the tool only**
 
 The regenerated art is committed in Task 9, after the report has been read and overrides decided.
 
@@ -1496,7 +1496,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
