@@ -1511,7 +1511,7 @@ git commit -m "docs: tick Phase 3c task 7"
 **Files:**
 - Create: `tools/check_palette.gd`, `tools/check_palette.sh`
 
-- [ ] **Step 1: Write the checker**
+- [x] **Step 1: Write the checker**
 
 `tools/check_palette.gd`:
 
@@ -1653,7 +1653,7 @@ func _check_pixels(path: String, map: PaletteMap) -> void:
 		_failures += 1
 ```
 
-- [ ] **Step 2: Write the shell entry point**
+- [x] **Step 2: Write the shell entry point**
 
 `tools/check_palette.sh`:
 
@@ -1673,7 +1673,7 @@ exec ./tools/godot.sh --headless --path . -s tools/check_palette.gd
 chmod +x tools/check_palette.sh
 ```
 
-- [ ] **Step 3: Watch each rule fail**
+- [x] **Step 3: Watch each rule fail**
 
 Do not skip this. A gate nobody has seen fail is a gate nobody knows works.
 
@@ -1711,7 +1711,7 @@ rm assets/tiles/sneaky.png
 
 If the PIL edits are unavailable, make the same three changes with any image editor — the point is seeing each message.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tools/check_palette.gd tools/check_palette.sh
@@ -1739,7 +1739,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 8 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
