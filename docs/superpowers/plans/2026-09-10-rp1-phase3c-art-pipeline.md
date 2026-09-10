@@ -2165,19 +2165,38 @@ git commit -m "docs: tick Phase 3c task 12"
 
 ## Definition of done for Phase 3c
 
-- [ ] `./tools/check_palette.sh` green, and **each of its three rules seen to fail**
-- [ ] No PNG under `assets/` outside `_source/` has an off-palette pixel or partial alpha
-- [ ] Re-running `tools/quantize.gd` produces byte-identical PNGs
-- [ ] `./tools/run_tests.sh` green — **21 scripts, 191 tests**, up from 18 and 163
-- [ ] The 163 pre-existing tests pass **unmodified** (the evidence that slicing avoided a renderer change)
-- [ ] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh` still green
-- [ ] The exported build contains no `assets/_source` path and still prints `RP1 rendered <N> cells`
-- [ ] `tools/make_placeholder_art.gd` deleted; no non-historical file mentions it
-- [ ] `docs/palette.md` has no exemption section, and §1's table shows both tools done
-- [ ] `assets/CREDITS.md` names both packs, with Bukket marked licence-required
-- [ ] All three `assets/*/LICENSE.txt` describe real provenance
-- [ ] No stale Kenney reference outside `docs/superpowers/plans/` and `specs/`
-- [ ] `CLAUDE.md` unchanged — character sprites are still 32×64
-- [ ] Walked the zone and looked at it: grass, water and trees read correctly
+- [x] `./tools/check_palette.sh` green, and **each of its three rules seen to fail**
+- [x] No PNG under `assets/` outside `_source/` has an off-palette pixel or partial alpha
+- [x] Re-running `tools/quantize.gd` produces byte-identical PNGs
+- [x] `./tools/run_tests.sh` green — 21 scripts, **197** tests, up from 18 and 163.
+      Six more than the 191 predicted: the sources needed a chroma key and an
+      erase rect that this plan did not foresee, and those arrived with tests.
+- [ ] ~~The 163 pre-existing tests pass **unmodified**~~ — **not met, and the
+      reason is a content change rather than a renderer one.** 160 of them pass
+      untouched. Three in `tests/test_tileset_builder.gd` had to change because
+      `data/object/oak_tree.json` did: the oak was the project's only oversized
+      sprite, Slates' only 32-wide trees are one tile each, and Task 6 says the
+      art is the fact. Those three now register a synthetic 48px definition
+      instead of leaning on the oak, which is the technique the `y_offset` test
+      in the same file already used. `src/` is untouched, which is what this
+      item was really protecting.
+- [x] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh` still green
+- [x] The exported build contains no `assets/_source` path and still prints
+      `RP1 rendered <N> cells` — checked with `--export-pack` and `--main-pack`
+      rather than a full platform export, which needs a 1.4GB template download.
+      Same file list, and the pack prints all three lines the export gate greps
+      for. CI still proves the platform binary wrapping.
+- [x] `tools/make_placeholder_art.gd` deleted; no non-historical file mentions it
+- [x] `docs/palette.md` has no exemption section, and §1's table shows both tools done
+- [x] `assets/CREDITS.md` names both packs, with Bukket marked licence-required
+      (and Slates too — it is CC-BY 4.0, so nothing in the project is CC0 now)
+- [x] All three `assets/*/LICENSE.txt` describe real provenance
+- [x] No stale Kenney reference outside `docs/superpowers/plans/` and `specs/`
+      — the dev plan keeps its recommendation with the note Task 10 asked for
+- [x] `CLAUDE.md` unchanged — character sprites are still 32×64
+- [x] Walked the zone and looked at it: grass, water and trees read correctly.
+      Captured rather than walked — `tools/screenshot.gd` at the spawn point,
+      and a throwaway variant parked on the pond, since this session has no
+      keyboard.
 
 **Not done in this phase, by design:** autotiling and transition tiles, walk-cycle animation (Bukket's frames are imported; nothing animates until Phase 6), the data-authored zone and `AnimalSystem` (Phase 4), save wiring (Phase 5), and the remaining §6 Elin screenshots, which need someone to run the game.
