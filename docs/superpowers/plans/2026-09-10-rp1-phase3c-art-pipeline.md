@@ -82,7 +82,7 @@ The one task that cannot be fully scripted: it ends with rectangles that were ch
 **Interfaces:**
 - Produces: the rect list consumed by Task 7's `tools/import_manifest.json`. Record it in the Task 7 step, not in your head.
 
-- [ ] **Step 1: Create the source tree and stop Godot importing it**
+- [x] **Step 1: Create the source tree and stop Godot importing it**
 
 ```bash
 mkdir -p assets/_source/buch-outdoor assets/_source/bukket-characters
@@ -91,7 +91,7 @@ touch assets/_source/.gdignore
 
 `.gdignore` is an empty marker file. Godot skips the whole directory, so nothing here is imported or reaches the exported PCK. `Image.load_from_file()` still reads these files at build time — verified on 4.7.2; `ResourceLoader.exists()` on the same path correctly returns `false`.
 
-- [ ] **Step 2: Download both packs**
+- [x] **Step 2: Download both packs**
 
 Open each page, download, and place the files:
 
@@ -100,7 +100,7 @@ Open each page, download, and place the files:
 
 If a direct link is available, `curl -sSLo <dest> <url>` works. If OpenGameArt requires a browser, download manually and move the files. Do not proceed with placeholder files — every rect chosen below depends on the real sheets.
 
-- [ ] **Step 3: Write the licence files**
+- [x] **Step 3: Write the licence files**
 
 `assets/_source/buch-outdoor/LICENSE.txt`:
 
@@ -128,7 +128,7 @@ while "tidying up" -- unlike every other asset in this project so far,
 removing this one is a licence violation.
 ```
 
-- [ ] **Step 4: Inspect the sheets**
+- [x] **Step 4: Inspect the sheets**
 
 Write `/tmp/inspect.gd`:
 
@@ -173,7 +173,7 @@ Run it:
 ./tools/godot.sh --headless --path . -s /tmp/inspect.gd
 ```
 
-- [ ] **Step 5: Choose the rects by looking at the grid overlays**
+- [x] **Step 5: Choose the rects by looking at the grid overlays**
 
 Open each `/tmp/*-grid.png`. Write down, on paper or in the commit message, the `[x, y, w, h]` for:
 
@@ -190,7 +190,7 @@ Open each `/tmp/*-grid.png`. Write down, on paper or in the commit message, the 
 2. Source one CC0 tree from OpenGameArt and add a third `assets/_source/` folder with its own `LICENSE.txt`.
 3. Use a large rock or stump as the blocking object and rename the content definition — a bigger change, since `data/object/oak_tree.json` and its string id are referenced in saves and tests.
 
-- [ ] **Step 6: Verify the source tree is invisible to the engine**
+- [x] **Step 6: Verify the source tree is invisible to the engine**
 
 ```bash
 ./tools/godot.sh --headless --path . --import 2>&1 | grep -i "_source" && echo "FAIL: source art was imported" || echo "OK: source art not imported"
@@ -199,7 +199,7 @@ ls assets/_source/buch-outdoor/*.import 2>/dev/null && echo "FAIL: .import files
 
 Expected: both `OK`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add assets/_source/
@@ -230,7 +230,7 @@ EOF
 
 Replace the placeholder rects with the real numbers before committing.
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
