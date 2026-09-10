@@ -1,0 +1,16 @@
+Slates [32x32px orthogonal tileset by Ivan Voirol] -- v.2 updated
+Author:  Ivan Voirol
+Source:  https://opengameart.org/content/slates-32x32px-orthogonal-tileset-by-ivan-voirol
+Licence: CC-BY 4.0
+
+ATTRIBUTION IS A LICENCE CONDITION, NOT A COURTESY. The OGA page's
+Copyright/Attribution Notice reads simply "Ivan Voirol". It must remain in
+assets/CREDITS.md and in any distributed build's credits. Do not remove it
+while "tidying up" -- removing this one is a licence violation.
+
+Chosen over Buch's "Outdoor 32x32 tileset" (CC0), which the Phase 3c plan
+named: that pack turned out to be a cave/cliff set whose only grass and
+water tiles are flat single-colour fills, and it contains no tree at all.
+Buch's other outdoor sets are 16x16 or CC-BY-SA. Slates is genuinely
+32x32 and carries textured grass, water with a shoreline, and several
+trees, so grass, water and oak_tree all come from one coherent pack.

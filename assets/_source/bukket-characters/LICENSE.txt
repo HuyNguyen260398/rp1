@@ -1,0 +1,18 @@
+Top-Down RPG Character Sprites
+Author:  Bukket Games (bukketgames)
+Source:  https://opengameart.org/content/top-down-rpg-character-sprites
+Licence: CC-BY 3.0
+
+ATTRIBUTION IS A LICENCE CONDITION, NOT A COURTESY. The pack's
+Copyright/Attribution Notice requires an art-asset credit to Bukket Games
+AND display of the website address http://www.playbukketgames.com. Both
+must remain in assets/CREDITS.md and in any distributed build's credits.
+Do not remove them while "tidying up" -- removing this one is a licence
+violation.
+
+Three 256x128 templates (child, male, woman), each an 8x2 grid of 32x64
+frames: four-frame walk cycles for up, down and right (mirror for left).
+
+The BMPs are 24-bit and carry NO alpha channel; the background is a white
+chroma key. tools/import_manifest.json declares that colour per slice so
+tools/quantize.gd can cut it out.
