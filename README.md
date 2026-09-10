@@ -23,7 +23,7 @@ The load-bearing rule is that world **data** is completely separated from world 
 Presentation    TileMapLayer, Sprite2D, Camera2D    <- Godot nodes, no game logic
 Simulation      systems that mutate world data      <- plain GDScript, no nodes
 World data      Zone -> Chunk -> Tile               <- source of truth
-				Zone -> EntityStore
+                Zone -> EntityStore
 Persistence     binary chunks, JSON metadata
 Content         JSON definitions                    <- data, not code
 ```
