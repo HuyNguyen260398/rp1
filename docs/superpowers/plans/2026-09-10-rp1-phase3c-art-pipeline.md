@@ -1850,13 +1850,13 @@ git commit -m "docs: tick Phase 3c task 9"
 - Delete: `tools/make_placeholder_art.gd`, `tools/make_placeholder_art.gd.uid`
 - Modify: `docs/palette.md`, `assets/CREDITS.md`, `assets/*/LICENSE.txt`, `docs/rp1-game-dev-plan.md`, `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md`
 
-- [ ] **Step 1: Delete the placeholder generator**
+- [x] **Step 1: Delete the placeholder generator**
 
 ```bash
 git rm tools/make_placeholder_art.gd tools/make_placeholder_art.gd.uid
 ```
 
-- [ ] **Step 2: Update `docs/palette.md`**
+- [x] **Step 2: Update `docs/palette.md`**
 
 Four edits:
 
@@ -1866,7 +1866,7 @@ Four edits:
 4. §6's open items — tick items 2 and 3, and replace item 1 with the measured result:
 
 ```markdown
-- [ ] **Validate against Elin.** Partially done. One screenshot (a sunny
+- [x] **Validate against Elin.** Partially done. One screenshot (a sunny
       meadow at midday) was measured during the Phase 3c design:
 
       | Measure | Result |
@@ -1898,7 +1898,7 @@ Four edits:
       the image. See docs/reference/README.md.
 ```
 
-- [ ] **Step 3: Update `assets/CREDITS.md`**
+- [x] **Step 3: Update `assets/CREDITS.md`**
 
 Replace the three placeholder rows and the note above them:
 
@@ -1920,7 +1920,7 @@ All imported art is re-quantized onto the Apollo palette at import time by
 published. The unmodified originals are in `assets/_source/`.
 ```
 
-- [ ] **Step 4: Update the three `assets/*/LICENSE.txt` files**
+- [x] **Step 4: Update the three `assets/*/LICENSE.txt` files**
 
 Each of `assets/tiles/`, `assets/objects/` and `assets/characters/` currently describes project-generated placeholders. Replace with the real provenance — for example `assets/characters/LICENSE.txt`:
 
@@ -1940,7 +1940,7 @@ colour from the pack as published. Regenerate with:
 
 Write the equivalent for `assets/tiles/` and `assets/objects/`, both sourced from `assets/_source/buch-outdoor/` under CC0 with attribution requested but not required.
 
-- [ ] **Step 5: Correct the stale Kenney references**
+- [x] **Step 5: Correct the stale Kenney references**
 
 Kenney is not used — every top-down Kenney pixel pack is 16×16 and this project is 32×32. Leaving the references is how the next session gets misled.
 
@@ -1952,7 +1952,7 @@ Kenney is not used — every top-down Kenney pixel pack is 16×16 and this proje
 
 Add a one-line note at line 226 of the dev plan, where Kenney is recommended at length, rather than deleting the section: the reasoning there is sound and the size mismatch is the specific thing that ruled it out.
 
-- [ ] **Step 6: Confirm nothing still references the deleted generator**
+- [x] **Step 6: Confirm nothing still references the deleted generator**
 
 ```bash
 grep -rn "make_placeholder_art\|debug swatch\|placeholder swatch" --include="*.gd" --include="*.md" --include="*.json" --include="*.yml" . | grep -v "docs/superpowers/plans/" | grep -v "docs/superpowers/specs/"
@@ -1960,7 +1960,7 @@ grep -rn "make_placeholder_art\|debug swatch\|placeholder swatch" --include="*.g
 
 Expected: no output. Plans and specs are historical records and keep their original wording.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A
@@ -1987,7 +1987,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 10 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
