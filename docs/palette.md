@@ -205,6 +205,20 @@ the same blue-black.
       **Reference images are never committed** — section 7 forbids copying
       Elin art into this project. Measure, record the numbers here, delete
       the image. See docs/reference/README.md.
+
+      Measure with `tools/palette_report.gd`, and **always pass a crop**:
+
+      ```
+      ./tools/godot.sh --headless --path . -s tools/palette_report.gd \
+          -- docs/reference/<shot>.png 400,60,1000,620
+      ```
+
+      A screenshot of a running game is partly UI chrome, and chrome is
+      flat dark grey. Measuring a whole file reports about a quarter of it
+      as Neutral and says nothing about the art direction: the same
+      screenshot the table above came from reads 65.5% Green uncropped and
+      86.1% Green cropped to its playfield. The numbers in the table are
+      the cropped ones, and comparable figures have to be cropped too.
 - [x] Build `tools/quantize.gd` and `tools/check_palette.sh` (Phase 3c).
 - [x] Delete the Phase 3a and 3b debug swatches, or exempt them in the gate.
       Deleted, along with `tools/make_placeholder_art.gd` that produced them.
