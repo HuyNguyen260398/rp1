@@ -443,7 +443,7 @@ git commit -m "docs: tick Phase 3c task 2"
   - `func size() -> int`
   - `func has_colour(c: Color) -> bool` — exact membership, used by the gate in Task 8
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_palette_map.gd`. Every expected value below was computed against the Apollo values and verified — do not adjust them to match an implementation.
 
@@ -519,7 +519,7 @@ func test_a_missing_palette_file_reports_an_error_rather_than_crashing() -> void
 	assert_eq(m.size(), 0, "nothing was loaded")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -527,7 +527,7 @@ func test_a_missing_palette_file_reports_an_error_rather_than_crashing() -> void
 
 Expected: FAIL — `PaletteMap` is not a known class.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `tools/palette_map.gd`:
 
@@ -651,7 +651,7 @@ static func _to_oklab(c: Color) -> Vector3:
 		0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_)
 ```
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -659,7 +659,7 @@ static func _to_oklab(c: Color) -> Vector3:
 
 Expected: PASS. Totals: **20 scripts, 174 tests**.
 
-- [ ] **Step 5: Confirm the architecture guard still passes**
+- [x] **Step 5: Confirm the architecture guard still passes**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/guard.gd
@@ -667,7 +667,7 @@ Expected: PASS. Totals: **20 scripts, 174 tests**.
 
 Expected: `Architecture guard: clean`. `tools/` is not a guarded root, but run it — a new `class_name` is exactly the kind of change that surprises a guard.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tools/palette_map.gd tests/test_palette_map.gd
@@ -690,7 +690,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 7: Tick this task**
+- [x] **Step 7: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
