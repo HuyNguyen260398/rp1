@@ -185,3 +185,52 @@ func test_the_report_counts_pixels_per_source_colour() -> void:
 	assert_eq(report[0]["ramp"], "green", "target ramp")
 	assert_eq(report[1]["from"], "808080", "the rarer colour second")
 	assert_eq(report[1]["count"], 1, "counted once")
+
+
+func test_a_chroma_key_colour_becomes_transparent() -> void:
+	# The Bukket character BMPs are 24-bit and carry no alpha channel: the
+	# background is a white chroma key. Cutting it is a source-format
+	# problem, not a colour-mapping one, so it happens before quantizing.
+	var img: Image = Image.create(3, 1, false, Image.FORMAT_RGBA8)
+	img.set_pixel(0, 0, Color("ffffff"))
+	img.set_pixel(1, 0, Color("33462a"))
+	img.set_pixel(2, 0, Color("ffffff"))
+	var out: Image = PaletteMap.cut_transparent(img, "ffffff", [])
+	assert_eq(out.get_pixel(0, 0).a8, 0, "the key colour is cut out")
+	assert_eq(out.get_pixel(2, 0).a8, 0, "everywhere it appears")
+	assert_eq(out.get_pixel(1, 0).a8, 255, "other pixels are untouched")
+	assert_eq(out.get_pixel(1, 0).to_html(false), "33462a", "and keep their colour")
+
+
+func test_no_chroma_key_leaves_the_image_alone() -> void:
+	# A PNG source already has alpha. Most slices declare no key.
+	var img: Image = _solid(Vector2i(2, 2), Color("ffffff"))
+	var out: Image = PaletteMap.cut_transparent(img, "", [])
+	assert_eq(out.get_pixel(0, 0).a8, 255, "white stays opaque with no key")
+
+
+func test_an_erase_rect_is_cut_out() -> void:
+	# Every Bukket frame carries a 2x8 registration tick at frame-local
+	# (30, 56), and no 32x64 window of the sheet avoids one. It is not a
+	# colour that can be keyed -- it is black, like the eyes -- so the
+	# manifest names the rectangle instead.
+	var img: Image = _solid(Vector2i(4, 4), Color("33462a"))
+	var out: Image = PaletteMap.cut_transparent(img, "", [[1, 1, 2, 2]])
+	assert_eq(out.get_pixel(1, 1).a8, 0, "inside the rect is cut")
+	assert_eq(out.get_pixel(2, 2).a8, 0, "to its far corner")
+	assert_eq(out.get_pixel(0, 0).a8, 255, "outside the rect is untouched")
+	assert_eq(out.get_pixel(3, 3).a8, 255, "on both sides")
+
+
+func test_an_erase_rect_is_clipped_to_the_image() -> void:
+	# A rect that runs off the edge is a manifest typo, not a crash.
+	var img: Image = _solid(Vector2i(2, 2), Color("33462a"))
+	var out: Image = PaletteMap.cut_transparent(img, "", [[1, 1, 99, 99]])
+	assert_eq(out.get_pixel(1, 1).a8, 0, "the overlapping part is cut")
+	assert_eq(out.get_pixel(0, 0).a8, 255, "the rest survives")
+
+
+func test_cutting_does_not_modify_its_input() -> void:
+	var img: Image = _solid(Vector2i(2, 2), Color("ffffff"))
+	var _out: Image = PaletteMap.cut_transparent(img, "ffffff", [[0, 0, 2, 2]])
+	assert_eq(img.get_pixel(0, 0).a8, 255, "the source crop is left alone")

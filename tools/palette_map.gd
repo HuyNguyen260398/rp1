@@ -144,6 +144,45 @@ func ramp_of(c: Color) -> String:
 	return _ramp_by_index[_nearest_index(c)]
 
 
+## Cuts a chroma-key colour and named rectangles out of a source crop.
+##
+## Two things the packs make necessary, both properties of the source
+## rather than of the palette, so they happen before quantize_image().
+##
+## The Bukket character templates are 24-bit BMPs with no alpha channel at
+## all; their background is a white chroma key. And every 32x64 frame in
+## them carries a 2x8 black registration tick at frame-local (30, 56) --
+## no 32x64 window of the sheet avoids one, and it cannot be keyed by
+## colour because it is the same black as the eyes. So the manifest names
+## the rectangle.
+##
+## Both decisions live in tools/import_manifest.json, next to the rect
+## they belong to, for the same reason overrides do: a decision recorded
+## in reviewable JSON survives a re-run, and one made by editing the
+## output PNG does not.
+##
+## Static, and returns a new image; the input is untouched.
+static func cut_transparent(img: Image, key_hex: String, erase: Array) -> Image:
+	var out: Image = img.duplicate()
+	out.convert(Image.FORMAT_RGBA8)
+	if not key_hex.is_empty():
+		var key: String = key_hex.to_lower()
+		for y: int in range(out.get_height()):
+			for x: int in range(out.get_width()):
+				var c: Color = out.get_pixel(x, y)
+				if c.a8 > 0 and Color(c.r, c.g, c.b, 1.0).to_html(false) == key:
+					out.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+	var bounds: Rect2i = Rect2i(Vector2i.ZERO, out.get_size())
+	for r: Variant in erase:
+		# A rect running off the edge is a manifest typo, not a crash.
+		var rect: Rect2i = bounds.intersection(
+			Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3])))
+		for y: int in range(rect.position.y, rect.end.y):
+			for x: int in range(rect.position.x, rect.end.x):
+				out.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+	return out
+
+
 ## Maps every visible pixel onto the palette and binarizes alpha.
 ##
 ## Colours are mapped through nearest(), which is memoised by hex, so the
