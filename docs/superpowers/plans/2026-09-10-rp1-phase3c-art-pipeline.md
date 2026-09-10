@@ -921,7 +921,7 @@ git commit -m "docs: tick Phase 3c task 4"
   - `func quantize_image(img: Image) -> Image` — returns a new `FORMAT_RGBA8` image
   - `func last_report() -> Array[Dictionary]` — `[{from, to, ramp, count}]`, sorted by `count` descending
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_palette_map.gd`:
 
@@ -997,7 +997,7 @@ func test_the_report_counts_pixels_per_source_colour() -> void:
 	assert_eq(report[1]["count"], 1, "counted once")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -1005,7 +1005,7 @@ func test_the_report_counts_pixels_per_source_colour() -> void:
 
 Expected: FAIL — `quantize_image` is not a method.
 
-- [ ] **Step 3: Implement it**
+- [x] **Step 3: Implement it**
 
 Add to `tools/palette_map.gd`:
 
@@ -1069,7 +1069,7 @@ func last_report() -> Array[Dictionary]:
 
 Note `ramp_of()` is called on the *source* colour, and returns the ramp of its nearest palette colour — which is the target's ramp, since `nearest()` and `ramp_of()` agree by construction. When an override is active, `ramp_of()` still reports the *unoverridden* nearest ramp; that is deliberate, because the report exists to show what the algorithm did.
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 ```bash
 ./tools/run_tests.sh 2>&1 | tail -20
@@ -1077,7 +1077,7 @@ Note `ramp_of()` is called on the *source* colour, and returns the ramp of its n
 
 Expected: PASS. Totals: **20 scripts, 184 tests**.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/palette_map.gd tests/test_palette_map.gd
@@ -1103,7 +1103,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
