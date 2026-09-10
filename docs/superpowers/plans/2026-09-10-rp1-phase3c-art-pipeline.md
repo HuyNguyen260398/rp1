@@ -2002,7 +2002,7 @@ git commit -m "docs: tick Phase 3c task 10"
 **Files:**
 - Modify: `.github/workflows/ci.yml`
 
-- [ ] **Step 1: Add the gate**
+- [x] **Step 1: Add the gate**
 
 In `.github/workflows/ci.yml`, after the `# Gate 4` asset-licences step in the `verify` job:
 
@@ -2014,7 +2014,7 @@ In `.github/workflows/ci.yml`, after the `# Gate 4` asset-licences step in the `
 
 The export job's verification step is currently commented `# Gate 5`. Renumber it to `# Gate 6`, so numbering follows execution order. Task 10 already corrected `docs/palette.md` to say gate 5; if it did not, do it now — a gate number that lies is worse than the edit.
 
-- [ ] **Step 2: Verify the exported build still ships its textures**
+- [x] **Step 2: Verify the exported build still ships its textures**
 
 The export gate greps for `RP1 rendered <N> cells`, which is the assertion that textures reached the PCK. `assets/_source/` is `.gdignore`'d, so it must not appear in the export — but the derived art must.
 
@@ -2033,7 +2033,7 @@ strings build/linux/rp1.x86_64 build/linux/*.pck 2>/dev/null | grep -c "assets/_
 
 Expected: `0`. If it is not zero, `.gdignore` is not doing its job and the sources are shipping to users.
 
-- [ ] **Step 3: Run every gate**
+- [x] **Step 3: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -2045,7 +2045,7 @@ Expected: `0`. If it is not zero, `.gdignore` is not doing its job and the sourc
 
 Expected: all five green. Test totals: **21 scripts, 191 tests**.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -2060,7 +2060,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 11 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
