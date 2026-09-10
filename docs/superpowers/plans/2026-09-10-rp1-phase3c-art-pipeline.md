@@ -1756,13 +1756,13 @@ The first task with an aesthetic judgement in it. Everything so far was mechanic
 **Files:**
 - Modify: `assets/tiles/*.png`, `assets/objects/*.png`, `assets/characters/*.png`, possibly `tools/palette_overrides.json`
 
-- [ ] **Step 1: Run the pipeline and capture the report**
+- [x] **Step 1: Run the pipeline and capture the report**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/quantize.gd | tee /tmp/mapping-report.txt
 ```
 
-- [ ] **Step 2: Read the report against `palette.md` §3**
+- [x] **Step 2: Read the report against `palette.md` §3**
 
 For each row, ask whether the ramp is right for the thing being drawn. `palette.md` §4 gives the intended assignments:
 
@@ -1775,7 +1775,7 @@ For each row, ask whether the ramp is right for the thing being drawn. `palette.
 
 A trunk colour landing in `neutral` or `red`, or a canopy colour landing in `gold`, is the mud `palette.md` §3 warns about. A trunk landing in `tan` is correct.
 
-- [ ] **Step 3: Add overrides only for rows that are actually wrong**
+- [x] **Step 3: Add overrides only for rows that are actually wrong**
 
 For each, add an entry to `tools/palette_overrides.json`:
 
@@ -1796,7 +1796,7 @@ Then re-run and re-read:
 
 If no row is wrong, leave the table empty and say so in the commit message. An empty override table is a good result, not a missing step.
 
-- [ ] **Step 4: Look at the art**
+- [x] **Step 4: Look at the art**
 
 ```bash
 ./tools/godot.sh --path .
@@ -1806,7 +1806,7 @@ Walk around. The zone still uses the Phase 3b debug generator, so expect a grass
 
 If a sprite looks wrong in a way no override fixes, the rect is wrong — go back to Task 1's grid overlays and correct the manifest.
 
-- [ ] **Step 5: Run the palette gate**
+- [x] **Step 5: Run the palette gate**
 
 ```bash
 ./tools/check_palette.sh
@@ -1814,7 +1814,7 @@ If a sprite looks wrong in a way no override fixes, the rect is wrong — go bac
 
 Expected: `Palette: OK (5 file(s))`.
 
-- [ ] **Step 6: Commit the art**
+- [x] **Step 6: Commit the art**
 
 ```bash
 git add assets/tiles/ assets/objects/ assets/characters/ tools/palette_overrides.json
@@ -1834,7 +1834,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 7: Tick this task**
+- [x] **Step 7: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 9 --plan docs/superpowers/plans/2026-09-10-rp1-phase3c-art-pipeline.md
