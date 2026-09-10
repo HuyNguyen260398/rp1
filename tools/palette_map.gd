@@ -22,6 +22,7 @@ var _ramp_by_index: PackedStringArray = PackedStringArray()
 var _exact: Dictionary = {}    ## hex string -> true
 var _memo: Dictionary = {}     ## hex string -> Color
 var _overrides: Dictionary = {}  ## source hex -> Color
+var _report: Dictionary = {}   ## source hex -> count, for the last quantize
 
 
 func size() -> int:
@@ -141,6 +142,59 @@ func nearest(c: Color) -> Color:
 
 func ramp_of(c: Color) -> String:
 	return _ramp_by_index[_nearest_index(c)]
+
+
+## Maps every visible pixel onto the palette and binarizes alpha.
+##
+## Colours are mapped through nearest(), which is memoised by hex, so the
+## work is proportional to the number of DISTINCT colours rather than to
+## the pixel count -- pixel art is flat, and a sheet has a few dozen
+## colours against hundreds of thousands of pixels. It also guarantees
+## that identical source colours map identically, so a flat region can
+## never come out speckled.
+##
+## Returns a new image; the input is untouched.
+func quantize_image(img: Image) -> Image:
+	_report.clear()
+	var w: int = img.get_width()
+	var h: int = img.get_height()
+	var out: Image = Image.create(w, h, false, Image.FORMAT_RGBA8)
+	for y: int in range(h):
+		for x: int in range(w):
+			var src: Color = img.get_pixel(x, y)
+			# Under project-wide Nearest filtering partial alpha has no
+			# meaning, and "alpha is 0 or 255, never between" is an
+			# invariant the palette gate can actually check.
+			if src.a8 < ALPHA_THRESHOLD:
+				out.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+				continue
+			var opaque: Color = Color(src.r, src.g, src.b, 1.0)
+			var key: String = opaque.to_html(false)
+			_report[key] = int(_report.get(key, 0)) + 1
+			out.set_pixel(x, y, nearest(opaque))
+	return out
+
+
+## What the last quantize_image() call did, biggest source colour first.
+## This is how a mapping that crosses a ramp gets noticed -- see
+## load_overrides().
+func last_report() -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	for src: String in _report:
+		var c: Color = Color(src)
+		rows.append({
+			"from": src,
+			"to": nearest(c).to_html(false),
+			"ramp": ramp_of(c),
+			"count": _report[src],
+		})
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		# Count descending, then hex ascending so ties are deterministic
+		# and two runs produce identical reports.
+		if a["count"] != b["count"]:
+			return a["count"] > b["count"]
+		return a["from"] < b["from"])
+	return rows
 
 
 func _nearest_index(c: Color) -> int:

@@ -114,3 +114,74 @@ func test_a_missing_override_file_is_not_an_error() -> void:
 	var _e: PackedStringArray = m.load_palette(PALETTE)
 	var errs: PackedStringArray = m.load_overrides("res://tools/nope.json")
 	assert_eq(errs.size(), 0, "absent overrides are fine")
+
+
+func _solid(size: Vector2i, c: Color) -> Image:
+	var img: Image = Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
+	img.fill(c)
+	return img
+
+
+func test_it_quantizes_every_pixel_onto_the_palette() -> void:
+	var img: Image = _solid(Vector2i(4, 4), Color("33462a"))
+	var out: Image = _m.quantize_image(img)
+	assert_eq(out.get_size(), Vector2i(4, 4), "size is preserved")
+	for y: int in range(4):
+		for x: int in range(4):
+			assert_eq(out.get_pixel(x, y).to_html(false), "25562e",
+				"pixel %d,%d is on the palette" % [x, y])
+
+
+func test_the_source_image_is_not_modified() -> void:
+	var img: Image = _solid(Vector2i(2, 2), Color("33462a"))
+	var _out: Image = _m.quantize_image(img)
+	assert_eq(img.get_pixel(0, 0).to_html(false), "33462a",
+		"quantize_image returns a new image and leaves its input alone")
+
+
+func test_alpha_is_binarized() -> void:
+	var img: Image = Image.create(4, 1, false, Image.FORMAT_RGBA8)
+	img.set_pixel(0, 0, Color("33462a", 0.0))    # fully transparent
+	img.set_pixel(1, 0, Color("33462a", 0.4))    # below the threshold
+	img.set_pixel(2, 0, Color("33462a", 0.6))    # at or above it
+	img.set_pixel(3, 0, Color("33462a", 1.0))    # fully opaque
+	var out: Image = _m.quantize_image(img)
+	assert_eq(out.get_pixel(0, 0).a8, 0, "transparent stays transparent")
+	assert_eq(out.get_pixel(1, 0).a8, 0, "below threshold becomes transparent")
+	assert_eq(out.get_pixel(2, 0).a8, 255, "at threshold becomes opaque")
+	assert_eq(out.get_pixel(3, 0).a8, 255, "opaque stays opaque")
+
+
+func test_transparent_pixels_are_not_colour_mapped() -> void:
+	# A fully transparent pixel is invisible, so mapping its RGB would spend
+	# a report entry on a colour nobody can see.
+	var img: Image = Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	img.set_pixel(0, 0, Color("ff00ff", 0.0))
+	var out: Image = _m.quantize_image(img)
+	assert_eq(out.get_pixel(0, 0).a8, 0, "still transparent")
+	assert_eq(_m.last_report().size(), 0, "no report entry for an invisible pixel")
+
+
+func test_quantizing_is_idempotent() -> void:
+	# Re-running the pipeline must not drift the committed assets.
+	var img: Image = _solid(Vector2i(3, 3), Color("33462a"))
+	var once: Image = _m.quantize_image(img)
+	var twice: Image = _m.quantize_image(once)
+	assert_eq(once.get_data(), twice.get_data(), "quantizing twice changes nothing")
+
+
+func test_the_report_counts_pixels_per_source_colour() -> void:
+	var img: Image = Image.create(3, 1, false, Image.FORMAT_RGBA8)
+	img.set_pixel(0, 0, Color("33462a"))
+	img.set_pixel(1, 0, Color("33462a"))
+	img.set_pixel(2, 0, Color("808080"))
+	var _out: Image = _m.quantize_image(img)
+	var report: Array[Dictionary] = _m.last_report()
+	assert_eq(report.size(), 2, "one entry per distinct source colour")
+	# Sorted by count descending, so the biggest offender reads first.
+	assert_eq(report[0]["from"], "33462a", "most common source colour first")
+	assert_eq(report[0]["count"], 2, "counted twice")
+	assert_eq(report[0]["to"], "25562e", "mapped target")
+	assert_eq(report[0]["ramp"], "green", "target ramp")
+	assert_eq(report[1]["from"], "808080", "the rarer colour second")
+	assert_eq(report[1]["count"], 1, "counted once")
