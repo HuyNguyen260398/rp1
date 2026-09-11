@@ -84,6 +84,7 @@ data/zone/home/
 ```json
 {
   "id": "home",
+  "category": "zone",
   "display_name": "Home Valley",
   "size": [128, 128],
   "biome": "temperate",
@@ -157,6 +158,12 @@ the world through `Player.spawn()` exactly as it does today.
 **not** a `ContentRegistry` category: the registry assigns numeric ids to
 content, and a zone is a document that *references* content by string id.
 `CATEGORIES` is unchanged.
+
+Reusing `SchemaValidator` imposes two of its rules on the document. It
+compares `def["category"]` against the schema's, so `zone.json` carries
+`"category": "zone"` like every content file. And it rejects unknown fields
+outright, so every key above is declared in the schema — a typo'd key is an
+error rather than a setting that silently does nothing.
 
 ---
 
@@ -397,9 +404,13 @@ one second, making the Stage 1 acceptance criterion mechanical.
 **`tests/test_zone_import_mode.gd`** — the three `.import` files say
 `importer="keep"`.
 
-Existing suites must stay green unmodified. `main.gd` is the only presentation
-file that changes, and `tests/test_player_spawn.gd` is the one to watch: the
-spawn point moves from `zone.size_tiles / 2` to `player_spawn`.
+Every existing suite must stay green **and unmodified**. `main.gd` is the only
+presentation file that changes and has no test of its own;
+`tests/test_player_spawn.gd` covers `Player.find_spawn_tile`, which is static
+and unaffected by where the spawn point comes from. `player_spawn` is a
+tile-unit float pair, so `main.gd` floors it to the `Vector2i` that
+`Player.spawn()` takes as `near` — and the ring search stays exactly where it
+is, as the guard its own comment says it was written to be.
 
 ---
 
@@ -410,8 +421,8 @@ spawn point moves from `zone.size_tiles / 2` to `player_spawn`.
 - [ ] The game boots into the authored zone and the player can walk it
 - [ ] `./tools/check_zone.sh` is green, and **each of its rules has been seen
       to fail**
-- [ ] `./tools/run_tests.sh` green, with the new suites passing and the
-      existing ones unmodified except `test_player_spawn.gd`
+- [ ] `./tools/run_tests.sh` green, with the new suites passing and every
+      pre-existing suite unmodified
 - [ ] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh` and
       `check_palette.sh` still green
 - [ ] The **exported** build renders a non-zero cell count, proving the zone
