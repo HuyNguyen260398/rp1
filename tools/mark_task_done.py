@@ -59,9 +59,14 @@ def heading_mask(lines: list[str]) -> list[bool]:
 
 
 def find_task_span(lines: list[str], task_no: int) -> tuple[int, int, str]:
-    """Return (start, end, title) for the '## Task <n>:' section."""
+    """Return (start, end, title) for the '## Task <n>:' section.
+
+    A qualifier may sit between the number and the colon -- plans write
+    '## Task 12 (optional): ...'. The \\b stops Task 1 matching Task 12,
+    and [^:] stops the qualifier swallowing a later heading's colon.
+    """
     mask = heading_mask(lines)
-    header = re.compile(rf"^## Task {task_no}:\s*(.+?)\s*$")
+    header = re.compile(rf"^## Task {task_no}\b[^:]*:\s*(.+?)\s*$")
 
     start = None
     title = ""

@@ -56,10 +56,18 @@ func _source_of(res: TilesetBuildResult, string_id: String) -> TileSetAtlasSourc
 
 
 func test_sprite_rect_sets_the_region_size() -> void:
-	# oak_tree.json declares sprite_rect [0, 0, 32, 48].
+	# Asserted against a registered definition rather than oak_tree.json.
+	# The oak was the only oversized sprite in the project and stopped being
+	# one in Phase 3c, when the real art turned out to be 32x32 -- so this
+	# no longer has a shipped definition to lean on. A synthetic one keeps
+	# the behaviour covered and stops the test tracking content decisions.
+	_r.register({
+		"id": "tall_thing", "category": "object", "display_name": "Tall Thing",
+		"sprite": "res://assets/characters/player.png", "sprite_rect": [0, 0, 32, 48],
+	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
-	var oak: TileSetAtlasSource = _source_of(res, "oak_tree")
-	assert_eq(oak.texture_region_size, Vector2i(32, 48), "oak uses its declared rect")
+	var tall: TileSetAtlasSource = _source_of(res, "tall_thing")
+	assert_eq(tall.texture_region_size, Vector2i(32, 48), "a declared rect is used")
 
 
 func test_absent_sprite_rect_defaults_to_the_tile_size() -> void:
@@ -72,11 +80,16 @@ func test_oversized_sprites_sit_on_their_tile() -> void:
 	# Godot centres an oversized atlas region on its tile, which leaves a
 	# 48px sprite hanging 8px below a 32px tile. Base alignment is
 	# (H - T) / 2, derived from geometry rather than authored per asset.
-	# Verified against a real framebuffer: origin 8 puts the oak's base
-	# exactly on the tile's bottom edge.
+	# Verified against a real framebuffer: origin 8 puts a 48px sprite's base
+	# exactly on the tile's bottom edge. Synthetic since Phase 3c, for the
+	# reason given in test_sprite_rect_sets_the_region_size.
+	_r.register({
+		"id": "tall_thing", "category": "object", "display_name": "Tall Thing",
+		"sprite": "res://assets/characters/player.png", "sprite_rect": [0, 0, 32, 48],
+	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
-	var oak: TileSetAtlasSource = _source_of(res, "oak_tree")
-	var td: TileData = oak.get_tile_data(Vector2i.ZERO, 0)
+	var tall: TileSetAtlasSource = _source_of(res, "tall_thing")
+	var td: TileData = tall.get_tile_data(Vector2i.ZERO, 0)
 	assert_eq(td.texture_origin, Vector2i(0, 8), "a 48px sprite lifts 8 to stand on a 32px tile")
 
 
@@ -92,9 +105,13 @@ func test_y_offset_nudges_from_the_base_aligned_position() -> void:
 	# on its tile -- a hanging sign, say. Negative moves the sprite up,
 	# which is the intuitive direction; texture_origin is subtracted by the
 	# engine, so the sign flips on the way in.
+	#
+	# The texture is player.png only because it is the one asset still tall
+	# enough to hold a 48px region: an atlas source cannot carve a rect
+	# bigger than its texture, and the oak became 32x32 in Phase 3c.
 	_r.register({
 		"id": "hanging_sign", "category": "object", "display_name": "Sign",
-		"sprite": "res://assets/objects/oak_tree.png",
+		"sprite": "res://assets/characters/player.png",
 		"sprite_rect": [0, 0, 32, 48], "y_offset": -10,
 	})
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)

@@ -224,6 +224,7 @@ You will not draw the Stage 1 assets yourself. Use packs, ship a prototype, repl
 **Tier 1 — CC0, no attribution, zero legal risk:**
 
 - **[Kenney](https://kenney.nl)** — one-person operation, **40,000+ assets, all CC0, no sign-up**. The style is clean and consistent *across packs*, so you can combine a tileset, a UI pack, and input prompts without the art clashing. The **Tiny series (Tiny Town, Tiny Farm, Tiny Dungeon)** and the **Roguelike/RPG pack (1,700+ tiles)** are the relevant ones for you. This is your single best starting point.
+  **Not used, in the end.** Every Kenney top-down pixel pack is 16×16 and this project settled on 32×32 (`CLAUDE.md`). The reasoning above is still sound; the size mismatch is the single thing that ruled it out. Phase 3c imported Slates (Ivan Voirol) and Bukket Games' character templates from OpenGameArt instead — both CC-BY, both genuinely 32×32. See `assets/CREDITS.md`.
 - **[itch.io CC0 asset filter](https://itch.io/game-assets/assets-cc0)** — 2,700+ packs. Notable CC0 creators: **Pixel Frog**, **Ansimuz**, **0x72** (DungeonTileset II), **Cainos** (top-down RPG tiles).
 - **[OpenGameArt](https://opengameart.org)** — the decade-old community archive. Dated UI, variable quality, enormous depth. Filter by license.
 
@@ -341,7 +342,7 @@ First time you see anything.
 - `ZoneRenderer` reading zone data into `TileMapLayer` nodes (terrain, floor, object layers)
 - `CharacterBody2D` player, 8-direction movement, Y-sorted against objects
 - `Camera2D` following with pixel snapping and zone-bounds limits
-- Kenney tileset imported, `CREDITS.md` started
+- A 32×32 tileset imported and re-quantized onto the palette, `CREDITS.md` started
 
 ### Week 5 — World content
 
@@ -457,7 +458,7 @@ These belong in the repo root on day one. Agents default to patterns from tutori
 | **Scope creep into "make Elin"** | Very high | Stage 1 scope is fixed. Keep an `IDEAS.md` and put everything there instead of building it. |
 | Building systems forever, never a game | High | Every stage must end in something playable. If a stage has no playable output, it's mis-scoped. |
 | Save format churn breaking worlds | High | String IDs + versioning + migration tests, from week 3. Non-negotiable. |
-| Art incoherence from mixed packs | Medium | One palette, one tile size, one outline style. Start with Kenney only. |
+| Art incoherence from mixed packs | Medium | One palette, one tile size, one outline style, all three enforced in CI. Every imported pack is re-quantized onto the palette rather than used as-authored. |
 | GDScript performance at scale | Medium | Data/render split means the fix is a contained GDExtension port, not a rewrite. Don't optimize before Stage 2. |
 | Agent-generated code drifting from architecture | Medium | CI tests as the enforcement mechanism, not documentation. Tests correct drift automatically; docs don't. |
 | Motivation loss around month 3 | High | This is the real killer of solo projects. Ship Stage 1 publicly (itch.io, free) and get a handful of people to play it. External feedback is fuel. |
@@ -468,6 +469,6 @@ These belong in the repo root on day one. Agents default to patterns from tutori
 
 1. Install Godot 4.7 and Pixelorama.
 2. Create the repo, and do all of Stage 0 before writing any gameplay code.
-3. Download Kenney's Roguelike/RPG pack and Tiny Town, and pick a palette on Lospec.
+3. Pick a palette on Lospec, then a 32×32 tileset that matches it. Check the tile size before downloading — most well-known CC0 top-down packs are 16×16.
 
 Then start Week 2 with the data layer — headless, tested, no visuals. It's the least exciting week and the one that determines whether everything after it is easy or hard.

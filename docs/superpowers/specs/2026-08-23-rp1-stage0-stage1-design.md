@@ -457,7 +457,7 @@ phase boundaries below moved with it.
 
 **Phase 3c — the art pipeline**
 
-- Kenney tileset imported, `CREDITS.md` extended
+- A 32×32 tileset imported and re-quantized onto the palette, `CREDITS.md` extended
 - `tools/quantize.gd` and `tools/check_palette.sh` as CI gate 6
 - Every placeholder swatch from 3a and 3b deleted
 
@@ -518,7 +518,7 @@ Note: the draft plan's "save file under 5 MB" criterion was removed. Sixteen ZST
 | Save format churn breaking worlds | High | String IDs, versioning and migration tests from Phase 2. Non-negotiable. |
 | Agent code drifting from architecture | Medium | CI gates as enforcement, not documentation. Tests correct drift; docs do not. |
 | Godot 4.7.2 is five days old | Medium | Accepted knowingly. Engine bugs may lack public answers. Upgrading is cheap now and expensive after content exists; 4.6.3 is the fallback if a blocker appears. |
-| Art incoherence from mixed packs | Medium | One palette, one tile size, one outline style. Kenney only to begin with. |
+| Art incoherence from mixed packs | Medium | One palette, one tile size, one outline style, all three enforced in CI. Every imported pack is re-quantized onto the palette rather than used as-authored. |
 | GDScript performance at scale | Medium | The data/render split makes the fix a contained GDExtension port. Do not optimise before Stage 2. |
 | Phase estimates slip | Medium | Phases are ordered milestones, not dates. Sequence is the thing that matters. |
 

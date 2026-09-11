@@ -8,3 +8,10 @@
 # Build output
 /build/
 /exports/
+
+# Reference images -- see docs/reference/README.md
+# Third-party reference (Elin screenshots) must never be committed:
+# docs/palette.md section 7. Measure it, record the numbers, delete the image.
+docs/reference/*
+!docs/reference/README.md
+!docs/reference/.gdignore

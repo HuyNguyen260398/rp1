@@ -1,0 +1,22 @@
+{
+  "_comment": "Source colour -> chosen Apollo step, for cases where nearest-colour crosses a ramp and produces mud. See docs/palette.md section 3. Every entry needs a 'why'; the loader rejects it otherwise. Added from the mapping report in Task 9, never pre-emptively.",
+  "overrides": [
+    {"from": "000000", "to": "172038",
+     "why": "the sprite outline. palette.md section 4 fixes it as the darkest blue and says every sprite uses the same one; nearest-colour puts pure black in Neutral at 090a14, which is the sooty black that decision exists to avoid"},
+
+    {"from": "100800", "to": "172038",
+     "why": "the oak trunk's outline, one shade off pure black. Same rule as 000000, and it has to make the same jump or the trunk would be outlined in a different colour from the canopy around it"},
+
+    {"from": "392008", "to": "4d2b32",
+     "why": "oak trunk shadow landed in Gold at 341c27; palette.md section 4 puts trunks in Tan"},
+
+    {"from": "623110", "to": "7a4841",
+     "why": "oak trunk mid-tone landed in Gold at 602c2c; palette.md section 4 puts trunks in Tan, with 7a4841 as the base"},
+
+    {"from": "102000", "to": "19332d",
+     "why": "the dark green of the grass tuft at the oak's base landed in Neutral at 151d28; a foliage colour outside the Green ramp is exactly the mud palette.md section 3 warns about"},
+
+    {"from": "d9a066", "to": "c09473",
+     "why": "skin shading landed in Gold at de9e41 while the skin it shades landed in Tan at e7d5b3; palette.md section 3 forbids mixing ramps to make a shade, and this is 7% of every visible pixel in the project"}
+  ]
+}

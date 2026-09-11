@@ -1,0 +1,25 @@
+{
+  "_comment": "Which rect of which source sheet becomes which asset. Every PNG under assets/ (outside _source/) must appear here as an 'out' -- tools/check_palette.gd enforces it, so art cannot be added by hand. 'source' is relative to assets/_source/; 'out' is relative to the project root. 'transparent' is a source colour cut to alpha 0 before quantizing, for sources with no alpha channel. 'erase' is a list of [x, y, w, h] rects in slice-local coordinates cut to alpha 0, for furniture the source draws inside the frame; each needs an 'erase_why'.",
+  "slices": [
+    {"source": "slates-outdoor/sheet.png", "rect": [32, 64, 32, 32],
+     "out": "assets/tiles/grass.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [1728, 32, 32, 32],
+     "out": "assets/tiles/water.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [448, 576, 32, 32],
+     "out": "assets/objects/oak_tree.png"},
+
+    {"source": "bukket-characters/template_w.bmp", "rect": [0, 0, 32, 64],
+     "out": "assets/characters/player.png",
+     "transparent": "ffffff",
+     "erase": [[30, 56, 2, 8]],
+     "erase_why": "the sheet's 2x8 frame registration tick, drawn inside every frame's bottom-right corner; no 32x64 window avoids one"},
+
+    {"source": "bukket-characters/template_c.bmp", "rect": [0, 0, 32, 64],
+     "out": "assets/characters/rabbit.png",
+     "transparent": "ffffff",
+     "erase": [[30, 56, 2, 8]],
+     "erase_why": "the sheet's 2x8 frame registration tick, drawn inside every frame's bottom-right corner; no 32x64 window avoids one"}
+  ]
+}

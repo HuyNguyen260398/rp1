@@ -55,6 +55,10 @@ jobs:
       - name: Asset licences
         run: ./tools/check_asset_licences.sh
 
+      # Gate 5
+      - name: Palette
+        run: ./tools/check_palette.sh
+
   export:
     runs-on: ubuntu-latest
     needs: verify
@@ -81,7 +85,7 @@ jobs:
       - name: Install xvfb
         run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
 
-      # Gate 5
+      # Gate 6
       - name: Export Linux and Windows
         run: |
           ./tools/godot.sh --headless --path . --import

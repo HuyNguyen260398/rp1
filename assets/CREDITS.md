@@ -15,11 +15,18 @@ launch with 60 packs and no records is a genuinely miserable week.
 
 ## Packs
 
-_No third-party packs yet. The entries below are project-generated
-placeholders, deleted when the first real tileset is imported in Phase 3c._
-
 | Pack | Author | Source | Licence |
 |---|---|---|---|
-| Phase 3a debug swatches (tiles) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
-| Phase 3a debug swatches (objects) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
-| Phase 3b debug swatches (characters) | this project | `tools/make_placeholder_art.gd` | project-owned placeholder |
+| Slates [32x32px orthogonal tileset] | Ivan Voirol | <https://opengameart.org/content/slates-32x32px-orthogonal-tileset-by-ivan-voirol> | CC-BY 4.0 |
+| Top-Down RPG Character Sprites | Bukket Games | <https://opengameart.org/content/top-down-rpg-character-sprites> | CC-BY 3.0 |
+
+**Both entries are licence conditions, not courtesies.** CC-BY requires
+attribution wherever the work is distributed, which includes any exported
+build's credits. Ivan Voirol's notice reads simply "Ivan Voirol". Bukket
+Games' additionally requires that <http://www.playbukketgames.com> be
+displayed. Nothing in this project is CC0, so this file cannot be deleted
+without breaking both licences.
+
+All imported art is re-quantized onto the Apollo palette at import time by
+`tools/quantize.gd` and is therefore not pixel-identical to the packs as
+published. The unmodified originals are in `assets/_source/`.
