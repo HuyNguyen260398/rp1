@@ -103,7 +103,7 @@ left to discover.
 
 ---
 
-### Task 1: The zone document schema and a minimal authored zone
+## Task 1: The zone document schema and a minimal authored zone
 
 **Files:**
 - Create: `data/schema/zone.json`
@@ -372,7 +372,7 @@ git commit -m "docs: tick Phase 4a task 1"
 
 ---
 
-### Task 2: Ship the maps in the exported build
+## Task 2: Ship the maps in the exported build
 
 **Files:**
 - Create: `data/zone/home/terrain.png.import`, `object.png.import`, `height.png.import`
@@ -557,7 +557,7 @@ git commit -m "docs: tick Phase 4a task 2"
 
 ---
 
-### Task 3: `ZoneLoadResult` and the terrain layer, with its error paths
+## Task 3: `ZoneLoadResult` and the terrain layer, with its error paths
 
 **Files:**
 - Create: `src/core/zone_load_result.gd`, `src/core/zone_loader.gd`
@@ -1078,7 +1078,7 @@ git commit -m "docs: tick Phase 4a task 3"
 
 ---
 
-### Task 4: The object and height layers
+## Task 4: The object and height layers
 
 **Files:**
 - Modify: `src/core/zone_loader.gd`
@@ -1262,7 +1262,7 @@ git commit -m "docs: tick Phase 4a task 4"
 
 ---
 
-### Task 5: Entity spawns
+## Task 5: Entity spawns
 
 **Files:**
 - Modify: `src/core/zone_loader.gd`
@@ -1423,7 +1423,7 @@ git commit -m "docs: tick Phase 4a task 5"
 
 ---
 
-### Task 6: Derived flags and a clean dirty slate
+## Task 6: Derived flags and a clean dirty slate
 
 **Files:**
 - Modify: `src/core/zone_loader.gd`
@@ -1541,7 +1541,7 @@ git commit -m "docs: tick Phase 4a task 6"
 
 ---
 
-### Task 7: The shipped zone loads clean, and within budget
+## Task 7: The shipped zone loads clean, and within budget
 
 **Files:**
 - Create: `tests/test_zone_home.gd`, `tests/test_zone_load_budget.gd`
@@ -1747,7 +1747,7 @@ git commit -m "docs: tick Phase 4a task 7"
 
 ---
 
-### Task 8: Boot the game into the authored zone
+## Task 8: Boot the game into the authored zone
 
 **Files:**
 - Modify: `src/presentation/main.gd`
@@ -1869,7 +1869,7 @@ git commit -m "docs: tick Phase 4a task 8"
 
 ---
 
-### Task 9: The tiles the zone is made of
+## Task 9: The tiles the zone is made of
 
 **Files:**
 - Modify: `tools/import_manifest.json`
@@ -2077,7 +2077,7 @@ git commit -m "docs: tick Phase 4a task 9"
 
 ---
 
-### Task 10: Seed the real 128x128 home zone
+## Task 10: Seed the real 128x128 home zone
 
 **Files:**
 - Modify: `tools/seed_zone.gd`, then **delete it**
@@ -2374,7 +2374,7 @@ git commit -m "docs: tick Phase 4a task 10"
 
 ---
 
-### Task 11: The legend swatch
+## Task 11: The legend swatch
 
 **Files:**
 - Create: `tools/zone_legend.gd`
@@ -2512,7 +2512,7 @@ git commit -m "docs: tick Phase 4a task 11"
 
 ---
 
-### Task 12: CI gate 7
+## Task 12: CI gate 7
 
 **Files:**
 - Create: `tools/check_zone.sh`, `tools/check_zone.gd`
@@ -2806,7 +2806,7 @@ git commit -m "docs: tick Phase 4a task 12"
 
 ---
 
-### Task 13: Close the phase
+## Task 13: Close the phase
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` (§10)
