@@ -571,7 +571,7 @@ git commit -m "docs: tick Phase 4b task 2"
   `DEFAULT_WANDER_SPEED: float = 1.5`, `DEFAULT_WANDER_INTERVAL: float = 3.0`,
   `DEFAULT_BODY: Vector2 = Vector2(0.5, 0.375)`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_animal_system.gd`:
 
@@ -698,7 +698,7 @@ func test_tick_reports_how_many_moved() -> void:
 	assert_lt(seen, 3, "the player is not one of them")
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -710,7 +710,7 @@ Expected: FAIL. `tick()` returns 0 and never writes a position, so
 `..._dwells_rather_than_spinning`, `test_the_same_seed_...`) pass trivially
 against a motionless animal — they are there to stay true once it moves.
 
-- [ ] **Step 3: Implement wander**
+- [x] **Step 3: Implement wander**
 
 In `src/systems/animal_system.gd`, add the constants below `MODE_RETURN`:
 
@@ -827,7 +827,7 @@ registration. Extend the lazy-registration block in `tick()` to:
 			}
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
@@ -838,7 +838,7 @@ the cause is the body box rather than the logic: the anchor is a point and the
 animal is a box, so the slack in the assertion (0.5 tiles) must exceed half the
 body width. Do not widen the assertion past that without saying why.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
@@ -861,7 +861,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
