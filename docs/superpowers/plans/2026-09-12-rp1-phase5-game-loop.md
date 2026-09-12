@@ -1732,7 +1732,7 @@ exact state `WorldMeta.player_entity_id` exists to make detectable.
 **Interfaces:**
 - Produces: `Player.adopt(p_zone: Zone, collision: CollisionBuilder, id: int) -> void`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_player_spawn.gd`:
 
@@ -1756,12 +1756,12 @@ func test_adopt_takes_over_an_existing_row_without_creating_one() -> void:
 Reuse whatever zone and registry helpers this file already has; do not add
 parallel ones.
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `adopt` is not a known method.
 
-- [ ] **Step 3: Implement it**
+- [x] **Step 3: Implement it**
 
 In `src/presentation/player.gd`, beside `spawn()`:
 
@@ -1775,19 +1775,19 @@ func adopt(p_zone: Zone, collision: CollisionBuilder, id: int) -> void:
 	entity_id = id
 ```
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/presentation/player.gd tests/test_player_spawn.gd
 git commit -m "feat: Player.adopt takes over a restored entity row"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 11 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
