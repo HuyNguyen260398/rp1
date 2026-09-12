@@ -385,3 +385,40 @@ func test_returning_never_ends_a_tick_inside_a_solid() -> void:
 		var tile: Vector2i = _tile_under(p)
 		assert_true(_zone.is_walkable(tile),
 			"tick %d put the returning rabbit on %s" % [i, tile])
+
+
+func test_a_blocked_animal_stops_pressing_into_the_wall() -> void:
+	# Home sits hard against the water column, so a good share of the
+	# target draws land on the far side of it and the rabbit walks into
+	# the wall. Without re-targeting it presses there until its dwell
+	# timer expires; with it, the rabbit keeps finding somewhere to go.
+	_zone = _make_walled_zone()
+	var home: Vector2 = Vector2(15.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+
+	var positions: Dictionary = {}
+	for i: int in range(900):
+		_system.tick(_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0)
+		var p: Vector2 = _zone.entities.get_position(id)
+		positions[Vector2i(roundi(p.x * 4.0), roundi(p.y * 4.0))] = true
+
+	assert_gt(positions.size(), 20,
+		"fifteen seconds beside a wall visited only %d distinct spots" % positions.size())
+
+
+func test_a_stuck_returning_animal_goes_back_to_wandering() -> void:
+	# Returning walks straight at home and does not use a target, so a
+	# returning animal wedged in a corner has nothing to re-draw. It drops
+	# to wander instead, whose targets are drawn around home and therefore
+	# pull it back anyway.
+	_zone = _make_walled_zone()
+	# Home is east of the wall; drive the rabbit west of it, so the walk
+	# home runs straight into the water column.
+	var home: Vector2 = Vector2(20.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+	_zone.entities.set_position(id, Vector2(12.5, 16.5))
+	_run(1, Vector2(11.0, 16.5))
+	_run(600, Vector2(-100.0, -100.0))
+
+	assert_ne(_system.mode_of(id), AnimalSystem.MODE_RETURN,
+		"it cannot reach home through a wall and must not spend forever trying")

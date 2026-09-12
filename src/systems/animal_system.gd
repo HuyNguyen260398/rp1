@@ -37,6 +37,9 @@ const ARRIVE_EPSILON: float = 0.2
 const DEFAULT_WANDER_SPEED: float = 1.5
 const DEFAULT_WANDER_INTERVAL: float = 3.0
 const DEFAULT_BODY: Vector2 = Vector2(0.5, 0.375)
+
+## Movement below this in one tick, while trying to move, means blocked.
+const STUCK_EPSILON: float = 0.01
 const DEFAULT_FLEE_RADIUS: float = 5.0
 const DEFAULT_FLEE_SPEED: float = 4.0
 
@@ -153,8 +156,19 @@ func tick(
 		var next: Vector2 = MovementSystem.move(
 			pos, velocity, delta, body, solids, bounds)
 
-		if next.distance_to(pos) <= 0.0:
+		if next.distance_to(pos) < STUCK_EPSILON:
+			# Blocked by geometry. Wandering re-draws a target rather than
+			# pressing into the wall until the dwell timer expires.
+			# Returning walks straight at home and has no target to
+			# re-draw, so it drops to wander, whose targets are drawn
+			# around home and pull it back regardless.
+			if int(s["mode"]) == MODE_WANDER:
+				_pick_target(s, pos, radius, zone)
+			elif int(s["mode"]) == MODE_RETURN:
+				s["mode"] = MODE_WANDER
+				_pick_target(s, pos, radius, zone)
 			continue
+
 		zone.entities.set_position(id, next)
 		zone.entities.set_facing(
 			id, MovementSystem.facing_from(velocity, zone.entities.get_facing(id)))
