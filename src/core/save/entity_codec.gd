@@ -4,9 +4,12 @@ extends RefCounted
 ## ChunkCodec. Only live rows are written, so despawned slots do not
 ## accumulate in save files.
 
-const FORMAT_VERSION: int = 1
+const FORMAT_VERSION: int = 2
 const HEADER_BYTES: int = 24
-const ROW_BYTES: int = 18
+const ROW_BYTES: int = 26
+
+## v1 rows carried no home column. Kept so decode can walk an old file.
+const ROW_BYTES_V1: int = 18
 
 const MAGIC_0: int = 0x52  # R
 const MAGIC_1: int = 0x50  # P
@@ -44,6 +47,8 @@ static func encode(store: EntityStore) -> PackedByteArray:
 		rows.encode_u8(o + 14, store.get_facing(id))
 		rows.encode_u8(o + 15, store.get_entity_flags(id))
 		rows.encode_u16(o + 16, 0)  # blob_offset, reserved
+		rows.encode_float(o + 18, store.get_home(id).x)
+		rows.encode_float(o + 22, store.get_home(id).y)
 		o += ROW_BYTES
 
 	var out: PackedByteArray = PackedByteArray()
@@ -73,8 +78,9 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 			% [version, FORMAT_VERSION]
 		)
 
+	var row_bytes: int = ROW_BYTES if version >= 2 else ROW_BYTES_V1
 	var count: int = bytes.decode_u32(OFF_COUNT)
-	var expected: int = HEADER_BYTES + count * ROW_BYTES
+	var expected: int = HEADER_BYTES + count * row_bytes
 	if bytes.size() != expected:
 		return DecodeResult.failure(
 			"entities: file is %d bytes, expected %d for %d entities (truncated or corrupt count?)"
@@ -86,6 +92,11 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 	for i: int in range(count):
 		var pos: Vector2 = Vector2(
 			bytes.decode_float(o + 6), bytes.decode_float(o + 10))
+		# v1 rows have no home column. Defaulting it to the position is the
+		# migration: it reproduces exactly what the v1 build did at runtime.
+		var home: Vector2 = pos
+		if version >= 2:
+			home = Vector2(bytes.decode_float(o + 18), bytes.decode_float(o + 22))
 		store.restore_row(
 			bytes.decode_u32(o),
 			bytes.decode_u16(o + 4),
@@ -93,9 +104,9 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 			bytes.decode_u8(o + 14),
 			bytes.decode_u8(o + 15),
 			bytes.decode_u16(o + 16),
-			pos,  # v1 has no home column; Task 4 replaces this
+			home,
 		)
-		o += ROW_BYTES
+		o += row_bytes
 
 	store.set_next_id(bytes.decode_u32(OFF_NEXT_ID))
 	return DecodeResult.success(store)

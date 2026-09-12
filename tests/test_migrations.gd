@@ -61,3 +61,31 @@ func test_v1_entities_fixture_still_decodes() -> void:
 	assert_eq(store.get_position(3), Vector2(127.5, 0.5))
 	assert_eq(store.get_facing(2), 2)
 	assert_eq(store.next_id(), 4)
+
+
+func test_v1_entities_migrate_with_home_defaulting_to_position() -> void:
+	# The v1 build anchored home wherever the animal stood, so defaulting
+	# home to the saved position makes a v1 save behave after the upgrade
+	# exactly as it behaved before it.
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(
+		"res://tests/fixtures/v1_entities.dat")
+	var result: DecodeResult = EntityCodec.decode(bytes)
+	assert_true(result.ok, result.error)
+
+	var store: EntityStore = result.value
+	assert_eq(store.get_home(1), store.get_position(1))
+	assert_eq(store.get_home(3), Vector2(127.5, 0.5))
+
+
+func test_entities_from_the_future_are_refused_not_guessed_at() -> void:
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(
+		"res://tests/fixtures/v1_entities.dat")
+	bytes.encode_u32(EntityCodec.OFF_VERSION, EntityCodec.FORMAT_VERSION + 1)
+	var result: DecodeResult = EntityCodec.decode(bytes)
+	assert_false(result.ok)
+	assert_string_contains(result.error, "newer")
+
+
+func test_entities_need_migration_reports_the_v1_gap() -> void:
+	assert_true(Migrations.entities_need_migration(1))
+	assert_false(Migrations.entities_need_migration(EntityCodec.FORMAT_VERSION))
