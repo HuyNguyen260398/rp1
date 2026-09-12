@@ -2347,7 +2347,7 @@ line now and nothing later.
 - Produces: `PauseMenu` — signals `resume_requested`, `quit_to_menu_requested`,
   `quit_to_desktop_requested`; the `pause` input action
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_input_map.gd`:
 
@@ -2376,12 +2376,12 @@ func test_the_movement_actions_still_exist() -> void:
 		assert_true(InputMap.has_action(action), action)
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `pause` is not in the input map.
 
-- [ ] **Step 3: Add the action**
+- [x] **Step 3: Add the action**
 
 Append to the `[input]` section of `project.godot`, matching the formatting of
 the four `move_*` actions exactly:
@@ -2397,13 +2397,13 @@ pause={
 
 `4194305` is `KEY_ESCAPE`; button index 6 is `JOY_BUTTON_START`.
 
-- [ ] **Step 4: Run the test and watch it pass**
+- [x] **Step 4: Run the test and watch it pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all three input tests included. If the movement tests now fail,
 the hand-edit broke the section — restore it from git and try again.
 
-- [ ] **Step 5: Write PauseMenu**
+- [x] **Step 5: Write PauseMenu**
 
 Create `src/ui/pause_menu.gd`:
 
@@ -2472,19 +2472,19 @@ func focus_first() -> void:
 	_resume_button.grab_focus()
 ```
 
-- [ ] **Step 6: Run the suite and the guard**
+- [x] **Step 6: Run the suite and the guard**
 
 Run: `./tools/run_tests.sh && ./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: PASS and exit 0.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/ui/pause_menu.gd project.godot tests/test_input_map.gd
 git commit -m "feat: pause menu, behind a named pause action"
 ```
 
-- [ ] **Step 8: Tick the plan**
+- [x] **Step 8: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 15 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
