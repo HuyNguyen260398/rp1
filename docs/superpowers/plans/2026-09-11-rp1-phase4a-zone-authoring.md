@@ -2529,7 +2529,7 @@ not reimplement the checks. This is the reasoning Phase 3c gave for
 not be able to disagree. On top of the loader's errors it adds the rules the
 loader deliberately tolerates at runtime but an author must never commit.
 
-- [ ] **Step 1: Write the shell wrapper**
+- [x] **Step 1: Write the shell wrapper**
 
 Create `tools/check_zone.sh`, matching `check_palette.sh`:
 
@@ -2546,7 +2546,7 @@ exec ./tools/godot.sh --headless --path . -s tools/check_zone.gd
 
 Then: `chmod +x tools/check_zone.sh`
 
-- [ ] **Step 2: Write the gate**
+- [x] **Step 2: Write the gate**
 
 Create `tools/check_zone.gd`:
 
@@ -2712,7 +2712,7 @@ func _report_unused_legend(dir: String, zone: Zone, registry: ContentRegistry) -
 					% [dir, layer, hex, str(value)])
 ```
 
-- [ ] **Step 3: Run the gate and expect it to pass**
+- [x] **Step 3: Run the gate and expect it to pass**
 
 ```bash
 ./tools/check_zone.sh
@@ -2720,7 +2720,7 @@ func _report_unused_legend(dir: String, zone: Zone, registry: ContentRegistry) -
 
 Expected: `Zone gate: OK (1 zone(s))`.
 
-- [ ] **Step 4: See every rule fail**
+- [x] **Step 4: See every rule fail**
 
 A gate nobody has watched fail is a gate nobody knows works. Break each rule,
 confirm the message, and restore. **Restore after each one** — do not batch
@@ -2751,7 +2751,7 @@ them.
 
 Confirm `git status` is clean before moving on.
 
-- [ ] **Step 5: Add the gate to CI**
+- [x] **Step 5: Add the gate to CI**
 
 In `.github/workflows/ci.yml`, immediately after the `Palette` step:
 
@@ -2760,7 +2760,7 @@ In `.github/workflows/ci.yml`, immediately after the `Palette` step:
         run: ./tools/check_zone.sh
 ```
 
-- [ ] **Step 6: Run every gate**
+- [x] **Step 6: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -2773,7 +2773,7 @@ In `.github/workflows/ci.yml`, immediately after the `Palette` step:
 
 Expected: six green.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add tools/check_zone.sh tools/check_zone.gd .github/workflows/ci.yml
@@ -2796,7 +2796,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 12 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
