@@ -1386,7 +1386,7 @@ git commit -m "docs: tick Phase 4b task 6"
   `ZoneRenderer.zone: Zone`
 - Produces: nothing new in code. The game visibly has animals in it.
 
-- [ ] **Step 1: Write the budget test**
+- [x] **Step 1: Write the budget test**
 
 Create `tests/test_animal_budget.gd`:
 
@@ -1457,7 +1457,7 @@ func test_sixty_four_animals_tick_inside_the_frame_budget() -> void:
 			% [ANIMALS, TICKS, elapsed, BUDGET_MS])
 ```
 
-- [ ] **Step 2: Run it and watch it pass**
+- [x] **Step 2: Run it and watch it pass**
 
 Run: `./tools/run_tests.sh`
 
@@ -1467,7 +1467,7 @@ If it FAILS, the cause is real and is almost certainly `solids_near()` being
 called with an area spanning more chunks than intended; check the `Rect2` in
 `tick()` matches `Player._physics_process`'s.
 
-- [ ] **Step 3: Hold the registry and the system in `main.gd`**
+- [x] **Step 3: Hold the registry and the system in `main.gd`**
 
 `main.gd` builds a `ContentRegistry` as a local in `_ready()` and drops it.
 The tick needs it every frame. Add two fields beside the existing ones:
@@ -1492,7 +1492,7 @@ to
 
 Keeping the local means the rest of `_ready()` is untouched.
 
-- [ ] **Step 4: Create and seed the system**
+- [x] **Step 4: Create and seed the system**
 
 In `_ready()`, immediately after `_collision = CollisionBuilder.new()`:
 
@@ -1504,7 +1504,7 @@ In `_ready()`, immediately after `_collision = CollisionBuilder.new()`:
 	_animals.rng.seed = zone.generation_seed
 ```
 
-- [ ] **Step 5: Tick it**
+- [x] **Step 5: Tick it**
 
 Add at the end of `src/presentation/main.gd`:
 
@@ -1532,7 +1532,7 @@ second that is under 7 cm of apparent lag; the spec records it as accepted
 rather than fixed, because fixing it means an ordering contract between two
 nodes for no visible gain.
 
-- [ ] **Step 6: Run every gate**
+- [x] **Step 6: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -1545,7 +1545,7 @@ nodes for no visible gain.
 
 Expected: six green.
 
-- [ ] **Step 7: Watch them move**
+- [x] **Step 7: Watch them move**
 
 ```bash
 ./tools/godot.sh --path . -s tools/screenshot.gd -- --out=/tmp/animals_a.png
@@ -1562,7 +1562,7 @@ frame — and restore it with `git checkout data/zone/home/zone.json`.
 
 Confirm a rabbit is in a different place in the two shots.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/presentation/main.gd tests/test_animal_budget.gd
@@ -1586,7 +1586,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 9: Tick this task**
+- [x] **Step 9: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
