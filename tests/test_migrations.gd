@@ -42,3 +42,22 @@ func test_committed_v1_fixture_still_loads() -> void:
 			var l: Vector2i = Vector2i(x, y)
 			assert_eq(c.get_terrain(l), (x * 31 + y * 17) % 65536)
 			assert_eq(c.get_height(l), (x + y) % 256)
+
+
+func test_v1_entities_fixture_still_decodes() -> void:
+	# This passes trivially today, when v1 is current. It is committed now
+	# so that the format bump has a real v1 file to migrate, written by the
+	# real v1 encoder rather than hand-assembled after the fact.
+	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(
+		"res://tests/fixtures/v1_entities.dat")
+	assert_gt(bytes.size(), 0, "fixture is missing; run tools/make_fixture.gd")
+
+	var result: DecodeResult = EntityCodec.decode(bytes)
+	assert_true(result.ok, result.error)
+
+	var store: EntityStore = result.value
+	assert_eq(store.count(), 3)
+	assert_eq(store.get_position(1), Vector2(4.5, 9.5))
+	assert_eq(store.get_position(3), Vector2(127.5, 0.5))
+	assert_eq(store.get_facing(2), 2)
+	assert_eq(store.next_id(), 4)
