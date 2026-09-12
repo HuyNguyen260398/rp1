@@ -1887,7 +1887,7 @@ git commit -m "docs: tick Phase 4a task 8"
 Slates is CC-BY 4.0, already credited, and `assets/tiles/LICENSE.txt` already
 describes exactly this derivation — so this task touches no licence surface.
 
-- [ ] **Step 1: Find the rects by eye**
+- [x] **Step 1: Find the rects by eye**
 
 The sheet's tile contents are not recorded anywhere, so the rects have to be
 read off the image. Do not guess them.
@@ -1909,7 +1909,7 @@ Record each choice as `tile (col, row) -> name` in a scratch note before
 converting to rects, so Step 2 is transcription rather than arithmetic done
 twice.
 
-- [ ] **Step 2: Add the slices to the manifest**
+- [x] **Step 2: Add the slices to the manifest**
 
 Add to the `slices` array in `tools/import_manifest.json`, substituting the
 rects found in Step 1. `source` is relative to `assets/_source/`; `out` is
@@ -1952,7 +1952,7 @@ relative to the project root:
 
 Write literal numbers, not `COL*32` — JSON has no arithmetic.
 
-- [ ] **Step 3: Run the pipeline and look at the output**
+- [x] **Step 3: Run the pipeline and look at the output**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/quantize.gd
@@ -1966,7 +1966,7 @@ half a roof and half the sky, and the palette gate cannot tell the difference.
 If the mapping report flags a colour that crossed a ramp, pin it in
 `tools/palette_overrides.json` and re-run — do not hand-edit a PNG.
 
-- [ ] **Step 4: Write the content definitions**
+- [x] **Step 4: Write the content definitions**
 
 Create `data/terrain/dirt.json`:
 
@@ -2028,7 +2028,7 @@ and `window.json`: the same shape as `wall_stone.json`, each with its own `id`,
 `["built", "roof"]` for both roofs, `["built", "door"]` for `door`, and
 `["built", "window"]` for `window`.
 
-- [ ] **Step 5: Verify the content loads and the gates stay green**
+- [x] **Step 5: Verify the content loads and the gates stay green**
 
 ```bash
 ./tools/run_tests.sh
@@ -2042,13 +2042,13 @@ risen by eleven. No test file changes: these are new *instances* of existing
 categories, not new categories, so the existing schemas already cover them and
 `test_content_registry.gd` validates them automatically.
 
-- [ ] **Step 6: Refresh the credits**
+- [x] **Step 6: Refresh the credits**
 
 `assets/CREDITS.md` names both packs already and needs no new row. If it states
 a file or slice count anywhere, update the number. Confirm the licence table is
 untouched — nothing in this task adds a pack.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add tools/import_manifest.json assets data/terrain data/object
@@ -2067,7 +2067,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 9 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
