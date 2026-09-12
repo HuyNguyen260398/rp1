@@ -2795,7 +2795,7 @@ Phase 2 — `test_chunk_payloads_round_trip_byte_identical` and
 **Files:**
 - Modify: `tools/smoke.gd`
 
-- [ ] **Step 1: Add the session round trip**
+- [x] **Step 1: Add the session round trip**
 
 Append a section to `_init`, before the failure report, using a throwaway root
 and the real authored zone:
@@ -2832,18 +2832,18 @@ and the real authored zone:
 				"the player's facing was not restored")
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 Run: `./tools/godot.sh --headless --path . -s tools/smoke.gd`
 Expected: `Smoke test: OK (300 iterations)`, exit 0.
 
-- [ ] **Step 3: Prove it can fail**
+- [x] **Step 3: Prove it can fail**
 
 Temporarily change `s.save_now(registry, "smoke")`'s zone to skip the full
 save — or simply change the expected position to `Vector2(0.5, 0.5)` — and
 confirm the smoke test exits non-zero with a readable message. Revert.
 
-- [ ] **Step 4: Confirm the two acceptance tests still pass**
+- [x] **Step 4: Confirm the two acceptance tests still pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, including `test_save_completes_within_the_budget`. If the
@@ -2851,14 +2851,14 @@ budget test now fails, the cause is the walkability recompute added in Task 6
 or the meta write added in Task 10 — measure before changing the budget, and
 report the number rather than relaxing the assertion.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/smoke.gd
 git commit -m "ci: smoke test opens a world, saves it, and reopens it"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 17 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
