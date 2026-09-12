@@ -1273,7 +1273,7 @@ git commit -m "docs: tick Phase 4a task 4"
 - Produces: entities present in `result.zone.entities` after a load. Phase 4b's
   `AnimalSystem` reads them from there and needs no authoring surface of its own.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_zone_loader.gd`:
 
@@ -1347,13 +1347,13 @@ func test_a_malformed_entity_entry_is_reported_and_skipped() -> void:
 	assert_eq(r.errors.size(), 2, "and each bad entry is named")
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
 Expected: FAIL — `entities.count()` is 0; nothing spawns anything yet.
 
-- [ ] **Step 3: Spawn the list**
+- [x] **Step 3: Spawn the list**
 
 In `src/core/zone_loader.gd`, add a call just before `result.zone = zone`:
 
@@ -1387,13 +1387,13 @@ static func _spawn_entities(zone: Zone, entries: Array,
 		zone.entities.spawn(type_id, Vector2(float(at[0]), float(at[1])))
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, four more tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/zone_loader.gd tests/test_zone_loader.gd
@@ -1413,7 +1413,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
