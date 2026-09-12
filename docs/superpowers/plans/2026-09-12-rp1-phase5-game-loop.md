@@ -854,7 +854,7 @@ never again, so they have no `.bak` until something starts rewriting them.
   `SaveManager.save_zone(save_root: String, zone: Zone, registry: ContentRegistry, all_chunks: bool = false, keep_backup: bool = false) -> PackedStringArray`,
   `SaveManager.load_zone(save_root: String, zone_id: String, registry: ContentRegistry, use_backup: bool = false) -> DecodeResult`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```gdscript
 func test_the_first_write_leaves_no_backup() -> void:
@@ -896,12 +896,12 @@ func test_loading_from_the_backup_returns_the_previous_entities() -> void:
 	assert_eq((backup.value as Zone).entities.get_position(id), Vector2(10.5, 10.5))
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `atomic_write` takes two arguments, not three.
 
-- [ ] **Step 3: Rotate inside atomic_write**
+- [x] **Step 3: Rotate inside atomic_write**
 
 ```gdscript
 ## `keep_backup` renames any existing file to `path + ".bak"` before the
@@ -936,7 +936,7 @@ static func atomic_write(
 	return ""
 ```
 
-- [ ] **Step 4: Thread it through save_zone and load_zone**
+- [x] **Step 4: Thread it through save_zone and load_zone**
 
 `save_zone` gains `keep_backup: bool = false` and passes it to the
 `entities.dat` write **only**. `id_map.json`, `zone_meta.json` and the chunks
@@ -953,20 +953,20 @@ file just doubles the disk cost.
 Document on `load_zone` that chunks have no backup because nothing rewrites
 them yet, and that a Stage 2 which does must rotate them too.
 
-- [ ] **Step 5: Run the whole suite**
+- [x] **Step 5: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS. Existing callers pass neither new argument and are unaffected
 by both defaults.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd tests/test_save_manager.gd
 git commit -m "feat: one .bak rotation per rewritten save file, and recovery from it"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
