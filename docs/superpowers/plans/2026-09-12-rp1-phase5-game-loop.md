@@ -1183,7 +1183,7 @@ carries that decision from `open_new` to the first `save_now`.
   `open_saved(registry: ContentRegistry, use_backup: bool = false) -> SessionOpenResult`,
   `adopt_player(id: int) -> void`, `close() -> void`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_game_session.gd`. Copy the `_rm_rf` / `_wipe` helpers from
 `tests/test_save_manager.gd` — the save root must be a throwaway directory, and
@@ -1274,12 +1274,12 @@ func test_close_drops_the_world() -> void:
 	assert_eq(s.player_entity_id, 0)
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `GameSession` is not a known identifier.
 
-- [ ] **Step 3: Write SessionOpenResult**
+- [x] **Step 3: Write SessionOpenResult**
 
 Create `src/systems/session_open_result.gd`:
 
@@ -1316,7 +1316,7 @@ static func failure(msg: String) -> SessionOpenResult:
 	return r
 ```
 
-- [ ] **Step 4: Write the opening half of GameSession**
+- [x] **Step 4: Write the opening half of GameSession**
 
 Create `src/systems/game_session.gd`:
 
@@ -1428,20 +1428,20 @@ func close() -> void:
 	needs_full_save = false
 ```
 
-- [ ] **Step 5: Run the whole suite and the guard**
+- [x] **Step 5: Run the whole suite and the guard**
 
 Run: `./tools/run_tests.sh && ./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: PASS, and the guard exits 0 — `GameSession` extends `RefCounted` and
 names no node.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/session_open_result.gd src/systems/game_session.gd tests/test_game_session.gd
 git commit -m "feat: GameSession opens a world, new or saved"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 9 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
