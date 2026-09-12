@@ -268,3 +268,49 @@ func test_a_freshly_loaded_zone_is_not_dirty() -> void:
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_true(result.ok, result.error)
 	assert_eq((result.value as Zone).dirty_chunk_coords().size(), 0)
+
+
+func test_the_first_write_leaves_no_backup() -> void:
+	var path: String = _root.path_join("thing.dat")
+	assert_eq(SaveManager.atomic_write(path, "one".to_utf8_buffer(), true), "")
+	assert_false(FileAccess.file_exists(path + ".bak"))
+
+
+func test_a_second_write_rotates_the_first_into_the_backup() -> void:
+	var path: String = _root.path_join("thing.dat")
+	SaveManager.atomic_write(path, "one".to_utf8_buffer(), true)
+	SaveManager.atomic_write(path, "two".to_utf8_buffer(), true)
+	assert_eq(FileAccess.get_file_as_string(path), "two")
+	assert_eq(FileAccess.get_file_as_string(path + ".bak"), "one")
+
+
+func test_only_one_rotation_is_kept() -> void:
+	var path: String = _root.path_join("thing.dat")
+	for text: String in ["one", "two", "three"]:
+		SaveManager.atomic_write(path, text.to_utf8_buffer(), true)
+	assert_eq(FileAccess.get_file_as_string(path), "three")
+	assert_eq(FileAccess.get_file_as_string(path + ".bak"), "two")
+	assert_false(FileAccess.file_exists(path + ".bak.bak"))
+
+
+func test_writing_without_keep_backup_rotates_nothing() -> void:
+	var path: String = _root.path_join("thing.dat")
+	SaveManager.atomic_write(path, "one".to_utf8_buffer())
+	SaveManager.atomic_write(path, "two".to_utf8_buffer())
+	assert_false(FileAccess.file_exists(path + ".bak"))
+
+
+func test_loading_from_the_backup_returns_the_previous_entities() -> void:
+	var zone: Zone = _zone()
+	var id: int = zone.entities.spawn(_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
+	SaveManager.save_zone(_root, zone, _registry, true, true)
+
+	zone.entities.set_position(id, Vector2(99.5, 99.5))
+	SaveManager.save_zone(_root, zone, _registry, false, true)
+
+	var live: DecodeResult = SaveManager.load_zone(_root, "home", _registry, false)
+	var backup: DecodeResult = SaveManager.load_zone(_root, "home", _registry, true)
+	assert_true(live.ok, live.error)
+	assert_true(backup.ok, backup.error)
+	assert_eq((live.value as Zone).entities.get_position(id), Vector2(99.5, 99.5))
+	assert_eq((backup.value as Zone).entities.get_position(id), Vector2(10.5, 10.5))
