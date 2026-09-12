@@ -1,0 +1,4 @@
+{"id": "door", "category": "object", "display_name": "Door",
+ "sprite": "res://assets/objects/door.png", "sprite_rect": [0, 0, 32, 32],
+ "y_offset": 0, "blocks_movement": true, "blocks_light": true,
+ "tags": ["built", "door"]}

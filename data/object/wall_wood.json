@@ -1,0 +1,4 @@
+{"id": "wall_wood", "category": "object", "display_name": "Wooden Wall",
+ "sprite": "res://assets/objects/wall_wood.png", "sprite_rect": [0, 0, 32, 32],
+ "y_offset": 0, "blocks_movement": true, "blocks_light": true,
+ "tags": ["built", "wall"]}

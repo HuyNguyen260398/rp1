@@ -1,0 +1,45 @@
+{
+  "id": "home",
+  "category": "zone",
+  "display_name": "Home Valley",
+  "size": [128, 128],
+  "biome": "temperate",
+  "generation_seed": 20260911,
+  "maps": {
+    "terrain": "terrain.png",
+    "object": "object.png",
+    "height": "height.png"
+  },
+  "legend": {
+    "terrain": {
+      "00ff00": "grass",
+      "0000ff": "water",
+      "ff8000": "dirt"
+    },
+    "object": {
+      "000000": null,
+      "008000": "oak_tree",
+      "00c850": "pine_tree",
+      "808080": "rock_small",
+      "5a5a5a": "rock_large",
+      "96dc3c": "bush",
+      "c8c8b4": "wall_stone",
+      "a06e3c": "wall_wood",
+      "78788c": "roof_shingle",
+      "dcb45a": "roof_thatch",
+      "5a3c1e": "door",
+      "78c8ff": "window"
+    }
+  },
+  "player_spawn": [64.5, 60.5],
+  "entities": [
+    {"type": "rabbit", "at": [30.5, 70.5]},
+    {"type": "rabbit", "at": [34.5, 74.5]},
+    {"type": "rabbit", "at": [72.5, 44.5]},
+    {"type": "rabbit", "at": [78.5, 48.5]},
+    {"type": "rabbit", "at": [96.5, 80.5]},
+    {"type": "rabbit", "at": [100.5, 86.5]},
+    {"type": "rabbit", "at": [50.5, 104.5]},
+    {"type": "rabbit", "at": [56.5, 108.5]}
+  ]
+}

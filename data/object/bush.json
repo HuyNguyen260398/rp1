@@ -1,0 +1,4 @@
+{"id": "bush", "category": "object", "display_name": "Bush",
+ "sprite": "res://assets/objects/bush.png", "sprite_rect": [0, 0, 32, 32],
+ "y_offset": 0, "blocks_movement": false, "blocks_light": false,
+ "tags": ["natural", "flammable"]}

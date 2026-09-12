@@ -1,0 +1,4 @@
+{"id": "window", "category": "object", "display_name": "Window",
+ "sprite": "res://assets/objects/window.png", "sprite_rect": [0, 0, 32, 32],
+ "y_offset": 0, "blocks_movement": true, "blocks_light": true,
+ "tags": ["built", "window"]}

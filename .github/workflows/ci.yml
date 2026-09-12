@@ -59,6 +59,10 @@ jobs:
       - name: Palette
         run: ./tools/check_palette.sh
 
+      # Gate 7
+      - name: Zone
+        run: ./tools/check_zone.sh
+
   export:
     runs-on: ubuntu-latest
     needs: verify

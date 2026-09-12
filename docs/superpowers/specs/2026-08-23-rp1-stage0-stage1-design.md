@@ -463,12 +463,25 @@ phase boundaries below moved with it.
 
 ### Phase 4 — World content
 
-- Hand-author the 128x128 zone **as data** (JSON plus PNG heightmap the game reads), not in the Godot editor, so world data stays in the layer agents can manipulate
-- Trees, rocks, water, paths, three houses (exterior only)
-- `AnimalSystem`: wander within a radius, flee the player. Deliberately dumb — this validates the entity pipeline, not AI.
-- A multi-consumer dirty channel, so the collision cache and `ZoneRenderer` can both react to zone mutation
+Split into two slices, recorded here because the boundaries below moved
+with it.
 
-*(Collision from walkable flags and `EntityRenderer` moved earlier, into Phase 3b.)*
+**Phase 4a — zone authoring** *(done)*
+
+- The 128x128 zone authored **as data**: one PNG per tile column plus a
+  JSON legend under `data/zone/home/`, read at boot by `ZoneLoader`
+- Trees, rocks, water, paths, three houses (exterior only)
+- CI gate 7 (`tools/check_zone.sh`) and the legend swatch tool
+
+**Phase 4b — living world**
+
+- `AnimalSystem`: wander within a radius, flee the player. Deliberately
+  dumb — this validates the entity pipeline, not AI.
+- A multi-consumer dirty channel, so the collision cache and
+  `ZoneRenderer` can both react to zone mutation
+
+*(Collision from walkable flags and `EntityRenderer` moved earlier, into
+Phase 3b.)*
 
 ### Phase 5 — Game loop closure
 

@@ -1,15 +1,12 @@
 extends Node2D
-## Phase 3a entry point: build a debug zone and draw it.
+## Entry point: load the authored zone and draw it.
 ##
-## The zone generated here is scaffolding, not content. It is the one
-## place this phase knowingly bends the "all content lives in data/*.json"
-## rule, and it bends it for a fixture rather than for content. Phase 4
-## replaces _build_debug_zone() with a zone authored as data.
+## The world is data. Everything drawn here comes from data/zone/home/ and
+## data/*.json; this file contains no content and no layout.
 
-const ZONE_SIZE: Vector2i = Vector2i(128, 128)
-const POND_CENTRE: Vector2i = Vector2i(40, 40)
-const POND_RADIUS: int = 8
-const TREE_SPACING: int = 11
+## Exported rather than hardcoded: a res:// path in logic is the thing the
+## content rules exist to prevent. Phase 5's New World flow sets this.
+@export var zone_dir: String = "res://data/zone/home"
 
 var _renderer: ZoneRenderer = null
 var _entity_renderer: EntityRenderer = null
@@ -37,7 +34,16 @@ func _ready() -> void:
 	for e: String in art_errs:
 		push_error("tileset: %s" % e)
 
-	var zone: Zone = _build_debug_zone(registry)
+	var load_result: ZoneLoadResult = ZoneLoader.load_zone(zone_dir, registry)
+	for e: String in load_result.errors:
+		push_error("zone: %s" % e)
+	if load_result.zone == null:
+		# There is no sensible fallback world. CI gate 7 exists so this
+		# state never reaches a build; if it happens anyway, say so loudly
+		# rather than rendering an empty screen with no explanation.
+		push_error("zone failed to load from %s; nothing to render" % zone_dir)
+		return
+	var zone: Zone = load_result.zone
 	var painted: int = _renderer.render_zone(zone)
 	_renderer.zone = zone
 
@@ -57,7 +63,9 @@ func _ready() -> void:
 	_player = Player.new()
 	_player.name = "Player"
 	add_child(_player)
-	var pid: int = _player.spawn(zone, registry, _collision, zone.size_tiles / 2)
+	var spawn_near: Vector2i = Vector2i(
+		floori(load_result.player_spawn.x), floori(load_result.player_spawn.y))
+	var pid: int = _player.spawn(zone, registry, _collision, spawn_near)
 	print("RP1 player spawned at %s" % zone.entities.get_position(pid))
 
 	_camera = FollowCamera.new()
@@ -66,31 +74,3 @@ func _ready() -> void:
 	_camera.setup(zone)
 	_camera.target_id = pid
 	_camera.make_current()
-
-
-## TEMPORARY -- deleted in Phase 4 when zones are authored as data.
-func _build_debug_zone(registry: ContentRegistry) -> Zone:
-	var zone: Zone = Zone.new("debug", ZONE_SIZE)
-	var grass: int = registry.numeric_of("grass")
-	var water: int = registry.numeric_of("water")
-	var oak: int = registry.numeric_of("oak_tree")
-
-	for y: int in range(ZONE_SIZE.y):
-		for x: int in range(ZONE_SIZE.x):
-			var w: Vector2i = Vector2i(x, y)
-			var in_pond: bool = Vector2(w - POND_CENTRE).length() <= float(POND_RADIUS)
-			zone.set_terrain(w, water if in_pond else grass)
-			# A lattice, skipping the pond, so the result is easy to eyeball.
-			if not in_pond and x % TREE_SPACING == 0 and y % TREE_SPACING == 0:
-				zone.set_object(w, oak)
-
-	# Flags are derived from content, never hand-set. Setting them here
-	# from terrain alone is what left the oaks standing on walkable tiles.
-	Walkability.recompute_zone(zone, registry)
-
-	# The initial paint below is a full render_zone(), not a dirty-driven
-	# repaint, so the dirty flags this generator set are not pending work
-	# for the renderer. recompute_zone() dirties chunks as it writes, so
-	# this must stay AFTER it.
-	zone.clear_dirty()
-	return zone
