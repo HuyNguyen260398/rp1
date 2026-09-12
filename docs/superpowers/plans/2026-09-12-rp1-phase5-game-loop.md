@@ -1468,7 +1468,7 @@ test and means a paused game's clock genuinely stops.
   `save_now(registry: ContentRegistry, reason: String) -> PackedStringArray`,
   `save_if_gap_elapsed(registry: ContentRegistry, reason: String) -> PackedStringArray`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```gdscript
 func _opened() -> GameSession:
@@ -1603,12 +1603,12 @@ func test_a_corrupt_live_save_can_be_recovered_from_the_backup() -> void:
 	assert_eq(recovered.zone.entities.get_position(pid), Vector2(10.5, 10.5))
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `tick`, `save_now` and `save_if_gap_elapsed` do not exist.
 
-- [ ] **Step 3: Implement the clock and the save**
+- [x] **Step 3: Implement the clock and the save**
 
 Add to `src/systems/game_session.gd`:
 
@@ -1690,26 +1690,26 @@ func save_now(registry: ContentRegistry, reason: String) -> PackedStringArray:
 `Time` is an engine singleton, not a node, so `guard.gd` permits it — but
 confirm the guard's rule list in Step 5 rather than assuming.
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all of it.
 
-- [ ] **Step 5: Run the architecture guard**
+- [x] **Step 5: Run the architecture guard**
 
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: exit 0. If the guard rejects `Time.`, that is a real finding, not a
 nuisance: report it rather than weakening the guard, and replace the timing
 print with the caller passing elapsed time in.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/game_session.gd tests/test_game_session.gd
 git commit -m "feat: GameSession autosaves on a delta-driven clock"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 10 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
