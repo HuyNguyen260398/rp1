@@ -103,7 +103,7 @@ Task 7 wires it into the game and measures it. Task 8 closes the phase.
   `body_width`, `body_height`, all `float`, alongside the existing
   `wander_radius` (`int`) and `flees_player` (`bool`).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_creature_schema.gd`:
 
@@ -188,7 +188,7 @@ func test_the_player_is_not_an_animal() -> void:
 		"the player must have no wander_radius, or AnimalSystem would drive it")
 ```
 
-- [ ] **Step 2: Run the test and watch it fail**
+- [x] **Step 2: Run the test and watch it fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -197,7 +197,7 @@ Expected: FAIL. `test_every_behaviour_field_is_declared` fails on
 `tags` — and `test_the_rabbit_carries_every_number_animal_system_reads` fails
 on the same field.
 
-- [ ] **Step 3: Extend the schema**
+- [x] **Step 3: Extend the schema**
 
 Replace `data/schema/creature.json` with:
 
@@ -213,7 +213,7 @@ Replace `data/schema/creature.json` with:
 }
 ```
 
-- [ ] **Step 4: Author the rabbit**
+- [x] **Step 4: Author the rabbit**
 
 Replace `data/creature/rabbit.json` with:
 
@@ -234,13 +234,13 @@ which is the intended feel. Its body is smaller than the player's
 Leave `data/creature/player.json` untouched. It carries no `wander_radius`,
 which is the whole of how `AnimalSystem` knows not to drive it.
 
-- [ ] **Step 5: Run the tests and watch them pass**
+- [x] **Step 5: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, one new script and seven new tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add data/schema/creature.json data/creature/rabbit.json tests/test_creature_schema.gd
@@ -262,7 +262,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 7: Tick this task**
+- [x] **Step 7: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
