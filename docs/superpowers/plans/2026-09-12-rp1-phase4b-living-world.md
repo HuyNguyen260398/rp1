@@ -1060,7 +1060,7 @@ git commit -m "docs: tick Phase 4b task 4"
 - Produces: `CALM_FACTOR: float = 1.5`. The calm distance is
   `flee_radius * CALM_FACTOR`, derived rather than authored.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_animal_system.gd`:
 
@@ -1139,7 +1139,7 @@ func test_returning_never_ends_a_tick_inside_a_solid() -> void:
 			"tick %d put the returning rabbit on %s" % [i, tile])
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -1148,7 +1148,7 @@ Expected: FAIL. Nothing ever leaves `MODE_FLEE`, so
 and `test_a_frightened_animal_still_inside_its_radius_just_resumes_wandering`
 fails at its second.
 
-- [ ] **Step 3: Implement the calm distance and the walk home**
+- [x] **Step 3: Implement the calm distance and the walk home**
 
 Add the constant beside the other defaults:
 
@@ -1196,13 +1196,13 @@ and extend the velocity selection:
 			velocity = _wander_velocity(s, pos, radius, speed, zone, delta)
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, four more tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
@@ -1223,7 +1223,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
