@@ -28,6 +28,11 @@ func build(registry: ContentRegistry, result: SessionOpenResult) -> PackedString
 	# layer's tiles and the entity sprites interleave by their y position.
 	y_sort_enabled = true
 
+	# The router is PROCESS_MODE_ALWAYS so it can hear the un-pause key,
+	# and process_mode is inherited: without this the player would keep
+	# walking while the pause menu is open.
+	process_mode = Node.PROCESS_MODE_PAUSABLE
+
 	_registry = registry
 	zone = result.zone
 
