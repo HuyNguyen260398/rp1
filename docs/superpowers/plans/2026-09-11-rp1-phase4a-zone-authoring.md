@@ -121,7 +121,7 @@ This task ships a **real but tiny** zone: 8x8, one pond tile, one oak. It grows
 to 128x128 in Task 10. Everything structural is exercised at a size a human can
 check by counting.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_zone_schema.gd`:
 
@@ -207,14 +207,14 @@ func test_the_optional_fields_are_accepted() -> void:
 	assert_eq(SchemaValidator.validate(doc, _schema), PackedStringArray())
 ```
 
-- [ ] **Step 2: Run the test and watch it fail**
+- [x] **Step 2: Run the test and watch it fail**
 
 Run: `./tools/run_tests.sh`
 
 Expected: FAIL. `data/schema/zone.json` does not exist, so `_read` asserts on a
 null `FileAccess` and every test that needs the schema fails.
 
-- [ ] **Step 3: Write the schema**
+- [x] **Step 3: Write the schema**
 
 Create `data/schema/zone.json`:
 
@@ -232,7 +232,7 @@ Create `data/schema/zone.json`:
 }
 ```
 
-- [ ] **Step 4: Write the seeding tool**
+- [x] **Step 4: Write the seeding tool**
 
 Create `tools/seed_zone.gd`. This is a **one-shot authoring tool**, deleted in
 Task 10 once its final output is committed — the same treatment
@@ -302,14 +302,14 @@ func _save(img: Image, file_name: String) -> int:
 	return 0
 ```
 
-- [ ] **Step 5: Run the seeding tool**
+- [x] **Step 5: Run the seeding tool**
 
 Run: `./tools/godot.sh --headless --path . -s tools/seed_zone.gd`
 
 Expected: `seed_zone: wrote a 8x8 zone to res://data/zone/home`, and three PNGs
 exist under `data/zone/home/`.
 
-- [ ] **Step 6: Write the zone document**
+- [x] **Step 6: Write the zone document**
 
 Create `data/zone/home/zone.json`:
 
@@ -335,13 +335,13 @@ Create `data/zone/home/zone.json`:
 }
 ```
 
-- [ ] **Step 7: Run the tests and watch them pass**
+- [x] **Step 7: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, with one more script than before and six new tests.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add data/schema/zone.json data/zone/home tools/seed_zone.gd tests/test_zone_schema.gd
@@ -362,7 +362,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 9: Tick this task**
+- [x] **Step 9: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
