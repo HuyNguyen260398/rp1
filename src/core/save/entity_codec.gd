@@ -84,13 +84,16 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 	var store: EntityStore = EntityStore.new()
 	var o: int = HEADER_BYTES
 	for i: int in range(count):
+		var pos: Vector2 = Vector2(
+			bytes.decode_float(o + 6), bytes.decode_float(o + 10))
 		store.restore_row(
 			bytes.decode_u32(o),
 			bytes.decode_u16(o + 4),
-			Vector2(bytes.decode_float(o + 6), bytes.decode_float(o + 10)),
+			pos,
 			bytes.decode_u8(o + 14),
 			bytes.decode_u8(o + 15),
 			bytes.decode_u16(o + 16),
+			pos,  # v1 has no home column; Task 4 replaces this
 		)
 		o += ROW_BYTES
 

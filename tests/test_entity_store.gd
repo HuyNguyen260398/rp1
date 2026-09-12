@@ -94,3 +94,38 @@ func test_next_id_is_preserved_across_save_and_load() -> void:
 	var fresh: EntityStore = EntityStore.new()
 	fresh.set_next_id(saved)
 	assert_eq(fresh.spawn(1, Vector2.ZERO), saved)
+
+
+func test_spawn_anchors_home_at_the_spawn_position() -> void:
+	var id: int = _s.spawn(7, Vector2(4.5, 9.5))
+	assert_eq(_s.get_home(id), Vector2(4.5, 9.5))
+
+
+func test_moving_an_entity_does_not_move_its_home() -> void:
+	var id: int = _s.spawn(7, Vector2(4.5, 9.5))
+	_s.set_position(id, Vector2(40.0, 90.0))
+	assert_eq(_s.get_home(id), Vector2(4.5, 9.5))
+	assert_eq(_s.get_position(id), Vector2(40.0, 90.0))
+
+
+func test_set_home_is_independent_of_position() -> void:
+	var id: int = _s.spawn(7, Vector2(4.5, 9.5))
+	_s.set_home(id, Vector2(1.5, 2.5))
+	assert_eq(_s.get_home(id), Vector2(1.5, 2.5))
+	assert_eq(_s.get_position(id), Vector2(4.5, 9.5))
+
+
+func test_a_reused_slot_does_not_inherit_the_previous_home() -> void:
+	# Slot reuse is the one path where a stale column value survives a
+	# despawn. Without the reuse branch setting home, the new entity would
+	# silently adopt the dead one's anchor.
+	var first: int = _s.spawn(7, Vector2(4.5, 9.5))
+	assert_true(_s.despawn(first))
+	var second: int = _s.spawn(7, Vector2(60.5, 60.5))
+	assert_eq(_s.get_home(second), Vector2(60.5, 60.5))
+
+
+func test_restore_row_takes_home_verbatim() -> void:
+	_s.restore_row(9, 7, Vector2(4.5, 9.5), 2, EntityStore.FLAG_ACTIVE, 0, Vector2(1.5, 2.5))
+	assert_eq(_s.get_position(9), Vector2(4.5, 9.5))
+	assert_eq(_s.get_home(9), Vector2(1.5, 2.5))
