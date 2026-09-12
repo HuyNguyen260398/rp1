@@ -993,7 +993,7 @@ report.
   `playtime: float`; `WorldMeta.path_in(save_root: String) -> String`,
   `to_json_string() -> String`, `WorldMeta.from_json_string(text: String) -> DecodeResult`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_world_meta.gd`:
 
@@ -1056,12 +1056,12 @@ func test_missing_fields_take_defaults() -> void:
 	assert_eq(back.playtime, 0.0)
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `WorldMeta` is not a known identifier.
 
-- [ ] **Step 3: Write it**
+- [x] **Step 3: Write it**
 
 Create `src/core/save/world_meta.gd`:
 
@@ -1128,24 +1128,24 @@ static func from_json_string(text: String) -> DecodeResult:
 	return DecodeResult.success(m)
 ```
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 5: Check the architecture guard still passes**
+- [x] **Step 5: Check the architecture guard still passes**
 
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: exit 0. `WorldMeta` extends `RefCounted` and touches no node.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/save/world_meta.gd tests/test_world_meta.gd
 git commit -m "feat: WorldMeta, the root meta.json a save is recognised by"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 8 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
