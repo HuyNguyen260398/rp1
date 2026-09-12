@@ -109,3 +109,125 @@ func test_an_animal_spawned_later_is_picked_up() -> void:
 	_run(1)
 	assert_eq(_system.tracked_ids(), PackedInt32Array([id]),
 		"a Phase 5 load spawns animals after boot and must need no registration call")
+
+
+## A 32x32 zone whose middle column is water, so there is real geometry to
+## be blocked by.
+func _make_walled_zone() -> Zone:
+	var zone: Zone = Zone.new("walled", Vector2i(32, 32))
+	var grass: int = _registry.numeric_of("grass")
+	var water: int = _registry.numeric_of("water")
+	for y: int in range(32):
+		for x: int in range(32):
+			zone.set_terrain(Vector2i(x, y), water if x == 16 else grass)
+	Walkability.recompute_zone(zone, _registry)
+	zone.clear_dirty()
+	return zone
+
+
+func test_an_animal_moves() -> void:
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(300)
+	assert_ne(_zone.entities.get_position(id), Vector2(16.5, 16.5),
+		"five seconds of wandering must go somewhere")
+
+
+func test_an_animal_stays_within_its_wander_radius() -> void:
+	var home: Vector2 = Vector2(16.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+	# The radius is 6 tiles. A target may be drawn AT the radius, and the
+	# animal stops within ARRIVE_EPSILON of it and may overshoot by one
+	# tick of travel, so the true bound is nearer 6.03 than 6.0.
+	for i: int in range(600):
+		_system.tick(_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0)
+		assert_lt(_zone.entities.get_position(id).distance_to(home), 6.5,
+			"tick %d left the wander radius with no player anywhere near" % i)
+
+
+func test_wandering_never_ends_a_tick_inside_a_solid() -> void:
+	_zone = _make_walled_zone()
+	var id: int = _spawn("rabbit", Vector2(10.5, 16.5))
+	for i: int in range(600):
+		_system.tick(_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0)
+		var p: Vector2 = _zone.entities.get_position(id)
+		var tile: Vector2i = Vector2i(floori(p.x), floori(p.y))
+		assert_true(_zone.is_walkable(tile),
+			"tick %d put the rabbit on %s, which is not walkable" % [i, tile])
+
+
+func test_an_enclosed_animal_dwells_rather_than_spinning() -> void:
+	# A single walkable tile ringed by water: every target draw is rejected.
+	var zone: Zone = Zone.new("box", Vector2i(32, 32))
+	var grass: int = _registry.numeric_of("grass")
+	var water: int = _registry.numeric_of("water")
+	for y: int in range(32):
+		for x: int in range(32):
+			zone.set_terrain(Vector2i(x, y), water)
+	zone.set_terrain(Vector2i(16, 16), grass)
+	Walkability.recompute_zone(zone, _registry)
+	zone.clear_dirty()
+	_zone = zone
+
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(300)
+
+	var p: Vector2 = _zone.entities.get_position(id)
+	assert_almost_eq(p.x, 16.5, 0.6, "it has nowhere to go, so it stays on its tile")
+	assert_almost_eq(p.y, 16.5, 0.6, "it has nowhere to go, so it stays on its tile")
+
+
+func test_the_same_seed_reproduces_the_same_walk() -> void:
+	var id_a: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(120)
+	var first: Vector2 = _zone.entities.get_position(id_a)
+
+	before_each()
+	var id_b: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(120)
+
+	assert_eq(_zone.entities.get_position(id_b), first,
+		"same seed, same walk -- or no behaviour test here means anything")
+
+
+func test_a_different_seed_walks_differently() -> void:
+	var id_a: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(120)
+	var first: Vector2 = _zone.entities.get_position(id_a)
+
+	before_each()
+	_system.rng.seed = SEED + 1
+	var id_b: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(120)
+
+	assert_ne(_zone.entities.get_position(id_b), first)
+
+
+func test_identical_animals_do_not_move_in_lockstep() -> void:
+	# The dwell interval is jittered, so eight rabbits authored from one
+	# definition must not share a heartbeat.
+	var a: int = _spawn("rabbit", Vector2(10.5, 10.5))
+	var b: int = _spawn("rabbit", Vector2(10.5, 10.5))
+	_run(240)
+	assert_ne(_zone.entities.get_position(a), _zone.entities.get_position(b))
+
+
+func test_facing_follows_movement() -> void:
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_zone.entities.set_facing(id, MovementSystem.FACING_N)
+	_run(300)
+	# Not asserting a specific octant -- that would be asserting the RNG.
+	# Asserting only that facing is maintained, as the player's is.
+	assert_between(_zone.entities.get_facing(id), 0, 7)
+
+
+func test_tick_reports_how_many_moved() -> void:
+	var _a: int = _spawn("rabbit", Vector2(10.5, 10.5))
+	var _b: int = _spawn("rabbit", Vector2(20.5, 20.5))
+	var _p: int = _spawn("player", Vector2(16.5, 16.5))
+	# Run until at least one has stopped dwelling and started walking.
+	var seen: int = 0
+	for i: int in range(600):
+		seen = maxi(seen, _system.tick(
+			_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0))
+	assert_gt(seen, 0, "something moved")
+	assert_lt(seen, 3, "the player is not one of them")

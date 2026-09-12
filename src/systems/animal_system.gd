@@ -23,6 +23,21 @@ const MODE_WANDER: int = 0
 const MODE_FLEE: int = 1
 const MODE_RETURN: int = 2
 
+## Target draws before an animal gives up and dwells. A rabbit ringed by
+## water must not spin through a thousand rejected draws every frame.
+const MAX_TARGET_TRIES: int = 4
+
+## How close counts as arrived, in tiles.
+const ARRIVE_EPSILON: float = 0.2
+
+# Fallbacks for optional fields. This is engine behaviour rather than
+# content -- the same treatment ZoneLoader gives biome and generation_seed
+# -- and it keeps a half-authored creature moving rather than motionless
+# with no error anywhere.
+const DEFAULT_WANDER_SPEED: float = 1.5
+const DEFAULT_WANDER_INTERVAL: float = 3.0
+const DEFAULT_BODY: Vector2 = Vector2(0.5, 0.375)
+
 ## Injected so every test is exactly reproducible. The caller seeds it;
 ## main.gd uses the zone's generation_seed, so one world always behaves the
 ## same way.
@@ -74,7 +89,37 @@ func tick(
 			# registration call.
 			_state[id] = {
 				"home": pos, "target": pos, "timer": 0.0, "mode": MODE_WANDER,
+				"interval": float(def.get("wander_interval", DEFAULT_WANDER_INTERVAL)),
 			}
+
+		var s: Dictionary = _state[id]
+		var radius: float = float(def.get("wander_radius", 0))
+		var speed: float = float(def.get("wander_speed", DEFAULT_WANDER_SPEED))
+
+		var velocity: Vector2 = _wander_velocity(s, pos, radius, speed, zone, delta)
+
+		if velocity.is_zero_approx():
+			continue
+
+		var body: Vector2 = Vector2(
+			float(def.get("body_width", DEFAULT_BODY.x)),
+			float(def.get("body_height", DEFAULT_BODY.y))
+		)
+		# The same call Player._physics_process makes, with the same slack:
+		# the area only selects which chunks are consulted, and solids_near
+		# returns whole chunks regardless.
+		var area: Rect2 = Rect2(pos - Vector2(2.0, 2.0), Vector2(4.0, 4.0))
+		var solids: Array[Rect2i] = collision.solids_near(zone, area)
+		var bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(zone.size_tiles))
+		var next: Vector2 = MovementSystem.move(
+			pos, velocity, delta, body, solids, bounds)
+
+		if next.distance_to(pos) <= 0.0:
+			continue
+		zone.entities.set_position(id, next)
+		zone.entities.set_facing(
+			id, MovementSystem.facing_from(velocity, zone.entities.get_facing(id)))
+		moved += 1
 
 	# .keys() returns a copy, so erasing inside this loop is safe.
 	for id: int in _state.keys():
@@ -82,3 +127,48 @@ func tick(
 			_state.erase(id)
 
 	return moved
+
+
+## Dwell, then walk to a target drawn near home. Returns a desired velocity,
+## or zero while standing still.
+func _wander_velocity(
+	s: Dictionary, pos: Vector2, radius: float, speed: float,
+	zone: Zone, delta: float
+) -> Vector2:
+	if float(s["timer"]) > 0.0:
+		s["timer"] = float(s["timer"]) - delta
+		if float(s["timer"]) <= 0.0:
+			_pick_target(s, pos, radius, zone)
+		return Vector2.ZERO
+
+	var target: Vector2 = s["target"]
+	if pos.distance_to(target) <= ARRIVE_EPSILON:
+		# Arrived. Stand still for a jittered interval so animals authored
+		# from one definition do not share a heartbeat.
+		s["timer"] = _interval_for(s)
+		return Vector2.ZERO
+	return (target - pos).normalized() * speed
+
+
+## Draws a point uniformly from the disc of `radius` around home.
+##
+## sqrt() on the radius is what makes it uniform: without it, points bunch
+## toward the centre and an animal barely leaves its anchor.
+func _pick_target(s: Dictionary, pos: Vector2, radius: float, zone: Zone) -> void:
+	var home: Vector2 = s["home"]
+	for _try: int in range(MAX_TARGET_TRIES):
+		var angle: float = rng.randf() * TAU
+		var dist: float = sqrt(rng.randf()) * radius
+		var candidate: Vector2 = home + Vector2(cos(angle), sin(angle)) * dist
+		var tile: Vector2i = Vector2i(floori(candidate.x), floori(candidate.y))
+		if zone.in_bounds(tile) and zone.is_walkable(tile):
+			s["target"] = candidate
+			return
+	# Every draw was blocked. Stay put; the next dwell will try again.
+	s["target"] = pos
+
+
+## The dwell interval, jittered +/-50%.
+func _interval_for(s: Dictionary) -> float:
+	var base: float = float(s.get("interval", DEFAULT_WANDER_INTERVAL))
+	return base * rng.randf_range(0.5, 1.5)
