@@ -1440,7 +1440,7 @@ the first paint is a full `render_zone()`, not a dirty-driven repaint, so those
 flags are not pending work for anyone. Clearing before the recompute would
 leave every chunk falsely dirty on the first frame.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_zone_loader.gd`:
 
@@ -1477,14 +1477,14 @@ func test_the_zone_comes_back_with_no_dirty_chunks() -> void:
 		"the first paint is a full render_zone(), so nothing is pending")
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
 Expected: FAIL on all three. No flags are ever set, so `is_walkable` is false
 everywhere (including the grass), and every painted chunk is still dirty.
 
-- [ ] **Step 3: Recompute, then clear**
+- [x] **Step 3: Recompute, then clear**
 
 In `src/core/zone_loader.gd`, immediately before `result.zone = zone`:
 
@@ -1503,13 +1503,13 @@ In `src/core/zone_loader.gd`, immediately before `result.zone = zone`:
 	result.zone = zone
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, three more tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/zone_loader.gd tests/test_zone_loader.gd
@@ -1531,7 +1531,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
