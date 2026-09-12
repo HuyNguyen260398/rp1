@@ -71,6 +71,13 @@ func mode_of(id: int) -> int:
 	return int((_state[id] as Dictionary)["mode"])
 
 
+## The anchor this animal wanders around. Vector2.ZERO if untracked.
+func home_of(id: int) -> Vector2:
+	if not _state.has(id):
+		return Vector2.ZERO
+	return _state[id]["home"]
+
+
 ## Advances every animal by `delta`. Returns the number that moved.
 func tick(
 	zone: Zone,
@@ -93,12 +100,13 @@ func tick(
 
 		var pos: Vector2 = zone.entities.get_position(id)
 		if not _state.has(id):
-			# Home is captured lazily, wherever the animal is first seen.
-			# Animals restored by a Phase 5 load are therefore anchored
-			# where the save put them, with no load hook and no
-			# registration call.
+			# Home comes from the entity row, which the save carries and
+			# spawn() anchors at the spawn position. Reading it from `pos`
+			# instead would re-anchor every animal to wherever a load
+			# dropped it, moving the authored world a little each time.
 			_state[id] = {
-				"home": pos, "target": pos, "timer": 0.0, "mode": MODE_WANDER,
+				"home": zone.entities.get_home(id),
+				"target": pos, "timer": 0.0, "mode": MODE_WANDER,
 				"interval": float(def.get("wander_interval", DEFAULT_WANDER_INTERVAL)),
 			}
 

@@ -38,9 +38,13 @@ func _zone() -> Zone:
 	for y: int in range(128):
 		for x: int in range(128):
 			z.set_terrain(Vector2i(x, y), grass)
-			z.set_flags(Vector2i(x, y), Chunk.FLAG_WALKABLE)
 	z.set_object(Vector2i(10, 10), tree)
 	z.set_height(Vector2i(10, 10), 3)
+	# flags is derived data. Setting it by hand produced a fixture whose
+	# flags contradicted its own content -- walkable grass under a
+	# movement-blocking oak -- which is exactly the stale-flags state
+	# load_zone now recomputes away.
+	Walkability.recompute_zone(z, _registry)
 	var rabbit: int = z.entities.spawn(_registry.numeric_of("rabbit"), Vector2(64.5, 64.5))
 	z.entities.set_facing(rabbit, 2)
 	return z
@@ -186,3 +190,127 @@ func test_loading_a_corrupt_chunk_fails_cleanly() -> void:
 	)
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_false(result.ok, "a corrupt chunk is reported, not silently skipped")
+
+
+func test_entity_type_ids_survive_content_added_after_the_save() -> void:
+	# ContentRegistry allocates numeric ids in load order, so registering
+	# one extra creature before the real content shifts every id after it.
+	# This is the exact scenario the string-id rule exists for, and until
+	# now load_zone remapped the tile columns and left entity rows alone.
+	var zone: Zone = _zone()
+	var rabbit_id: int = zone.entities.spawn(
+		_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
+	var errs: PackedStringArray = SaveManager.save_zone(_root, zone, _registry, true)
+	assert_eq(errs.size(), 0, ", ".join(errs))
+
+	var shifted: ContentRegistry = ContentRegistry.new()
+	shifted.register({
+		"id": "aardvark", "category": "creature", "display_name": "Aardvark",
+		"sprite": "", "wander_radius": 4,
+	})
+	var load_errs: PackedStringArray = shifted.load_from_dir("res://data")
+	assert_eq(load_errs.size(), 0, ", ".join(load_errs))
+	assert_ne(shifted.numeric_of("rabbit"), _registry.numeric_of("rabbit"),
+		"the fixture registry must actually shift ids, or this proves nothing")
+
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", shifted)
+	assert_true(result.ok, result.error)
+	var back: Zone = result.value
+	assert_eq(shifted.string_of(back.entities.get_type_id(rabbit_id)), "rabbit")
+
+
+func test_an_entity_type_missing_from_the_build_becomes_the_placeholder() -> void:
+	var zone: Zone = _zone()
+	var gone: int = _registry.register({
+		"id": "dodo", "category": "creature", "display_name": "Dodo", "sprite": "",
+	})
+	var id: int = zone.entities.spawn(gone, Vector2(5.5, 5.5))
+	SaveManager.save_zone(_root, zone, _registry, true)
+
+	# A registry built from data/ alone has never heard of a dodo.
+	var plain: ContentRegistry = ContentRegistry.new()
+	plain.load_from_dir("res://data")
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", plain)
+	assert_true(result.ok, result.error)
+
+	var type_id: int = (result.value as Zone).entities.get_type_id(id)
+	assert_eq(plain.string_of(type_id), "dodo",
+		"a missing entity type must keep its string, not be zeroed")
+	assert_true(plain.is_placeholder(type_id))
+
+
+func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
+	# flags is derived from terrain and object content, so a save written
+	# before a content change carries stale flags. ZoneLoader already
+	# refuses to trust an authored flags value; load_zone must not trust a
+	# saved one either.
+	var zone: Zone = _zone()
+	var oak: int = _registry.numeric_of("oak_tree")
+	zone.set_object(Vector2i(3, 3), oak)
+	# Deliberately wrong: say the tile under the oak is walkable, and that
+	# a plain grass tile is not.
+	zone.set_flags(Vector2i(3, 3), Chunk.FLAG_WALKABLE)
+	zone.set_flags(Vector2i(5, 5), 0)
+	SaveManager.save_zone(_root, zone, _registry, true)
+
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
+	assert_true(result.ok, result.error)
+	var back: Zone = result.value
+	assert_false(back.is_walkable(Vector2i(3, 3)), "the oak's tile came back walkable")
+	assert_true(back.is_walkable(Vector2i(5, 5)), "plain grass came back blocked")
+
+
+func test_a_freshly_loaded_zone_is_not_dirty() -> void:
+	# The recompute above touches every chunk. If it left them dirty the
+	# first autosave would rewrite all 16 for nothing.
+	var zone: Zone = _zone()
+	SaveManager.save_zone(_root, zone, _registry, true)
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
+	assert_true(result.ok, result.error)
+	assert_eq((result.value as Zone).dirty_chunk_coords().size(), 0)
+
+
+func test_the_first_write_leaves_no_backup() -> void:
+	var path: String = _root.path_join("thing.dat")
+	assert_eq(SaveManager.atomic_write(path, "one".to_utf8_buffer(), true), "")
+	assert_false(FileAccess.file_exists(path + ".bak"))
+
+
+func test_a_second_write_rotates_the_first_into_the_backup() -> void:
+	var path: String = _root.path_join("thing.dat")
+	SaveManager.atomic_write(path, "one".to_utf8_buffer(), true)
+	SaveManager.atomic_write(path, "two".to_utf8_buffer(), true)
+	assert_eq(FileAccess.get_file_as_string(path), "two")
+	assert_eq(FileAccess.get_file_as_string(path + ".bak"), "one")
+
+
+func test_only_one_rotation_is_kept() -> void:
+	var path: String = _root.path_join("thing.dat")
+	for text: String in ["one", "two", "three"]:
+		SaveManager.atomic_write(path, text.to_utf8_buffer(), true)
+	assert_eq(FileAccess.get_file_as_string(path), "three")
+	assert_eq(FileAccess.get_file_as_string(path + ".bak"), "two")
+	assert_false(FileAccess.file_exists(path + ".bak.bak"))
+
+
+func test_writing_without_keep_backup_rotates_nothing() -> void:
+	var path: String = _root.path_join("thing.dat")
+	SaveManager.atomic_write(path, "one".to_utf8_buffer())
+	SaveManager.atomic_write(path, "two".to_utf8_buffer())
+	assert_false(FileAccess.file_exists(path + ".bak"))
+
+
+func test_loading_from_the_backup_returns_the_previous_entities() -> void:
+	var zone: Zone = _zone()
+	var id: int = zone.entities.spawn(_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
+	SaveManager.save_zone(_root, zone, _registry, true, true)
+
+	zone.entities.set_position(id, Vector2(99.5, 99.5))
+	SaveManager.save_zone(_root, zone, _registry, false, true)
+
+	var live: DecodeResult = SaveManager.load_zone(_root, "home", _registry, false)
+	var backup: DecodeResult = SaveManager.load_zone(_root, "home", _registry, true)
+	assert_true(live.ok, live.error)
+	assert_true(backup.ok, backup.error)
+	assert_eq((live.value as Zone).entities.get_position(id), Vector2(99.5, 99.5))
+	assert_eq((backup.value as Zone).entities.get_position(id), Vector2(10.5, 10.5))

@@ -72,3 +72,24 @@ func test_count_larger_than_payload_is_rejected() -> void:
 	var bytes: PackedByteArray = EntityCodec.encode(_sample_store())
 	bytes.encode_u32(8, 100000)
 	assert_false(EntityCodec.decode(bytes).ok)
+
+
+func test_home_round_trips_independently_of_position() -> void:
+	var store: EntityStore = EntityStore.new()
+	var id: int = store.spawn(11, Vector2(4.5, 9.5))
+	store.set_home(id, Vector2(64.25, 12.75))
+
+	var result: DecodeResult = EntityCodec.decode(EntityCodec.encode(store))
+	assert_true(result.ok, result.error)
+	var back: EntityStore = result.value
+	assert_eq(back.get_position(id), Vector2(4.5, 9.5))
+	assert_eq(back.get_home(id), Vector2(64.25, 12.75))
+
+
+func test_the_row_is_twenty_six_bytes() -> void:
+	# Guards the header arithmetic: a wrong ROW_BYTES makes decode reject
+	# every file it wrote, with a confusing "truncated" message.
+	var store: EntityStore = EntityStore.new()
+	store.spawn(11, Vector2(1.5, 1.5))
+	store.spawn(12, Vector2(2.5, 2.5))
+	assert_eq(EntityCodec.encode(store).size(), EntityCodec.HEADER_BYTES + 2 * 26)

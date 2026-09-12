@@ -127,6 +127,40 @@ func _init() -> void:
 
 	renderer.queue_free()
 
+	# --- session ---------------------------------------------------------
+	# The layer above the data-layer round trip above: a build can export
+	# cleanly, render, and still be unable to reopen its own save.
+	var session_root: String = "user://smoke_session"
+	var session: GameSession = GameSession.new()
+	session.save_root = session_root
+
+	var opened: SessionOpenResult = session.open_new("res://data/zone/home", registry)
+	_check(opened.ok, "opening a new world failed: %s" % opened.error)
+	if opened.ok:
+		var pid: int = opened.zone.entities.spawn(
+			registry.numeric_of("player"), opened.player_spawn)
+		session.adopt_player(pid)
+		opened.zone.entities.set_position(pid, Vector2(33.5, 44.5))
+		opened.zone.entities.set_facing(pid, 3)
+
+		var save_errors: PackedStringArray = session.save_now(registry, "smoke")
+		_check(save_errors.is_empty(), "session save failed: %s" % ", ".join(save_errors))
+		var written: int = DirAccess.get_files_at(
+			session_root.path_join("zones/home/chunks")).size()
+		_check(written == 16,
+			"a first save must write all 16 chunks, not only dirty ones; wrote %d" % written)
+
+		var again: GameSession = GameSession.new()
+		again.save_root = session_root
+		var reopened: SessionOpenResult = again.open_saved(registry)
+		_check(reopened.ok, "reopening the save failed: %s" % reopened.error)
+		if reopened.ok:
+			_check(reopened.player_entity_id == pid, "the player id changed across a save")
+			_check(reopened.zone.entities.get_position(pid) == Vector2(33.5, 44.5),
+				"the player did not come back where they were left")
+			_check(reopened.zone.entities.get_facing(pid) == 3,
+				"the player's facing was not restored")
+
 	for f: String in _failures:
 		printerr("SMOKE FAILURE: ", f)
 	if _failures.is_empty():

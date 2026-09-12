@@ -1,102 +1,262 @@
 extends Node2D
-## Entry point: load the authored zone and draw it.
+## Boots into the menu and owns everything that outlives a world.
 ##
-## The world is data. Everything drawn here comes from data/zone/home/ and
-## data/*.json; this file contains no content and no layout.
+## The ContentRegistry and the Theme are built once here and survive
+## returning to the menu, which is why this phase does not use
+## change_scene_to_file: a scene swap would re-parse every JSON under data/
+## and rebuild the tileset atlas on every transition.
+##
+## All policy lives in GameSession. This node translates between it and the
+## scene tree, and does nothing else.
 
 ## Exported rather than hardcoded: a res:// path in logic is the thing the
-## content rules exist to prevent. Phase 5's New World flow sets this.
+## content rules exist to prevent.
 @export var zone_dir: String = "res://data/zone/home"
 
 var _registry: ContentRegistry = null
-var _animals: AnimalSystem = null
-var _renderer: ZoneRenderer = null
-var _entity_renderer: EntityRenderer = null
-var _player: Player = null
-var _camera: FollowCamera = null
-var _collision: CollisionBuilder = null
+var _session: GameSession = null
+var _world: World = null
+var _ui: CanvasLayer = null
+var _main_menu: MainMenu = null
+var _pause_menu: PauseMenu = null
+var _confirm: ConfirmPanel = null
+
+## Set when a save fails on the way out, so a second attempt quits anyway.
+var _quit_was_refused: bool = false
 
 
 func _ready() -> void:
-	# Nested Y-sorted nodes flatten into this one's sort, so the object
-	# layer's tiles and the entity sprites interleave by their y position.
-	y_sort_enabled = true
+	# Without this the window closes before the save runs.
+	get_tree().auto_accept_quit = false
 
-	var registry: ContentRegistry = ContentRegistry.new()
-	_registry = registry
-	var errs: PackedStringArray = registry.load_from_dir("res://data")
-	if not errs.is_empty():
-		push_error("content failed to load: %s" % ", ".join(errs))
-	print("RP1 booted with %d content definitions" % registry.all_string_ids().size())
+	# The router must keep processing while the tree is paused, or Escape
+	# can pause the game and nothing is left listening to un-pause it.
+	# _physics_process is gated on paused below instead, which is what
+	# actually stops the world.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	_renderer = ZoneRenderer.new()
-	_renderer.name = "ZoneRenderer"
-	add_child(_renderer)
+	_registry = ContentRegistry.new()
+	for e: String in _registry.load_from_dir("res://data"):
+		push_error("content failed to load: %s" % e)
+	print("RP1 booted with %d content definitions" % _registry.all_string_ids().size())
 
-	var art_errs: PackedStringArray = _renderer.setup(registry)
-	for e: String in art_errs:
-		push_error("tileset: %s" % e)
+	_session = GameSession.new()
 
-	var load_result: ZoneLoadResult = ZoneLoader.load_zone(zone_dir, registry)
-	for e: String in load_result.errors:
-		push_error("zone: %s" % e)
-	if load_result.zone == null:
-		# There is no sensible fallback world. CI gate 7 exists so this
-		# state never reaches a build; if it happens anyway, say so loudly
-		# rather than rendering an empty screen with no explanation.
-		push_error("zone failed to load from %s; nothing to render" % zone_dir)
+	_ui = CanvasLayer.new()
+	_ui.name = "UI"
+	# ALWAYS, not WHEN_PAUSED: the menus have to work in both states, and
+	# WHEN_PAUSED means *only* while paused. With that, the main menu drew
+	# perfectly at boot and ignored every click, because the tree is not
+	# paused there. The hidden menus take no input regardless, since an
+	# invisible Control receives none.
+	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_ui)
+
+	var theme: Theme = UiTheme.build()
+
+	_main_menu = MainMenu.new()
+	_main_menu.name = "MainMenu"
+	_main_menu.theme = theme
+	_main_menu.new_world_requested.connect(_on_new_world_requested)
+	_main_menu.continue_requested.connect(_on_continue_requested)
+	_main_menu.quit_requested.connect(_save_and_quit)
+	_ui.add_child(_main_menu)
+
+	_pause_menu = PauseMenu.new()
+	_pause_menu.name = "PauseMenu"
+	_pause_menu.theme = theme
+	_pause_menu.resume_requested.connect(_set_paused.bind(false))
+	_pause_menu.quit_to_menu_requested.connect(_on_quit_to_menu)
+	_pause_menu.quit_to_desktop_requested.connect(_save_and_quit)
+	_ui.add_child(_pause_menu)
+
+	_confirm = ConfirmPanel.new()
+	_confirm.name = "ConfirmPanel"
+	_confirm.theme = theme
+	_ui.add_child(_confirm)
+
+	# The build smoke check has to prove the exported PCK really renders,
+	# and since Phase 5 the menu no longer builds a world at boot. This
+	# starts one without saving: a diagnostic flag must never overwrite
+	# the player's world.
+	if OS.get_cmdline_user_args().has("--new-world"):
+		_start_new_world(false)
 		return
-	var zone: Zone = load_result.zone
-	var painted: int = _renderer.render_zone(zone)
-	_renderer.zone = zone
 
-	# The export gate asserts this count is non-zero. A build can export
-	# cleanly and still ship without its textures, exactly as it nearly
-	# shipped without data/*.json.
-	print("RP1 rendered %d cells" % painted)
-
-	_entity_renderer = EntityRenderer.new()
-	_entity_renderer.name = "EntityRenderer"
-	add_child(_entity_renderer)
-	_entity_renderer.setup(registry)
-	_entity_renderer.entities = zone.entities
-
-	_collision = CollisionBuilder.new()
-
-	_animals = AnimalSystem.new()
-	_animals.rng = RandomNumberGenerator.new()
-	# Seeded from the zone rather than from the clock, so one world always
-	# behaves the same way and a bug reported against it is reproducible.
-	_animals.rng.seed = zone.generation_seed
-
-	_player = Player.new()
-	_player.name = "Player"
-	add_child(_player)
-	var spawn_near: Vector2i = Vector2i(
-		floori(load_result.player_spawn.x), floori(load_result.player_spawn.y))
-	var pid: int = _player.spawn(zone, registry, _collision, spawn_near)
-	print("RP1 player spawned at %s" % zone.entities.get_position(pid))
-
-	_camera = FollowCamera.new()
-	_camera.name = "FollowCamera"
-	add_child(_camera)
-	_camera.setup(zone)
-	_camera.target_id = pid
-	_camera.make_current()
+	_show_main_menu()
 
 
-## Animals move in the physics step, alongside the player, so both see the
-## same fixed delta and the same collision geometry.
+# --- menu -------------------------------------------------------------
+
+func _read_meta() -> WorldMeta:
+	var path: String = WorldMeta.path_in(_session.save_root)
+	if not FileAccess.file_exists(path):
+		return WorldMeta.new()
+	var result: DecodeResult = WorldMeta.from_json_string(
+		FileAccess.get_file_as_string(path))
+	return result.value if result.ok else WorldMeta.new()
+
+
+func _show_main_menu() -> void:
+	_main_menu.visible = true
+	_pause_menu.visible = false
+	_main_menu.set_save_state(_session.has_save(), _read_meta())
+
+
+func _on_new_world_requested() -> void:
+	if not _session.has_save():
+		_start_new_world()
+		return
+	# Overwriting a world is the one destructive thing this menu can do.
+	_confirm.ask(
+		"Overwrite your world?",
+		"Starting a new world replaces the saved one. This cannot be undone.",
+		"Overwrite")
+	_confirm.confirmed.connect(_start_new_world, CONNECT_ONE_SHOT)
+	_confirm.dismissed.connect(
+		func() -> void:
+			if _confirm.confirmed.is_connected(_start_new_world):
+				_confirm.confirmed.disconnect(_start_new_world),
+		CONNECT_ONE_SHOT)
+
+
+## `save_after` is false only for the --new-world diagnostic flag, which
+## must be able to render a world without touching an existing save.
+func _start_new_world(save_after: bool = true) -> void:
+	var result: SessionOpenResult = _session.open_new(zone_dir, _registry)
+	if not result.ok:
+		push_error(result.error)
+		_confirm.report("Could not start a new world", result.error)
+		return
+	_enter_world(result)
+
+	if not save_after:
+		return
+
+	var errors: PackedStringArray = _session.save_now(_registry, "new_world")
+	for e: String in errors:
+		push_error("first save failed: %s" % e)
+	if not errors.is_empty():
+		_confirm.report("Could not save the new world", "\n".join(errors))
+
+
+func _on_continue_requested() -> void:
+	var result: SessionOpenResult = _session.open_saved(_registry, false)
+	if result.ok:
+		_enter_world(result)
+		return
+
+	push_error("continue failed: %s" % result.error)
+	if not _session.has_backup():
+		_confirm.report("Could not load your world", result.error)
+		return
+	_confirm.ask(
+		"Could not load your world",
+		"%s\n\nThere is an earlier backup. Load it instead?" % result.error,
+		"Load backup")
+	_confirm.confirmed.connect(_continue_from_backup, CONNECT_ONE_SHOT)
+	_confirm.dismissed.connect(
+		func() -> void:
+			if _confirm.confirmed.is_connected(_continue_from_backup):
+				_confirm.confirmed.disconnect(_continue_from_backup),
+		CONNECT_ONE_SHOT)
+
+
+func _continue_from_backup() -> void:
+	var result: SessionOpenResult = _session.open_saved(_registry, true)
+	if not result.ok:
+		push_error("backup load failed: %s" % result.error)
+		_confirm.report("The backup could not be loaded either", result.error)
+		return
+	_enter_world(result)
+
+
+# --- world ------------------------------------------------------------
+
+func _enter_world(result: SessionOpenResult) -> void:
+	for w: String in result.warnings:
+		push_error("zone: %s" % w)
+
+	_world = World.new()
+	_world.name = "World"
+	add_child(_world)
+	for e: String in _world.build(_registry, result):
+		push_error(e)
+
+	_session.adopt_player(_world.player_entity_id)
+	_main_menu.visible = false
+	_set_paused(false)
+
+
+func _on_quit_to_menu() -> void:
+	var errors: PackedStringArray = _session.save_now(_registry, "quit_to_menu")
+	if not errors.is_empty():
+		for e: String in errors:
+			push_error("save failed: %s" % e)
+		_confirm.report("Could not save", "\n".join(errors))
+		return
+
+	_set_paused(false)
+	_world.queue_free()
+	_world = null
+	_session.close()
+	_show_main_menu()
+
+
+func _set_paused(paused: bool) -> void:
+	get_tree().paused = paused
+	_pause_menu.visible = paused
+	if paused:
+		_pause_menu.focus_first()
+
+
+# --- loop -------------------------------------------------------------
+
 func _physics_process(delta: float) -> void:
-	if _animals == null or _renderer == null or _renderer.zone == null:
+	# This node is PROCESS_MODE_ALWAYS so it can hear the un-pause key, so
+	# the pause has to be honoured here by hand. It is also what makes the
+	# autosave clock measure unpaused play rather than wall time.
+	if _world == null or get_tree().paused:
 		return
-	if _player == null or not _renderer.zone.entities.has(_player.entity_id):
+	_world.tick_animals(delta)
+	_session.tick(delta, _registry)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("pause"):
 		return
-	var zone: Zone = _renderer.zone
-	var _moved: int = _animals.tick(
-		zone,
-		_registry,
-		_collision,
-		zone.entities.get_position(_player.entity_id),
-		delta
-	)
+	if _world == null or _confirm.visible:
+		return
+	get_viewport().set_input_as_handled()
+	_set_paused(not get_tree().paused)
+
+
+# --- quitting ---------------------------------------------------------
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_save_and_quit()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT and _world != null:
+		for e: String in _session.save_if_gap_elapsed(_registry, "focus_lost"):
+			push_error("focus-loss save failed: %s" % e)
+
+
+func _save_and_quit() -> void:
+	if _world == null:
+		get_tree().quit()
+		return
+
+	var errors: PackedStringArray = _session.save_now(_registry, "quit")
+	if errors.is_empty() or _quit_was_refused:
+		get_tree().quit()
+		return
+
+	# One chance to act -- free some disk, close whatever holds the file --
+	# and then get out of the player's way. Holding the process hostage
+	# over a full disk is worse than losing the session.
+	_quit_was_refused = true
+	for e: String in errors:
+		push_error("save failed on quit: %s" % e)
+	_confirm.report(
+		"Could not save",
+		"%s\n\nQuit again to exit without saving." % "\n".join(errors))

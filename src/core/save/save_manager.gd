@@ -9,7 +9,13 @@ extends RefCounted
 const SAVE_VERSION: int = 1
 
 
-static func atomic_write(path: String, bytes: PackedByteArray) -> String:
+## `keep_backup` renames any existing file to `path + ".bak"` before the new
+## one takes its place. The window between the two renames is one rename
+## wide, and a crash inside it leaves the .bak intact -- which is what
+## load_zone's `use_backup` is for.
+static func atomic_write(
+	path: String, bytes: PackedByteArray, keep_backup: bool = false
+) -> String:
 	var dir: String = path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(dir):
 		var mk: int = DirAccess.make_dir_recursive_absolute(dir)
@@ -24,6 +30,11 @@ static func atomic_write(path: String, bytes: PackedByteArray) -> String:
 	f.flush()
 	f.close()
 
+	if keep_backup and FileAccess.file_exists(path):
+		var rot: int = DirAccess.rename_absolute(path, path + ".bak")
+		if rot != OK:
+			return "cannot rotate %s to .bak (error %d)" % [path, rot]
+
 	var err: int = DirAccess.rename_absolute(tmp, path)
 	if err != OK:
 		return "cannot rename %s -> %s (error %d)" % [tmp, path, err]
@@ -34,8 +45,13 @@ static func _zone_dir(save_root: String, zone_id: String) -> String:
 	return save_root.path_join("zones").path_join(zone_id)
 
 
+## `keep_backup` applies to entities.dat alone: it is the only file an
+## autosave rewrites in Stage 1. id_map.json, zone_meta.json and the chunks
+## are written once per world, and rotating an unchanged file only doubles
+## the disk cost. A Stage 2 that makes chunks mutable must rotate them too.
 static func save_zone(
-	save_root: String, zone: Zone, registry: ContentRegistry, all_chunks: bool = false
+	save_root: String, zone: Zone, registry: ContentRegistry,
+	all_chunks: bool = false, keep_backup: bool = false
 ) -> PackedStringArray:
 	var errors: PackedStringArray = []
 	var zdir: String = _zone_dir(save_root, zone.id)
@@ -74,7 +90,7 @@ static func save_zone(
 			errors.append(err)
 
 	var ent_err: String = atomic_write(
-		zdir.path_join("entities.dat"), EntityCodec.encode(zone.entities)
+		zdir.path_join("entities.dat"), EntityCodec.encode(zone.entities), keep_backup
 	)
 	if ent_err != "":
 		errors.append(ent_err)
@@ -94,8 +110,11 @@ static func _translate_column(column: PackedByteArray, table: PackedInt32Array) 
 			column.encode_u16(i * 2, ContentRegistry.ID_UNKNOWN)
 
 
+## `use_backup` reads entities.dat.bak instead of entities.dat. Chunks have
+## no backup because nothing rewrites them yet; see save_zone.
 static func load_zone(
-	save_root: String, zone_id: String, registry: ContentRegistry
+	save_root: String, zone_id: String, registry: ContentRegistry,
+	use_backup: bool = false
 ) -> DecodeResult:
 	var zdir: String = _zone_dir(save_root, zone_id)
 	var meta_path: String = zdir.path_join("zone_meta.json")
@@ -140,11 +159,32 @@ static func load_zone(
 		chunk.dirty = false
 		zone.install_chunk(chunk)
 
-	var ent_path: String = zdir.path_join("entities.dat")
+	var ent_name: String = "entities.dat.bak" if use_backup else "entities.dat"
+	var ent_path: String = zdir.path_join(ent_name)
 	if FileAccess.file_exists(ent_path):
 		var ent: DecodeResult = EntityCodec.decode(FileAccess.get_file_as_bytes(ent_path))
 		if not ent.ok:
 			return DecodeResult.failure("entities.dat: %s" % ent.error)
-		zone.entities = ent.value
+		var store: EntityStore = ent.value
+		# Entity type ids are runtime numbers like the tile columns, and
+		# shift for the same reason. Remapping the columns and not the rows
+		# meant one new creature JSON turned every rabbit in every save
+		# into whatever now held its number.
+		for entity_id: int in store.ids():
+			var saved: int = store.get_type_id(entity_id)
+			if saved < table.size():
+				store.set_type_id(entity_id, table[saved])
+			else:
+				store.set_type_id(entity_id, ContentRegistry.ID_UNKNOWN)
+		zone.entities = store
+
+	# flags is derived, never authored and never trusted from disk: a save
+	# written before a content change carries stale values. Same reasoning
+	# as ZoneLoader, which refuses an authored flags column outright.
+	Walkability.recompute_zone(zone, registry)
+	# The recompute touches every chunk. A freshly loaded world is by
+	# definition not in need of saving, and leaving it dirty would make
+	# the first autosave rewrite all 16 chunks for nothing.
+	zone.clear_dirty()
 
 	return DecodeResult.success(zone)
