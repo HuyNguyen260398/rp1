@@ -1697,16 +1697,16 @@ git commit -m "docs: tick Phase 4b task 8"
 
 ## Definition of done for Phase 4b
 
-- [ ] Animals visibly move: two screenshots of the same scene with a rabbit
+- [x] Animals visibly move: two screenshots of the same scene with a rabbit
       in different places
-- [ ] `./tools/run_tests.sh` green, including every test in Tasks 1-7
-- [ ] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh`,
+- [x] `./tools/run_tests.sh` green, including every test in Tasks 1-7
+- [x] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh`,
       `check_palette.sh` and `check_zone.sh` green
-- [ ] 64 animals tick inside the frame budget (`test_animal_budget.gd`)
-- [ ] **Adding a second animal is one JSON file, one PNG and one line in a
+- [x] 64 animals tick inside the frame budget (`test_animal_budget.gd`)
+- [x] **Adding a second animal is one JSON file, one PNG and one line in a
       zone's `entities` list, with no code change** — seen to work, then
       reverted
-- [ ] No creature id appears anywhere under `src/`
-- [ ] A fleeing animal leaves its wander radius and walks home again
-- [ ] The exported build boots and still renders
-- [ ] The Stage 1 design §10 records the dirty channel's move to Stage 2
+- [x] No creature id appears anywhere under `src/`
+- [x] A fleeing animal leaves its wander radius and walks home again
+- [x] The exported build boots and still renders
+- [x] The Stage 1 design §10 records the dirty channel's move to Stage 2
