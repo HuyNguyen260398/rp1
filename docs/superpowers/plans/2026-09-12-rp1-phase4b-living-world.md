@@ -882,7 +882,7 @@ git commit -m "docs: tick Phase 4b task 3"
 - Produces: no signature change. New constants:
   `DEFAULT_FLEE_RADIUS: float = 5.0`, `DEFAULT_FLEE_SPEED: float = 4.0`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_animal_system.gd`:
 
@@ -950,7 +950,7 @@ func test_fleeing_never_ends_a_tick_inside_a_solid() -> void:
 			"tick %d drove the fleeing rabbit onto %s" % [i, tile])
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -959,7 +959,7 @@ Expected: FAIL. `mode_of` never returns `MODE_FLEE`, so
 fail, and `test_fleeing_increases_the_distance_to_the_player` fails because a
 wandering rabbit ignores the player entirely.
 
-- [ ] **Step 3: Implement flee**
+- [x] **Step 3: Implement flee**
 
 Add the constants beside the other defaults:
 
@@ -1012,13 +1012,13 @@ Nothing leaves `MODE_FLEE` yet — that is Task 5, and
 `test_a_distant_player_does_not` passes meanwhile because an animal that has
 never been frightened is still in `MODE_WANDER`.
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, six more tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
@@ -1039,7 +1039,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
