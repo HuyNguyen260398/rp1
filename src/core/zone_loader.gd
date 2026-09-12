@@ -66,8 +66,33 @@ static func load_zone(dir: String, registry: ContentRegistry) -> ZoneLoadResult:
 		var lookup: Dictionary = _resolve_legend(layer, doc, registry, result.errors)
 		_paint(zone, img, size, lookup, setters[layer], layer, result.errors)
 
+	_spawn_entities(zone, doc.get("entities", []), registry, result.errors)
+
 	result.zone = zone
 	return result
+
+
+## Entity positions are in tile units, matching EntityStore: (40.5, 52.5)
+## stands at the centre of tile (40, 52). Tile size is a presentation
+## constant, so measuring these in pixels would bake it into every save.
+static func _spawn_entities(zone: Zone, entries: Array,
+		registry: ContentRegistry, errors: PackedStringArray) -> void:
+	for n: int in range(entries.size()):
+		var entry: Variant = entries[n]
+		if not (entry is Dictionary) or not entry.has("type") or not entry.has("at"):
+			errors.append("entities[%d]: needs both 'type' and 'at'" % n)
+			continue
+		var at: Variant = entry["at"]
+		if not (at is Array) or at.size() != 2:
+			errors.append("entities[%d]: 'at' must be [x, y] in tile units" % n)
+			continue
+		var string_id: String = str(entry["type"])
+		var type_id: int = registry.numeric_of(string_id)
+		if type_id == ContentRegistry.ID_UNKNOWN:
+			type_id = registry.register_placeholder(string_id)
+			errors.append("entities[%d]: '%s' is not in this build; using a placeholder"
+				% [n, string_id])
+		zone.entities.spawn(type_id, Vector2(float(at[0]), float(at[1])))
 
 
 ## Mirrors ContentRegistry._read_json: the instance JSON API rather than the

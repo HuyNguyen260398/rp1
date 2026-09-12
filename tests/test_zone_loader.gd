@@ -314,3 +314,72 @@ func test_a_missing_height_map_is_not_an_error() -> void:
 
 	assert_eq(r.errors, PackedStringArray(), "height is optional; Stage 1 renders flat")
 	assert_eq(r.zone.get_height(Vector2i(2, 2)), 0)
+
+
+func test_entities_are_spawned_at_tile_unit_positions() -> void:
+	var doc: Dictionary = _full_doc()
+	doc["entities"] = [
+		{"type": "rabbit", "at": [2.5, 3.5]},
+		{"type": "rabbit", "at": [0.5, 0.5]},
+	]
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray())
+	assert_eq(r.zone.entities.count(), 2)
+	var ids: PackedInt32Array = r.zone.entities.ids()
+	assert_eq(r.zone.entities.get_position(ids[0]), Vector2(2.5, 3.5),
+		"tile units, not pixels -- one unit is one tile")
+	assert_eq(r.zone.entities.get_type_id(ids[0]), _registry.numeric_of("rabbit"))
+
+
+func test_an_absent_entities_list_is_not_an_error() -> void:
+	var doc: Dictionary = _full_doc()
+	doc.erase("entities")
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray())
+	assert_eq(r.zone.entities.count(), 0)
+
+
+func test_an_entity_type_this_build_lacks_becomes_a_placeholder() -> void:
+	var doc: Dictionary = _full_doc()
+	doc["entities"] = [{"type": "wyvern", "at": [1.5, 1.5]}]
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.zone.entities.count(), 1, "the row survives so a resave keeps it")
+	assert_true(_registry.is_placeholder(
+		r.zone.entities.get_type_id(r.zone.entities.ids()[0])))
+	assert_gt(r.errors.size(), 0)
+
+
+func test_a_malformed_entity_entry_is_reported_and_skipped() -> void:
+	var doc: Dictionary = _full_doc()
+	doc["entities"] = [
+		{"type": "rabbit"},
+		{"at": [1.5, 1.5]},
+		{"type": "rabbit", "at": [2.5, 2.5]},
+	]
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.zone.entities.count(), 1, "only the well-formed entry spawns")
+	assert_eq(r.errors.size(), 2, "and each bad entry is named")
