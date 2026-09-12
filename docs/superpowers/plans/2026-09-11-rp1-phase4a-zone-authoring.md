@@ -2812,7 +2812,7 @@ git commit -m "docs: tick Phase 4a task 12"
 - Modify: `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` (§10)
 - Modify: `README.md` if it describes the world as generated
 
-- [ ] **Step 1: Record the phase split where Phase 3's split is recorded**
+- [x] **Step 1: Record the phase split where Phase 3's split is recorded**
 
 The Stage 1 design already records Phase 3's split inline, with the note "the
 split is recorded here because the phase boundaries below moved with it". Do the
@@ -2842,7 +2842,7 @@ with it.
 Phase 3b.)*
 ```
 
-- [ ] **Step 2: Verify the whole definition of done**
+- [x] **Step 2: Verify the whole definition of done**
 
 Work through the spec's §9 acceptance criteria one at a time and record the
 result of each in the commit message. Specifically:
@@ -2873,7 +2873,7 @@ Expected on the last one: `RP1 rendered <N> cells` with N in the tens of
 thousands — a zone that failed to load renders zero, so a non-zero count is the
 proof that the PNGs are in the pack and readable.
 
-- [ ] **Step 3: Prove the sharpest acceptance criterion**
+- [x] **Step 3: Prove the sharpest acceptance criterion**
 
 Change one pixel and confirm one tile changes, with no code and no re-export:
 
@@ -2885,7 +2885,7 @@ Change one pixel and confirm one tile changes, with no code and no re-export:
 git checkout data/zone/home/object.png
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs README.md
@@ -2900,7 +2900,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 13 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
