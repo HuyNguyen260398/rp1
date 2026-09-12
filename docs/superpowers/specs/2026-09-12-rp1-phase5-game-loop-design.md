@@ -1,6 +1,6 @@
 # RP1 — Phase 5 Design: Game Loop Closure
 
-**Status:** draft
+**Status:** accepted
 **Date:** 2026-09-12
 **Refines:** `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` §10 (Phase 5)
 **Follows:** Phase 4b (living world)
@@ -465,3 +465,33 @@ three. See §5.
 **Phase 4b design §4.4** also names `EntityStore`'s `blob` column as the
 natural place for persisted animal state. Phase 5 uses fixed columns instead,
 for the reason in §5.1; the blob column remains unused and unbuilt.
+
+---
+
+## 13. What moved during implementation
+
+Recorded here because the spec is the document the next phase reads.
+
+**§5's seeding step is gone.** The spec has `World` seeding `AnimalSystem` with
+each restored home anchor via a `set_home` call. `AnimalSystem` instead reads
+`zone.entities.get_home(id)` in the lazy init it already had, so there is no
+seeding step and no load hook at all. `EntityStore.spawn` anchors home at the
+spawn position, which reproduces the old lazy capture exactly — every
+pre-existing animal test passed unchanged.
+
+**The round-trip fixture was carrying stale flags.** `test_save_manager`'s
+`_zone()` blanket-set `FLAG_WALKABLE` across all 16,384 tiles including the one
+it then placed an oak on, so `test_chunk_payloads_round_trip_byte_identical`
+was asserting agreement with a flags column that contradicted its own content.
+The fixture now derives flags through `Walkability`. Worth knowing that test
+had been passing for the wrong reason since Phase 2.
+
+**Three node-lifecycle bugs, none visible in the code.** `set_anchors_preset`
+leaves offsets at zero and a `Control` under a `CanvasLayer` is never resized
+from that alone, so every menu rendered 0x0 in the corner. The router was
+`PROCESS_MODE_PAUSABLE`, so Escape could pause the tree and nothing was left
+listening to un-pause it. Fixing that by making the router `ALWAYS` silently
+made `World` and `Player` always-process too, because `process_mode` is
+inherited, and the player kept walking behind the pause menu. All three were
+found by looking at a screenshot and by driving real `InputEvent`s, not by
+reading the source.

@@ -2870,7 +2870,7 @@ git commit -m "docs: tick Phase 5 task 17"
 
 ## Task 18: Close the phase
 
-- [ ] **Step 1: Run every gate the way CI runs them**
+- [x] **Step 1: Run every gate the way CI runs them**
 
 ```bash
 ./tools/run_tests.sh
@@ -2882,13 +2882,16 @@ git commit -m "docs: tick Phase 5 task 17"
 ```
 Expected: all six exit 0.
 
-- [ ] **Step 2: Walk the acceptance criteria**
+- [x] **Step 2: Walk the acceptance criteria**
 
 Work through §10 of the spec one line at a time, in a real running build, and
 record the result of each. Anything that fails is a bug to fix in this phase,
 not a note for the next one.
 
 - [ ] **Step 3: Play it for twenty minutes**
+
+> Not done by the agent: this one needs a person at the keyboard.
+> Steps 1, 2, 4 and 5 are complete and verified.
 
 Several sessions, quitting and continuing between them. The specific things to
 watch for, because they are the ones the tests cannot see:
@@ -2898,19 +2901,19 @@ watch for, because they are the ones the tests cannot see:
 - no hitch when the five-minute autosave fires
 - the pause menu appearing instantly, with the world frozen behind it
 
-- [ ] **Step 4: Mark the spec accepted**
+- [x] **Step 4: Mark the spec accepted**
 
 Change the spec's `**Status:** draft` to `**Status:** accepted`, and update
 §12's corrections if anything moved during implementation.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/superpowers/specs/2026-09-12-rp1-phase5-game-loop-design.md
 git commit -m "docs: accept the Phase 5 design"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 18 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
