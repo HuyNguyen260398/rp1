@@ -1954,7 +1954,7 @@ This task adds no files under `assets/`, so no `LICENSE.txt` and no
   `UiTheme.build() -> Theme`, and the constants `BACKGROUND`, `PANEL`,
   `BORDER`, `TEXT`, `TEXT_DIM`, `TEXT_DISABLED`, `ACCENT`, `DANGER`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_ui_theme.gd`:
 
@@ -2000,12 +2000,12 @@ func test_build_returns_a_theme_with_the_controls_the_menus_use() -> void:
 	assert_true(theme.has_color("font_disabled_color", "Button"))
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `UiTheme` is not a known identifier.
 
-- [ ] **Step 3: Write the theme**
+- [x] **Step 3: Write the theme**
 
 Create `src/ui/ui_theme.gd`. Every colour is an Apollo hex, named by the ramp
 it comes from so the next person can check it against `docs/palette.md`:
@@ -2074,20 +2074,20 @@ The built-in fallback font is used as-is. It is not a pixel font and will look
 like a placeholder, which it is — Phase 6 owns the UI frame. Do not spend time
 here trying to make it look right.
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS. If `test_the_palette_file_holds_forty_six_colours` fails,
 stop — the palette changed and that is a bigger finding than this task.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ui/ui_theme.gd tests/test_ui_theme.gd
 git commit -m "feat: a UI theme built from the Apollo palette, enforced by test"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 13 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
