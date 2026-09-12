@@ -2912,21 +2912,21 @@ git commit -m "docs: tick Phase 4a task 13"
 
 ## Definition of done for Phase 4a
 
-- [ ] `data/zone/home/` holds `zone.json` and three PNGs, and
+- [x] `data/zone/home/` holds `zone.json` and three PNGs, and
       `_build_debug_zone()` and its constants are gone from `main.gd`
-- [ ] The game boots into the authored zone and the player can walk it
-- [ ] `./tools/check_zone.sh` green, and **each of its four rules seen to fail**
-- [ ] `./tools/run_tests.sh` green, with **every pre-existing test file
+- [x] The game boots into the authored zone and the player can walk it
+- [x] `./tools/check_zone.sh` green, and **each of its four rules seen to fail**
+- [x] `./tools/run_tests.sh` green, with **every pre-existing test file
       unmodified**
-- [ ] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh` and
+- [x] `tools/guard.gd`, `tools/smoke.gd`, `check_asset_licences.sh` and
       `check_palette.sh` still green
-- [ ] The exported build prints a non-zero `RP1 rendered <N> cells`, proving the
+- [x] The exported build prints a non-zero `RP1 rendered <N> cells`, proving the
       maps reached the pack
-- [ ] A 128x128 zone loads in under one second (`test_zone_load_budget.gd`)
-- [ ] Editing one pixel changes one tile, with no code change
-- [ ] `tools/seed_zone.gd` is deleted and no non-historical file mentions it
-- [ ] Three houses, a pond, roads, rocks and trees are visible in a screenshot
-- [ ] The Stage 1 design §10 records the 4a/4b split
+- [x] A 128x128 zone loads in under one second (`test_zone_load_budget.gd`)
+- [x] Editing one pixel changes one tile, with no code change
+- [x] `tools/seed_zone.gd` is deleted and no non-historical file mentions it
+- [x] Three houses, a pond, roads, rocks and trees are visible in a screenshot
+- [x] The Stage 1 design §10 records the 4a/4b split
 
 **Not done in this phase, by design:** `AnimalSystem` and the multi-consumer
 dirty channel (Phase 4b), save wiring and New World / Continue (Phase 5),
