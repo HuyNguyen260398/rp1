@@ -294,7 +294,7 @@ lazy home anchor, the pruning rule and the data-driven "which entities
 animate" test are all provable before anything moves, and each is expensive to
 retrofit.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_animal_system.gd`:
 
@@ -412,7 +412,7 @@ func test_an_animal_spawned_later_is_picked_up() -> void:
 		"a Phase 5 load spawns animals after boot and must need no registration call")
 ```
 
-- [ ] **Step 2: Run the test and watch it fail**
+- [x] **Step 2: Run the test and watch it fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -420,7 +420,7 @@ Expected: FAIL — the suite will not load, reporting an unknown identifier
 `AnimalSystem`. `run_tests.sh` exits 3 on that ("a test script failed to
 load"), which is the runner working as designed.
 
-- [ ] **Step 3: Write the skeleton**
+- [x] **Step 3: Write the skeleton**
 
 Create `src/systems/animal_system.gd`:
 
@@ -511,20 +511,20 @@ func tick(
 	return moved
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, one new script and seven new tests.
 
-- [ ] **Step 5: Confirm the architecture guard is still clean**
+- [x] **Step 5: Confirm the architecture guard is still clean**
 
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 
 Expected: `Architecture guard: clean`. `RandomNumberGenerator`, `Dictionary`
 and `Vector2` are none of them nodes.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
@@ -544,7 +544,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 7: Tick this task**
+- [x] **Step 7: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
