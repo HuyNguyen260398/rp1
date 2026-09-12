@@ -13,9 +13,18 @@ func test_builds_a_source_for_every_definition_with_art() -> void:
 	var res: TilesetBuildResult = TilesetBuilder.build(_r)
 	assert_not_null(res.tileset, "a tileset is returned")
 	assert_eq(res.errors.size(), 0, "no errors: %s" % ", ".join(res.errors))
-	# grass, water and oak_tree have art. rabbit is a creature and is not
-	# a tile, so it is not expected to produce a source.
-	assert_eq(res.tileset.get_source_count(), 3, "one source per tile definition")
+	# Counted from the registry rather than written as a literal. Every
+	# terrain and object definition is a tile; creatures are entities and
+	# are not cells. A hardcoded number would have to be edited every time
+	# a content file is added, which makes a data change a code change --
+	# exactly what runtime assembly exists to avoid.
+	var expected: int = 0
+	for string_id: String in _r.all_string_ids():
+		var def: Dictionary = _r.def_of(_r.numeric_of(string_id))
+		if TilesetBuilder.TILE_CATEGORIES.has(str(def.get("category", ""))):
+			expected += 1
+	assert_gt(expected, 0, "precondition: the shipped content defines some tiles")
+	assert_eq(res.tileset.get_source_count(), expected, "one source per tile definition")
 
 
 func test_every_tile_definition_maps_to_a_real_source() -> void:

@@ -1,0 +1,3 @@
+{"id": "dirt", "category": "terrain", "display_name": "Dirt Path",
+ "sprite": "res://assets/tiles/dirt.png", "walkable": true,
+ "tags": ["natural", "path"]}

@@ -1,0 +1,5 @@
+{"id": "pine_tree", "category": "object", "display_name": "Pine Tree",
+ "sprite": "res://assets/objects/pine_tree.png", "sprite_rect": [0, 0, 32, 32],
+ "y_offset": 0, "blocks_movement": true, "blocks_light": true,
+ "harvestable": {"item": "wood", "amount": [2, 4]},
+ "tags": ["natural", "flammable", "tree"]}

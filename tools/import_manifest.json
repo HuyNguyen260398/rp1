@@ -10,6 +10,39 @@
     {"source": "slates-outdoor/sheet.png", "rect": [448, 576, 32, 32],
      "out": "assets/objects/oak_tree.png"},
 
+    {"source": "slates-outdoor/sheet.png", "rect": [288, 64, 32, 32],
+     "out": "assets/tiles/dirt.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [352, 576, 32, 32],
+     "out": "assets/objects/pine_tree.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [320, 288, 32, 32],
+     "out": "assets/objects/rock_small.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [256, 288, 32, 32],
+     "out": "assets/objects/rock_large.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [480, 608, 32, 32],
+     "out": "assets/objects/bush.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [1056, 128, 32, 32],
+     "out": "assets/objects/wall_stone.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [928, 128, 32, 32],
+     "out": "assets/objects/wall_wood.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [1184, 32, 32, 32],
+     "out": "assets/objects/roof_shingle.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [800, 128, 32, 32],
+     "out": "assets/objects/roof_thatch.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [544, 608, 32, 32],
+     "out": "assets/objects/door.png"},
+
+    {"source": "slates-outdoor/sheet.png", "rect": [928, 384, 32, 32],
+     "out": "assets/objects/window.png"},
+
     {"source": "bukket-characters/template_w.bmp", "rect": [0, 0, 32, 64],
      "out": "assets/characters/player.png",
      "transparent": "ffffff",
