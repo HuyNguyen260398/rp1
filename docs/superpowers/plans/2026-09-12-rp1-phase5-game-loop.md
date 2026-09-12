@@ -2508,7 +2508,7 @@ get wired.
 **Interfaces:**
 - Consumes: everything from Tasks 9–15
 
-- [ ] **Step 1: Write the router**
+- [x] **Step 1: Write the router**
 
 Replace `src/presentation/main.gd` entirely:
 
@@ -2740,7 +2740,7 @@ func _save_and_quit() -> void:
 		"%s\n\nQuit again to exit without saving." % "\n".join(errors))
 ```
 
-- [ ] **Step 2: Run every gate**
+- [x] **Step 2: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -2749,29 +2749,29 @@ func _save_and_quit() -> void:
 ```
 Expected: all pass.
 
-- [ ] **Step 3: Play every path**
+- [x] **Step 3: Play every path**
 
 Run the game windowed — not headless — and walk through all of it. On a
 machine that has run the game before, delete the save first so Continue starts
 disabled: `rm -rf ~/Library/Application\ Support/Godot/app_userdata/RP1/saves`
 
-- [ ] Continue is greyed out, with "No saved world yet" beneath it
-- [ ] New World starts a world; the player spawns on grass and moves
-- [ ] Escape opens the pause menu; the rabbits freeze
-- [ ] Escape again resumes; the rabbits move
-- [ ] Quit to Menu returns to a menu where Continue is enabled and shows a playtime
-- [ ] Continue puts the player back where they were left, facing the same way
-- [ ] New World now asks before overwriting, and Cancel leaves the world intact
-- [ ] Close the window with the X, relaunch, Continue: same position again
+- [x] Continue is greyed out, with "No saved world yet" beneath it
+- [x] New World starts a world; the player spawns on grass and moves
+- [x] Escape opens the pause menu; the rabbits freeze
+- [x] Escape again resumes; the rabbits move
+- [x] Quit to Menu returns to a menu where Continue is enabled and shows a playtime
+- [x] Continue puts the player back where they were left, facing the same way
+- [x] New World now asks before overwriting, and Cancel leaves the world intact
+- [x] Close the window with the X, relaunch, Continue: same position again
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/main.gd
 git commit -m "feat: boot into the menu, save on quit and on focus loss"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 16 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
