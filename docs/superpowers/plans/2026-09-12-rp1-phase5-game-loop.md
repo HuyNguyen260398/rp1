@@ -461,7 +461,7 @@ save loads and behaves identically to the current build.
 - Produces: `EntityCodec.FORMAT_VERSION == 2`, `EntityCodec.ROW_BYTES == 26`,
   `Migrations.migrate_entities(version: int, store: EntityStore) -> DecodeResult`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `tests/test_entity_codec.gd`:
 
@@ -513,14 +513,14 @@ func test_entities_from_the_future_are_refused_not_guessed_at() -> void:
 	assert_string_contains(result.error, "newer")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `test_the_row_is_twenty_six_bytes` reports 18-byte rows, and
 the home round trip returns the position because Task 1 left home hardwired to
 `pos` in `decode`.
 
-- [ ] **Step 3: Bump the codec**
+- [x] **Step 3: Bump the codec**
 
 In `src/core/save/entity_codec.gd`:
 
@@ -579,7 +579,7 @@ and in the row loop:
 		o += row_bytes
 ```
 
-- [ ] **Step 4: Record the migration where migrations are recorded**
+- [x] **Step 4: Record the migration where migrations are recorded**
 
 `Migrations` currently documents only the chunk path. The entity upgrade is
 performed inside `decode` — a widening read, not a post-hoc rewrite — and that
@@ -602,20 +602,20 @@ static func entities_need_migration(version: int) -> bool:
 Extend the class docstring's "To add version 2" recipe to mention
 `tools/make_fixture.gd` writing both fixtures.
 
-- [ ] **Step 5: Run the whole suite**
+- [x] **Step 5: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, including both v1-fixture tests from Task 3 — which now prove
 the migration rather than the status quo.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/save/entity_codec.gd src/core/save/migrations.gd tests/test_entity_codec.gd tests/test_migrations.gd
 git commit -m "feat: entity format v2 carries the home anchor"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
