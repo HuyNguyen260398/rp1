@@ -11,6 +11,12 @@ extends RefCounted
 ## a throwaway directory. A test that wrote to user://saves/ would destroy
 ## the developer's world on every run.
 
+## Five minutes of unpaused play.
+const AUTOSAVE_INTERVAL: float = 300.0
+
+## Alt-tabbing repeatedly must not mean saving repeatedly.
+const MIN_SAVE_GAP: float = 5.0
+
 const DEFAULT_SAVE_ROOT: String = "user://saves/home"
 
 var save_root: String = DEFAULT_SAVE_ROOT
@@ -113,3 +119,65 @@ func close() -> void:
 	needs_full_save = false
 	_since_autosave = 0.0
 	_since_any_save = 0.0
+
+
+## Advances playtime and the autosave clock. Returns true if it saved.
+##
+## Driven by accumulated delta rather than by the wall clock, so a paused
+## game's clock genuinely stops and every rule here is reproducible in a
+## test without waiting five minutes.
+func tick(delta: float, registry: ContentRegistry) -> bool:
+	if zone == null:
+		return false
+	playtime += delta
+	_since_autosave += delta
+	_since_any_save += delta
+	if _since_autosave < AUTOSAVE_INTERVAL:
+		return false
+	save_now(registry, "autosave")
+	return true
+
+
+## Saves unless one ran within MIN_SAVE_GAP. Returns whatever save_now
+## would have returned, or an empty array when it declined to save.
+func save_if_gap_elapsed(registry: ContentRegistry, reason: String) -> PackedStringArray:
+	if _since_any_save < MIN_SAVE_GAP:
+		return PackedStringArray()
+	return save_now(registry, reason)
+
+
+func save_now(registry: ContentRegistry, reason: String) -> PackedStringArray:
+	if zone == null:
+		return PackedStringArray(["cannot save: no world is open"])
+
+	var started: int = Time.get_ticks_msec()
+	var errors: PackedStringArray = SaveManager.save_zone(
+		save_root, zone, registry, needs_full_save, true)
+
+	var meta: WorldMeta = WorldMeta.new()
+	meta.zone_id = zone.id
+	meta.player_entity_id = player_entity_id
+	meta.last_played_unix = int(Time.get_unix_time_from_system())
+	meta.created_unix = meta.last_played_unix
+	meta.playtime = playtime
+
+	# A world is created once. Every later save inherits that timestamp
+	# rather than claiming the world was made just now.
+	var meta_path: String = WorldMeta.path_in(save_root)
+	if FileAccess.file_exists(meta_path):
+		var prior: DecodeResult = WorldMeta.from_json_string(
+			FileAccess.get_file_as_string(meta_path))
+		if prior.ok and (prior.value as WorldMeta).created_unix > 0:
+			meta.created_unix = (prior.value as WorldMeta).created_unix
+
+	var meta_err: String = SaveManager.atomic_write(
+		meta_path, meta.to_json_string().to_utf8_buffer(), true)
+	if meta_err != "":
+		errors.append(meta_err)
+
+	if errors.is_empty():
+		needs_full_save = false
+		_since_autosave = 0.0
+		_since_any_save = 0.0
+		print("RP1 saved (%s) in %d ms" % [reason, Time.get_ticks_msec() - started])
+	return errors
