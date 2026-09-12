@@ -69,3 +69,24 @@ func test_no_walkable_tile_anywhere_gives_up_and_returns_near() -> void:
 	# the guard is only real if it actually logs -- assert the push_error
 	# fired rather than merely tolerating it.
 	assert_push_error("no walkable spawn within 64 tiles")
+
+
+func test_adopt_takes_over_an_existing_row_without_creating_one() -> void:
+	# A loaded world already has a player row. Spawning here would leave
+	# two of them, which is the state WorldMeta.player_entity_id exists to
+	# make detectable.
+	var registry: ContentRegistry = ContentRegistry.new()
+	registry.register({"id": "player", "category": "creature",
+		"display_name": "Player", "sprite": "res://none.png"})
+	var z: Zone = _walkable_zone(Vector2i(64, 64))
+	var existing: int = z.entities.spawn(
+		registry.numeric_of("player"), Vector2(12.5, 34.5))
+	var before: int = z.entities.count()
+
+	var player: Player = Player.new()
+	player.adopt(z, CollisionBuilder.new(), existing)
+
+	assert_eq(z.entities.count(), before, "adopt spawned a second player row")
+	assert_eq(player.entity_id, existing)
+	assert_eq(z.entities.get_position(player.entity_id), Vector2(12.5, 34.5))
+	player.free()

@@ -45,6 +45,15 @@ func spawn(p_zone: Zone, registry: ContentRegistry, collision: CollisionBuilder,
 	return entity_id
 
 
+## Takes over the player row a save restored. The counterpart to spawn():
+## a loaded world already has a player, and spawning a second one would
+## leave two player rows in the store.
+func adopt(p_zone: Zone, collision: CollisionBuilder, id: int) -> void:
+	zone = p_zone
+	_collision = collision
+	entity_id = id
+
+
 ## Rings outward from `near` until a walkable tile turns up.
 ##
 ## A hardcoded spawn is what Phase 4's authored zone breaks silently: the
