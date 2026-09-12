@@ -44,8 +44,12 @@ func _ready() -> void:
 
 	_ui = CanvasLayer.new()
 	_ui.name = "UI"
-	# The pause menu has to keep processing while the tree is paused.
-	_ui.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	# ALWAYS, not WHEN_PAUSED: the menus have to work in both states, and
+	# WHEN_PAUSED means *only* while paused. With that, the main menu drew
+	# perfectly at boot and ignored every click, because the tree is not
+	# paused there. The hidden menus take no input regardless, since an
+	# invisible Control receives none.
+	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_ui)
 
 	var theme: Theme = UiTheme.build()
