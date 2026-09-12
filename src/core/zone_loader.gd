@@ -68,6 +68,17 @@ static func load_zone(dir: String, registry: ContentRegistry) -> ZoneLoadResult:
 
 	_spawn_entities(zone, doc.get("entities", []), registry, result.errors)
 
+	# Flags are derived from content, never authored: there is no flags map
+	# and there must never be one. Setting flags from terrain alone is what
+	# once left oaks standing on walkable tiles.
+	Walkability.recompute_zone(zone, registry)
+
+	# AFTER the recompute, not before. recompute_zone dirties every chunk it
+	# writes to, and the caller's first paint is a full render_zone() rather
+	# than a dirty-driven repaint, so none of that is pending work. Clearing
+	# first would leave every chunk falsely dirty on frame one.
+	zone.clear_dirty()
+
 	result.zone = zone
 	return result
 

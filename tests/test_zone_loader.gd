@@ -383,3 +383,35 @@ func test_a_malformed_entity_entry_is_reported_and_skipped() -> void:
 
 	assert_eq(r.zone.entities.count(), 1, "only the well-formed entry spawns")
 	assert_eq(r.errors.size(), 2, "and each bad entry is named")
+
+
+func _four_by_four_with_an_oak() -> ZoneLoadResult:
+	_write_doc(_full_doc())
+	_write_map("terrain.png", Vector2i(4, 4), GRASS, {Vector2i(3, 0): WATER})
+	_write_map("object.png", Vector2i(4, 4), EMPTY, {Vector2i(1, 1): OAK})
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+	return ZoneLoader.load_zone(_dir, _registry)
+
+
+func test_walkability_is_derived_not_authored() -> void:
+	var r: ZoneLoadResult = _four_by_four_with_an_oak()
+
+	assert_true(r.zone.is_walkable(Vector2i(0, 0)), "plain grass")
+	assert_false(r.zone.is_walkable(Vector2i(1, 1)), "grass under an oak")
+	assert_false(r.zone.is_walkable(Vector2i(3, 0)), "water")
+
+
+func test_an_unpainted_tile_is_not_walkable() -> void:
+	# A 4x4 zone occupies one 32x32 chunk, so tile (10,10) is inside the
+	# chunk but outside the authored area: never painted, and therefore
+	# void rather than floor.
+	var r: ZoneLoadResult = _four_by_four_with_an_oak()
+
+	assert_false(r.zone.is_walkable(Vector2i(10, 10)))
+
+
+func test_the_zone_comes_back_with_no_dirty_chunks() -> void:
+	var r: ZoneLoadResult = _four_by_four_with_an_oak()
+
+	assert_eq(r.zone.dirty_chunk_coords(), [] as Array[Vector2i],
+		"the first paint is a full render_zone(), so nothing is pending")
