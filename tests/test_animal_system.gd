@@ -55,6 +55,21 @@ func _spawn(string_id: String, at: Vector2) -> int:
 	return _zone.entities.spawn(_registry.numeric_of(string_id), at)
 
 
+## The tile under an entity's feet, clamped into the zone.
+##
+## MovementSystem clamps a body to the zone rect, so a position resting
+## exactly on the bottom or right edge floors to an index one past the last
+## tile. That is legal -- the player does it too, and Phase 3b verified it --
+## so clamping keeps these assertions about walkability rather than about
+## that boundary. The position itself is asserted to be in the rect
+## separately.
+func _tile_under(p: Vector2) -> Vector2i:
+	return Vector2i(
+		clampi(floori(p.x), 0, _zone.size_tiles.x - 1),
+		clampi(floori(p.y), 0, _zone.size_tiles.y - 1)
+	)
+
+
 ## Advances the simulation `ticks` times at a fixed 60 Hz step, with the
 ## player parked far away unless told otherwise.
 func _run(ticks: int, player_pos: Vector2 = Vector2(-100.0, -100.0)) -> void:
@@ -150,7 +165,9 @@ func test_wandering_never_ends_a_tick_inside_a_solid() -> void:
 	for i: int in range(600):
 		_system.tick(_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0)
 		var p: Vector2 = _zone.entities.get_position(id)
-		var tile: Vector2i = Vector2i(floori(p.x), floori(p.y))
+		assert_true(Rect2(Vector2.ZERO, Vector2(_zone.size_tiles)).has_point(p),
+			"tick %d left the zone at %s" % [i, p])
+		var tile: Vector2i = _tile_under(p)
 		assert_true(_zone.is_walkable(tile),
 			"tick %d put the rabbit on %s, which is not walkable" % [i, tile])
 
@@ -291,6 +308,80 @@ func test_fleeing_never_ends_a_tick_inside_a_solid() -> void:
 	for i: int in range(300):
 		_system.tick(_zone, _registry, _collision, Vector2(12.0, 16.5), 1.0 / 60.0)
 		var p: Vector2 = _zone.entities.get_position(id)
-		var tile: Vector2i = Vector2i(floori(p.x), floori(p.y))
+		var tile: Vector2i = _tile_under(p)
 		assert_true(_zone.is_walkable(tile),
 			"tick %d drove the fleeing rabbit onto %s" % [i, tile])
+
+
+func test_a_frightened_animal_walks_home() -> void:
+	var home: Vector2 = Vector2(16.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+
+	# Frighten it far out of its radius.
+	for i: int in range(600):
+		var p: Vector2 = _zone.entities.get_position(id)
+		var chase: Vector2 = home
+		if p.distance_to(home) > 0.1:
+			chase = p + (home - p).normalized()
+		_system.tick(_zone, _registry, _collision, chase, 1.0 / 60.0)
+		if _zone.entities.get_position(id).distance_to(home) > 7.0:
+			break
+	assert_gt(_zone.entities.get_position(id).distance_to(home), 7.0,
+		"precondition: it was driven outside its radius")
+
+	# Withdraw and let it settle.
+	_run(1, Vector2(-100.0, -100.0))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_RETURN)
+
+	_run(900, Vector2(-100.0, -100.0))
+	assert_lt(_zone.entities.get_position(id).distance_to(home), 6.5,
+		"fifteen seconds is ample to walk six tiles home")
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_WANDER,
+		"and it goes back to wandering once inside")
+
+
+func test_a_frightened_animal_still_inside_its_radius_just_resumes_wandering() -> void:
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(1, Vector2(18.0, 16.5))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_FLEE, "precondition")
+
+	_run(1, Vector2(-100.0, -100.0))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_WANDER,
+		"it never left home, so there is nothing to return to")
+
+
+func test_the_mode_does_not_flicker_at_the_flee_boundary() -> void:
+	# A player parked exactly at flee_radius. With a single threshold the
+	# animal would flip mode every tick and vibrate in place; the calm
+	# distance is 1.5x the flee radius precisely to stop that.
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	var player: Vector2 = Vector2(16.5 + 5.0, 16.5)
+
+	var flips: int = 0
+	var last: int = -1
+	for i: int in range(120):
+		# Re-park the player at exactly flee_radius from wherever it is now.
+		var p: Vector2 = _zone.entities.get_position(id)
+		player = p + Vector2(5.0, 0.0)
+		_system.tick(_zone, _registry, _collision, player, 1.0 / 60.0)
+		var mode: int = _system.mode_of(id)
+		if last != -1 and mode != last:
+			flips += 1
+		last = mode
+	assert_lt(flips, 3, "%d mode changes in two seconds is a vibrating rabbit" % flips)
+
+
+func test_returning_never_ends_a_tick_inside_a_solid() -> void:
+	_zone = _make_walled_zone()
+	var home: Vector2 = Vector2(10.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+	# Drive it west, away from home, then release it and let it walk back.
+	for i: int in range(240):
+		_system.tick(_zone, _registry, _collision,
+			_zone.entities.get_position(id) + Vector2(1.0, 0.0), 1.0 / 60.0)
+	for i: int in range(600):
+		_system.tick(_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0)
+		var p: Vector2 = _zone.entities.get_position(id)
+		var tile: Vector2i = _tile_under(p)
+		assert_true(_zone.is_walkable(tile),
+			"tick %d put the returning rabbit on %s" % [i, tile])

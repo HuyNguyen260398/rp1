@@ -40,6 +40,11 @@ const DEFAULT_BODY: Vector2 = Vector2(0.5, 0.375)
 const DEFAULT_FLEE_RADIUS: float = 5.0
 const DEFAULT_FLEE_SPEED: float = 4.0
 
+## The calm distance is flee_radius * CALM_FACTOR. Derived rather than
+## authored: with a single threshold, an animal sitting exactly at
+## flee_radius flips mode every tick and visibly vibrates in place.
+const CALM_FACTOR: float = 1.5
+
 ## Injected so every test is exactly reproducible. The caller seeds it;
 ## main.gd uses the zone's generation_seed, so one world always behaves the
 ## same way.
@@ -105,11 +110,30 @@ func tick(
 		# flee_radius at all: to it, the player is scenery.
 		if flees and to_player < flee_radius:
 			s["mode"] = MODE_FLEE
+		elif int(s["mode"]) == MODE_FLEE and (
+				not flees or to_player > flee_radius * CALM_FACTOR):
+			# Calm again. Between flee_radius and the calm distance neither
+			# branch fires and the mode simply holds, which is the whole
+			# point of the gap.
+			if pos.distance_to(s["home"]) > radius:
+				s["mode"] = MODE_RETURN
+			else:
+				s["mode"] = MODE_WANDER
+				_pick_target(s, pos, radius, zone)
+		elif int(s["mode"]) == MODE_RETURN and pos.distance_to(s["home"]) <= radius:
+			s["mode"] = MODE_WANDER
+			_pick_target(s, pos, radius, zone)
 
 		var velocity: Vector2 = Vector2.ZERO
 		if int(s["mode"]) == MODE_FLEE:
 			velocity = _flee_velocity(
 				pos, player_pos, float(def.get("flee_speed", DEFAULT_FLEE_SPEED)))
+		elif int(s["mode"]) == MODE_RETURN:
+			# Straight home at walking pace. Without this, frightened
+			# animals migrate across the map over a long session and the
+			# zone's authored composition quietly drifts.
+			var home: Vector2 = s["home"]
+			velocity = (home - pos).normalized() * speed
 		else:
 			velocity = _wander_velocity(s, pos, radius, speed, zone, delta)
 
