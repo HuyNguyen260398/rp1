@@ -47,12 +47,24 @@ static func load_zone(dir: String, registry: ContentRegistry) -> ZoneLoadResult:
 	result.player_spawn = Vector2(float(spawn[0]), float(spawn[1]))
 
 	var maps: Dictionary = doc["maps"]
-	if maps.has("terrain"):
-		var lookup: Dictionary = _resolve_legend("terrain", doc, registry, result.errors)
+	var setters: Dictionary = {
+		"terrain": zone.set_terrain,
+		"object": zone.set_object,
+		"height": zone.set_height,
+	}
+	# Fixed order so errors read the same way every run.
+	for layer: String in ["terrain", "object", "height"]:
+		if not maps.has(layer):
+			continue
 		var img: Image = _decode_map(
-			dir.path_join(str(maps["terrain"])), size, result.errors)
-		if img != null:
-			_paint(zone, img, size, lookup, zone.set_terrain, "terrain", result.errors)
+			dir.path_join(str(maps[layer])), size, result.errors)
+		if img == null:
+			continue
+		if layer == "height":
+			_paint_height(zone, img, size)
+			continue
+		var lookup: Dictionary = _resolve_legend(layer, doc, registry, result.errors)
+		_paint(zone, img, size, lookup, setters[layer], layer, result.errors)
 
 	result.zone = zone
 	return result
@@ -160,6 +172,16 @@ static func _paint(zone: Zone, img: Image, size: Vector2i, lookup: Dictionary,
 	if partial_alpha > 0:
 		errors.append("%s: %d pixel(s) are not fully opaque; a map is an index, not art"
 			% [layer, partial_alpha])
+
+
+## Height has no legend: the red byte IS the value, so there is nothing to
+## look up and nothing that can be "unknown". Green and blue are ignored,
+## which keeps the map viewable as a greyscale image in any editor.
+static func _paint_height(zone: Zone, img: Image, size: Vector2i) -> void:
+	var data: PackedByteArray = img.get_data()
+	for y: int in range(size.y):
+		for x: int in range(size.x):
+			zone.set_height(Vector2i(x, y), data[(y * size.x + x) * 4])
 
 
 static func _report_unknown(layer: String, unknown: Dictionary,

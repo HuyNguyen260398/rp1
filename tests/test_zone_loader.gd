@@ -231,3 +231,86 @@ func test_a_malformed_legend_key_is_reported() -> void:
 	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
 
 	assert_gt(r.errors.size(), 0, "six hex digits, no leading hash")
+
+
+## The full three-layer document, as data/zone/home/zone.json is shaped.
+func _full_doc(size: Vector2i = Vector2i(4, 4)) -> Dictionary:
+	var doc: Dictionary = _doc(size)
+	doc["maps"] = {
+		"terrain": "terrain.png", "object": "object.png", "height": "height.png"
+	}
+	doc["legend"]["object"] = {"000000": null, "008000": "oak_tree"}
+	return doc
+
+
+func test_object_pixels_become_objects() -> void:
+	_write_doc(_full_doc())
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY, {Vector2i(1, 3): OAK})
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray())
+	assert_eq(r.zone.get_object(Vector2i(1, 3)), _registry.numeric_of("oak_tree"))
+
+
+func test_a_null_legend_entry_leaves_the_tile_empty() -> void:
+	_write_doc(_full_doc())
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray(),
+		"black is declared as null, so it is empty rather than unknown")
+	assert_eq(r.zone.get_object(Vector2i(0, 0)), ContentRegistry.ID_UNKNOWN)
+
+
+func test_the_same_colour_may_mean_different_things_per_layer() -> void:
+	# 008000 is oak_tree in the object legend. Give it a terrain meaning too
+	# and check the layers do not consult each other's legend.
+	var doc: Dictionary = _full_doc()
+	doc["legend"]["terrain"]["008000"] = "water"
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS, {Vector2i(0, 1): OAK})
+	_write_map("object.png", Vector2i(4, 4), EMPTY, {Vector2i(2, 2): OAK})
+	_write_map("height.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray())
+	assert_eq(r.zone.get_terrain(Vector2i(0, 1)), _registry.numeric_of("water"))
+	assert_eq(r.zone.get_object(Vector2i(2, 2)), _registry.numeric_of("oak_tree"))
+
+
+func test_height_comes_from_the_red_channel_with_no_legend() -> void:
+	_write_doc(_full_doc())
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+	_write_map("height.png", Vector2i(4, 4), EMPTY, {
+		Vector2i(1, 1): Color8(3, 0, 0),
+		Vector2i(2, 1): Color8(255, 99, 99),
+	})
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray(), "height needs no legend entries")
+	assert_eq(r.zone.get_height(Vector2i(1, 1)), 3)
+	assert_eq(r.zone.get_height(Vector2i(2, 1)), 255,
+		"only red is read; green and blue are ignored")
+	assert_eq(r.zone.get_height(Vector2i(0, 0)), 0)
+
+
+func test_a_missing_height_map_is_not_an_error() -> void:
+	var doc: Dictionary = _full_doc()
+	doc["maps"].erase("height")
+	_write_doc(doc)
+	_write_map("terrain.png", Vector2i(4, 4), GRASS)
+	_write_map("object.png", Vector2i(4, 4), EMPTY)
+
+	var r: ZoneLoadResult = ZoneLoader.load_zone(_dir, _registry)
+
+	assert_eq(r.errors, PackedStringArray(), "height is optional; Stage 1 renders flat")
+	assert_eq(r.zone.get_height(Vector2i(2, 2)), 0)
