@@ -370,7 +370,7 @@ hand-assembled after the bump proves only that the test author can write bytes.
   `next_id` 4, positions `(4.5, 9.5)`, `(20.25, 33.75)`, `(127.5, 0.5)`,
   facings 0/2/3, all flagged `FLAG_ACTIVE | FLAG_PERSISTED`.
 
-- [ ] **Step 1: Extend the fixture tool**
+- [x] **Step 1: Extend the fixture tool**
 
 Append to `tools/make_fixture.gd`'s `_init`, before `quit(0)`:
 
@@ -391,14 +391,14 @@ Append to `tools/make_fixture.gd`'s `_init`, before `quit(0)`:
 
 Update the file's docstring: it writes *fixtures*, plural, one per codec.
 
-- [ ] **Step 2: Generate the fixture**
+- [x] **Step 2: Generate the fixture**
 
 Run: `./tools/godot.sh --headless --path . -s tools/make_fixture.gd`
 Expected: prints `wrote res://tests/fixtures/v1_entities.dat`. Confirm with
 `ls -l tests/fixtures/` that the file is **78 bytes** (24-byte header + 3 rows
 of 18).
 
-- [ ] **Step 3: Write the test that reads it**
+- [x] **Step 3: Write the test that reads it**
 
 Add to `tests/test_migrations.gd`:
 
@@ -422,19 +422,19 @@ func test_v1_entities_fixture_still_decodes() -> void:
 	assert_eq(store.next_id(), 4)
 ```
 
-- [ ] **Step 4: Run the suite**
+- [x] **Step 4: Run the suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tools/make_fixture.gd tests/fixtures/v1_entities.dat tests/test_migrations.gd
 git commit -m "test: commit a v1 entities fixture before the format changes"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
