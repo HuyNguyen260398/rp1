@@ -1556,7 +1556,7 @@ Until now every test has run against a fixture. These two run against the real
 `data/zone/home/` and against the real size budget, so an authoring mistake
 fails locally under `run_tests.sh` rather than only in CI.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_zone_home.gd`:
 
@@ -1687,7 +1687,7 @@ func test_a_full_size_zone_loads_within_the_budget() -> void:
 		"a 128x128 zone took %d ms; the Stage 1 budget is %d ms" % [elapsed, BUDGET_MS])
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail for the right reason**
+- [x] **Step 2: Run the tests and watch them fail for the right reason**
 
 Run: `./tools/run_tests.sh`
 
@@ -1703,20 +1703,20 @@ If `test_zone_home.gd` passes on the first run, that is the expected outcome
 here — it is a regression guard, not a red-to-green step. Do not weaken it to
 manufacture a failure.
 
-- [ ] **Step 3: Fix whatever the tests caught**
+- [x] **Step 3: Fix whatever the tests caught**
 
 If `test_every_terrain_tile_is_painted` fails, the 8x8 `terrain.png` has a gap:
 re-run `tools/seed_zone.gd`. If the spawn test fails, `player_spawn` in
 `data/zone/home/zone.json` sits on the oak at (2,2) or in the pond — move it to
 a clear tile such as `[1.5, 1.5]`.
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, two new scripts and four new tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tests/test_zone_home.gd tests/test_zone_load_budget.gd
@@ -1737,7 +1737,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
