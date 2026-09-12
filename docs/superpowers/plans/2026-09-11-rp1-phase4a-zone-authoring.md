@@ -1764,13 +1764,13 @@ it exists because "a hardcoded spawn is what Phase 4's authored zone breaks
 silently", and this is that phase. `tests/test_player_spawn.gd` covers the
 static function and does not change.
 
-- [ ] **Step 1: Delete the debug zone generator**
+- [x] **Step 1: Delete the debug zone generator**
 
 In `src/presentation/main.gd`, delete:
 - the constants `ZONE_SIZE`, `POND_CENTRE`, `POND_RADIUS`, `TREE_SPACING`
 - the whole `_build_debug_zone()` function, including its `## TEMPORARY` comment
 
-- [ ] **Step 2: Declare the zone directory as an exported value**
+- [x] **Step 2: Declare the zone directory as an exported value**
 
 Replace the deleted constants with:
 
@@ -1780,7 +1780,7 @@ Replace the deleted constants with:
 @export var zone_dir: String = "res://data/zone/home"
 ```
 
-- [ ] **Step 3: Load the zone instead of building one**
+- [x] **Step 3: Load the zone instead of building one**
 
 In `_ready()`, replace `var zone: Zone = _build_debug_zone(registry)` with:
 
@@ -1808,7 +1808,7 @@ extends Node2D
 ## data/*.json; this file contains no content and no layout.
 ```
 
-- [ ] **Step 4: Spawn the player at the authored point**
+- [x] **Step 4: Spawn the player at the authored point**
 
 Replace `zone.size_tiles / 2` in the `_player.spawn(...)` call:
 
@@ -1818,7 +1818,7 @@ Replace `zone.size_tiles / 2` in the `_player.spawn(...)` call:
 	var pid: int = _player.spawn(zone, registry, _collision, spawn_near)
 ```
 
-- [ ] **Step 5: Run the whole gate set**
+- [x] **Step 5: Run the whole gate set**
 
 ```bash
 ./tools/run_tests.sh
@@ -1829,7 +1829,7 @@ Replace `zone.size_tiles / 2` in the `_player.spawn(...)` call:
 Expected: all three green, with **no test file modified**. `smoke.gd` builds its
 own zones and never touched `_build_debug_zone`, so it is unaffected.
 
-- [ ] **Step 6: Look at it**
+- [x] **Step 6: Look at it**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/screenshot.gd
@@ -1838,7 +1838,7 @@ own zones and never touched `_build_debug_zone`, so it is unaffected.
 Expected: a PNG showing an 8x8 patch of grass with one oak and a 2x2 pond, the
 player standing on it. Small, and correct. Open the file and check.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/presentation/main.gd
@@ -1859,7 +1859,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 8 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
