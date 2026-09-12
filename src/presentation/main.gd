@@ -75,6 +75,14 @@ func _ready() -> void:
 	_confirm.theme = theme
 	_ui.add_child(_confirm)
 
+	# The build smoke check has to prove the exported PCK really renders,
+	# and since Phase 5 the menu no longer builds a world at boot. This
+	# starts one without saving: a diagnostic flag must never overwrite
+	# the player's world.
+	if OS.get_cmdline_user_args().has("--new-world"):
+		_start_new_world(false)
+		return
+
 	_show_main_menu()
 
 
@@ -112,13 +120,18 @@ func _on_new_world_requested() -> void:
 		CONNECT_ONE_SHOT)
 
 
-func _start_new_world() -> void:
+## `save_after` is false only for the --new-world diagnostic flag, which
+## must be able to render a world without touching an existing save.
+func _start_new_world(save_after: bool = true) -> void:
 	var result: SessionOpenResult = _session.open_new(zone_dir, _registry)
 	if not result.ok:
 		push_error(result.error)
 		_confirm.report("Could not start a new world", result.error)
 		return
 	_enter_world(result)
+
+	if not save_after:
+		return
 
 	var errors: PackedStringArray = _session.save_now(_registry, "new_world")
 	for e: String in errors:
