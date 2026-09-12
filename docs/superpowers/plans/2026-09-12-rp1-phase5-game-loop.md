@@ -2120,7 +2120,7 @@ captured by `tools/screenshot.gd`.
   `MainMenu` — signals `new_world_requested`, `continue_requested`,
   `quit_requested`; method `set_save_state(has_save: bool, meta: WorldMeta) -> void`
 
-- [ ] **Step 1: Write ConfirmPanel**
+- [x] **Step 1: Write ConfirmPanel**
 
 Create `src/ui/confirm_panel.gd`:
 
@@ -2220,7 +2220,7 @@ func report(title: String, body: String) -> void:
 	ok.grab_focus()
 ```
 
-- [ ] **Step 2: Write MainMenu**
+- [x] **Step 2: Write MainMenu**
 
 Create `src/ui/main_menu.gd`:
 
@@ -2303,7 +2303,7 @@ func set_save_state(has_save: bool, meta: WorldMeta) -> void:
 	]
 ```
 
-- [ ] **Step 3: Check both files parse**
+- [x] **Step 3: Check both files parse**
 
 There is no unit test here — these are node assemblies with no logic, and the
 logic they call is covered by `test_game_session.gd`. They are verified by eye
@@ -2314,14 +2314,14 @@ Expected: PASS and exit 0. Nothing instantiates these files yet, but the
 runner's parse check is what matters at this step: a broken script would fail
 the run rather than being skipped.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/ui/confirm_panel.gd src/ui/main_menu.gd
 git commit -m "feat: main menu and an in-scene confirm panel"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 14 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
