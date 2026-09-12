@@ -575,7 +575,7 @@ git commit -m "docs: tick Phase 4a task 2"
 Fixtures are generated into `user://` rather than committed: a 4x4 zone written
 by the test is readable *in* the test, which a committed PNG is not.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_zone_loader.gd`:
 
@@ -815,7 +815,7 @@ func test_a_malformed_legend_key_is_reported() -> void:
 	assert_gt(r.errors.size(), 0, "six hex digits, no leading hash")
 ```
 
-- [ ] **Step 2: Run the test and watch it fail**
+- [x] **Step 2: Run the test and watch it fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -823,7 +823,7 @@ Expected: FAIL — the suite will not even load, reporting an unknown identifier
 `ZoneLoader`. `run_tests.sh` exits 3 on that ("a test script failed to load"),
 which is the intended behaviour, not a problem with the runner.
 
-- [ ] **Step 3: Write `ZoneLoadResult`**
+- [x] **Step 3: Write `ZoneLoadResult`**
 
 Create `src/core/zone_load_result.gd`:
 
@@ -848,7 +848,7 @@ var player_spawn: Vector2 = Vector2.ZERO
 var errors: PackedStringArray = []
 ```
 
-- [ ] **Step 4: Write `ZoneLoader` with the terrain layer only**
+- [x] **Step 4: Write `ZoneLoader` with the terrain layer only**
 
 Create `src/core/zone_loader.gd`:
 
@@ -1033,20 +1033,20 @@ static func _report_unknown(layer: String, unknown: Dictionary,
 			% [layer, keys.size() - shown])
 ```
 
-- [ ] **Step 5: Run the test and watch it pass**
+- [x] **Step 5: Run the test and watch it pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, thirteen new tests in one new script.
 
-- [ ] **Step 6: Confirm the architecture guard is still clean**
+- [x] **Step 6: Confirm the architecture guard is still clean**
 
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 
 Expected: `Architecture guard: clean`. `Image`, `FileAccess`, `JSON` and
 `Callable` are none of them nodes, and none appear in the banned list.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/core/zone_loader.gd src/core/zone_load_result.gd tests/test_zone_loader.gd
@@ -1068,7 +1068,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
