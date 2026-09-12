@@ -1601,7 +1601,7 @@ git commit -m "docs: tick Phase 4b task 7"
 **Files:**
 - Modify: `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` (§10)
 
-- [ ] **Step 1: Record the dirty channel's move**
+- [x] **Step 1: Record the dirty channel's move**
 
 The Stage 1 design's Phase 4b bullet still promises the multi-consumer dirty
 channel. Replace the `**Phase 4b — living world**` block with:
@@ -1619,7 +1619,7 @@ caller would have been its own test suite. See
 `docs/superpowers/specs/2026-09-12-rp1-phase4b-living-world-design.md` §2.)*
 ```
 
-- [ ] **Step 2: Verify the whole definition of done**
+- [x] **Step 2: Verify the whole definition of done**
 
 ```bash
 # Every gate.
@@ -1641,7 +1641,7 @@ rm -f /tmp/rp1_4b.pck
 
 Record each result in the commit message.
 
-- [ ] **Step 3: Prove the sharpest acceptance criterion**
+- [x] **Step 3: Prove the sharpest acceptance criterion**
 
 A second animal must be one JSON file, one PNG and one line in a zone's
 `entities` list, with no code change.
@@ -1669,7 +1669,7 @@ rm data/creature/hare.json
 git checkout data/zone/home/zone.json
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs
@@ -1685,7 +1685,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 8 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
