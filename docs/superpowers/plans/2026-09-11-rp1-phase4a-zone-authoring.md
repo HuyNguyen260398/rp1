@@ -396,7 +396,7 @@ The spec flags the exact glob syntax an export filter accepts for a path
 pattern as the one claim taken on documentation rather than evidence. This task
 settles it against a real pack.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_zone_import_mode.gd`:
 
@@ -440,14 +440,14 @@ func test_no_map_is_imported_as_a_texture() -> void:
 			"%s was re-imported as a texture; re-apply importer=\"keep\"" % png)
 ```
 
-- [ ] **Step 2: Run the test and watch it fail**
+- [x] **Step 2: Run the test and watch it fail**
 
 Run: `./tools/run_tests.sh`
 
 Expected: FAIL. No `.import` files exist yet for the maps (Godot has not been
 asked to import `data/` at all), so `assert_not_null` fails three times.
 
-- [ ] **Step 3: Write the keep-mode import files**
+- [x] **Step 3: Write the keep-mode import files**
 
 Create all three, identical except for the path. `data/zone/home/terrain.png.import`:
 
@@ -462,7 +462,7 @@ Repeat verbatim for `data/zone/home/object.png.import` and
 `path`, `[deps]` or `[params]` section — the engine copies the file and records
 nothing to rebuild.
 
-- [ ] **Step 4: Run an import pass and confirm the mode survives it**
+- [x] **Step 4: Run an import pass and confirm the mode survives it**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -473,13 +473,13 @@ Expected: `1` for each of the three files. If any now says `importer="texture"`,
 the engine has overwritten the file — re-apply Step 3 and re-run; it sticks on
 the second pass because the `.import` file then predates the source scan.
 
-- [ ] **Step 5: Run the test and watch it pass**
+- [x] **Step 5: Run the test and watch it pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS.
 
-- [ ] **Step 6: Widen the export filter**
+- [x] **Step 6: Widen the export filter**
 
 `export_presets.cfg` has two presets (Linux and Windows) and **both** must
 change. Edit line 10 and line 36:
@@ -493,7 +493,7 @@ No space after the comma: the filter is split on commas and the pattern is
 matched against the resource path, so a leading space would make the second
 pattern ` data/zone/*` and match nothing.
 
-- [ ] **Step 7: Prove the bytes reach the pack**
+- [x] **Step 7: Prove the bytes reach the pack**
 
 ```bash
 ./tools/godot.sh --headless --path . --export-pack "Linux" /tmp/rp1_probe.pck
@@ -510,7 +510,7 @@ Also confirm the imported-texture form is **absent**:
 grep -ac "terrain.png-.*\.ctex" /tmp/rp1_probe.pck || echo "no ctex, correct"
 ```
 
-- [ ] **Step 8: If the path pattern did not match, apply the fallback**
+- [x] **Step 8: If the path pattern did not match, apply the fallback**
 
 Only if Step 7 found nothing. Rename the three maps to
 `terrain.zonemap.png`, `object.zonemap.png`, `height.zonemap.png` (renaming
@@ -523,7 +523,7 @@ filter unambiguously supports. Re-run Step 7.
 Record which form worked in the commit message. Later tasks refer to the maps
 by the names in `zone.json`, so nothing else changes.
 
-- [ ] **Step 9: Clean up and commit**
+- [x] **Step 9: Clean up and commit**
 
 ```bash
 rm -f /tmp/rp1_probe.pck
@@ -547,7 +547,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 10: Tick this task**
+- [x] **Step 10: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
