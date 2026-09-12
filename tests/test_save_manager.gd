@@ -38,9 +38,13 @@ func _zone() -> Zone:
 	for y: int in range(128):
 		for x: int in range(128):
 			z.set_terrain(Vector2i(x, y), grass)
-			z.set_flags(Vector2i(x, y), Chunk.FLAG_WALKABLE)
 	z.set_object(Vector2i(10, 10), tree)
 	z.set_height(Vector2i(10, 10), 3)
+	# flags is derived data. Setting it by hand produced a fixture whose
+	# flags contradicted its own content -- walkable grass under a
+	# movement-blocking oak -- which is exactly the stale-flags state
+	# load_zone now recomputes away.
+	Walkability.recompute_zone(z, _registry)
 	var rabbit: int = z.entities.spawn(_registry.numeric_of("rabbit"), Vector2(64.5, 64.5))
 	z.entities.set_facing(rabbit, 2)
 	return z
@@ -233,3 +237,34 @@ func test_an_entity_type_missing_from_the_build_becomes_the_placeholder() -> voi
 	assert_eq(plain.string_of(type_id), "dodo",
 		"a missing entity type must keep its string, not be zeroed")
 	assert_true(plain.is_placeholder(type_id))
+
+
+func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
+	# flags is derived from terrain and object content, so a save written
+	# before a content change carries stale flags. ZoneLoader already
+	# refuses to trust an authored flags value; load_zone must not trust a
+	# saved one either.
+	var zone: Zone = _zone()
+	var oak: int = _registry.numeric_of("oak_tree")
+	zone.set_object(Vector2i(3, 3), oak)
+	# Deliberately wrong: say the tile under the oak is walkable, and that
+	# a plain grass tile is not.
+	zone.set_flags(Vector2i(3, 3), Chunk.FLAG_WALKABLE)
+	zone.set_flags(Vector2i(5, 5), 0)
+	SaveManager.save_zone(_root, zone, _registry, true)
+
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
+	assert_true(result.ok, result.error)
+	var back: Zone = result.value
+	assert_false(back.is_walkable(Vector2i(3, 3)), "the oak's tile came back walkable")
+	assert_true(back.is_walkable(Vector2i(5, 5)), "plain grass came back blocked")
+
+
+func test_a_freshly_loaded_zone_is_not_dirty() -> void:
+	# The recompute above touches every chunk. If it left them dirty the
+	# first autosave would rewrite all 16 for nothing.
+	var zone: Zone = _zone()
+	SaveManager.save_zone(_root, zone, _registry, true)
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
+	assert_true(result.ok, result.error)
+	assert_eq((result.value as Zone).dirty_chunk_coords().size(), 0)

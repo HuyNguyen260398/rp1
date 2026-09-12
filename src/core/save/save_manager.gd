@@ -158,4 +158,13 @@ static func load_zone(
 				store.set_type_id(entity_id, ContentRegistry.ID_UNKNOWN)
 		zone.entities = store
 
+	# flags is derived, never authored and never trusted from disk: a save
+	# written before a content change carries stale values. Same reasoning
+	# as ZoneLoader, which refuses an authored flags column outright.
+	Walkability.recompute_zone(zone, registry)
+	# The recompute touches every chunk. A freshly loaded world is by
+	# definition not in need of saving, and leaving it dirty would make
+	# the first autosave rewrite all 16 chunks for nothing.
+	zone.clear_dirty()
+
 	return DecodeResult.success(zone)
