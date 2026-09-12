@@ -1,0 +1,11 @@
+{
+  "category": "zone",
+  "required": {
+    "id": "String", "category": "String", "display_name": "String",
+    "size": "Array", "maps": "Dictionary", "legend": "Dictionary",
+    "player_spawn": "Array"
+  },
+  "optional": {
+    "biome": "String", "generation_seed": "int", "entities": "Array"
+  }
+}

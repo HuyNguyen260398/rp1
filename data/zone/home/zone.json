@@ -1,0 +1,19 @@
+{
+  "id": "home",
+  "category": "zone",
+  "display_name": "Home Valley",
+  "size": [8, 8],
+  "biome": "temperate",
+  "generation_seed": 0,
+  "maps": {
+    "terrain": "terrain.png",
+    "object": "object.png",
+    "height": "height.png"
+  },
+  "legend": {
+    "terrain": {"00ff00": "grass", "0000ff": "water"},
+    "object": {"000000": null, "008000": "oak_tree"}
+  },
+  "player_spawn": [1.5, 1.5],
+  "entities": []
+}
