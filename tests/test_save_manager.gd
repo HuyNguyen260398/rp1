@@ -186,3 +186,50 @@ func test_loading_a_corrupt_chunk_fails_cleanly() -> void:
 	)
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_false(result.ok, "a corrupt chunk is reported, not silently skipped")
+
+
+func test_entity_type_ids_survive_content_added_after_the_save() -> void:
+	# ContentRegistry allocates numeric ids in load order, so registering
+	# one extra creature before the real content shifts every id after it.
+	# This is the exact scenario the string-id rule exists for, and until
+	# now load_zone remapped the tile columns and left entity rows alone.
+	var zone: Zone = _zone()
+	var rabbit_id: int = zone.entities.spawn(
+		_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
+	var errs: PackedStringArray = SaveManager.save_zone(_root, zone, _registry, true)
+	assert_eq(errs.size(), 0, ", ".join(errs))
+
+	var shifted: ContentRegistry = ContentRegistry.new()
+	shifted.register({
+		"id": "aardvark", "category": "creature", "display_name": "Aardvark",
+		"sprite": "", "wander_radius": 4,
+	})
+	var load_errs: PackedStringArray = shifted.load_from_dir("res://data")
+	assert_eq(load_errs.size(), 0, ", ".join(load_errs))
+	assert_ne(shifted.numeric_of("rabbit"), _registry.numeric_of("rabbit"),
+		"the fixture registry must actually shift ids, or this proves nothing")
+
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", shifted)
+	assert_true(result.ok, result.error)
+	var back: Zone = result.value
+	assert_eq(shifted.string_of(back.entities.get_type_id(rabbit_id)), "rabbit")
+
+
+func test_an_entity_type_missing_from_the_build_becomes_the_placeholder() -> void:
+	var zone: Zone = _zone()
+	var gone: int = _registry.register({
+		"id": "dodo", "category": "creature", "display_name": "Dodo", "sprite": "",
+	})
+	var id: int = zone.entities.spawn(gone, Vector2(5.5, 5.5))
+	SaveManager.save_zone(_root, zone, _registry, true)
+
+	# A registry built from data/ alone has never heard of a dodo.
+	var plain: ContentRegistry = ContentRegistry.new()
+	plain.load_from_dir("res://data")
+	var result: DecodeResult = SaveManager.load_zone(_root, "home", plain)
+	assert_true(result.ok, result.error)
+
+	var type_id: int = (result.value as Zone).entities.get_type_id(id)
+	assert_eq(plain.string_of(type_id), "dodo",
+		"a missing entity type must keep its string, not be zeroed")
+	assert_true(plain.is_placeholder(type_id))

@@ -113,6 +113,11 @@ func get_type_id(id: int) -> int:
 	return _type_id[_slot_by_id[id]]
 
 
+## Codec support: rewrite a row's type through the save's id translation.
+func set_type_id(id: int, type_id: int) -> void:
+	_type_id[_slot_by_id[id]] = type_id
+
+
 func get_position(id: int) -> Vector2:
 	var slot: int = _slot_by_id[id]
 	return Vector2(_x[slot], _y[slot])

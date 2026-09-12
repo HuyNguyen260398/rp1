@@ -145,6 +145,17 @@ static func load_zone(
 		var ent: DecodeResult = EntityCodec.decode(FileAccess.get_file_as_bytes(ent_path))
 		if not ent.ok:
 			return DecodeResult.failure("entities.dat: %s" % ent.error)
-		zone.entities = ent.value
+		var store: EntityStore = ent.value
+		# Entity type ids are runtime numbers like the tile columns, and
+		# shift for the same reason. Remapping the columns and not the rows
+		# meant one new creature JSON turned every rabbit in every save
+		# into whatever now held its number.
+		for entity_id: int in store.ids():
+			var saved: int = store.get_type_id(entity_id)
+			if saved < table.size():
+				store.set_type_id(entity_id, table[saved])
+			else:
+				store.set_type_id(entity_id, ContentRegistry.ID_UNKNOWN)
+		zone.entities = store
 
 	return DecodeResult.success(zone)
