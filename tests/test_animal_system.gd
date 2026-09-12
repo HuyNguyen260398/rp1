@@ -422,3 +422,26 @@ func test_a_stuck_returning_animal_goes_back_to_wandering() -> void:
 
 	assert_ne(_system.mode_of(id), AnimalSystem.MODE_RETURN,
 		"it cannot reach home through a wall and must not spend forever trying")
+
+
+func test_home_comes_from_the_store_not_from_where_the_animal_stands() -> void:
+	# A rabbit saved mid-flee is restored far from home. Its anchor must be
+	# the one the save carried, not the spot the load happened to drop it
+	# on -- otherwise the authored world erodes a little on every
+	# save/load cycle. Phase 5 design section 5.
+	var id: int = _spawn("rabbit", Vector2(10.5, 10.5))
+	_zone.entities.set_home(id, Vector2(20.5, 20.5))
+	_run(1)
+	assert_eq(_system.home_of(id), Vector2(20.5, 20.5))
+
+
+func test_home_defaults_to_the_spawn_position() -> void:
+	# spawn() anchors home where the entity appears, so an animal that has
+	# never been saved behaves exactly as it did before home was a column.
+	var id: int = _spawn("rabbit", Vector2(10.5, 10.5))
+	_run(1)
+	assert_eq(_system.home_of(id), Vector2(10.5, 10.5))
+
+
+func test_home_of_an_untracked_id_is_zero() -> void:
+	assert_eq(_system.home_of(12345), Vector2.ZERO)
