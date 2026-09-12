@@ -767,7 +767,7 @@ walks through a tree.
 **Interfaces:**
 - Consumes: `Walkability.recompute_zone(zone: Zone, registry: ContentRegistry) -> int`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```gdscript
 func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
@@ -791,12 +791,12 @@ func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
 	assert_true(back.is_walkable(Vector2i(5, 5)), "plain grass came back blocked")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL on the first assertion — the wrong flags round-trip faithfully.
 
-- [ ] **Step 3: Recompute after the chunks are installed**
+- [x] **Step 3: Recompute after the chunks are installed**
 
 At the end of `load_zone`, after the entity block and before the return:
 
@@ -809,7 +809,7 @@ At the end of `load_zone`, after the entity block and before the return:
 	return DecodeResult.success(zone)
 ```
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS. Note this marks chunks dirty; `load_zone` already sets
@@ -818,14 +818,14 @@ Expected: PASS. Note this marks chunks dirty; `load_zone` already sets
 is by definition not in need of saving, and leaving it dirty would make the
 first autosave rewrite all 16 chunks for nothing.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd tests/test_save_manager.gd
 git commit -m "fix: recompute walkability on load instead of trusting saved flags"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
