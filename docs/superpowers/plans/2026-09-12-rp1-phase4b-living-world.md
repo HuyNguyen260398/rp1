@@ -1247,7 +1247,7 @@ corner pointing exactly at its target. Rare, but it lasts for the whole dwell
 interval when it happens, and a rabbit pressed into a tree for three seconds
 is the kind of thing a player notices immediately.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_animal_system.gd`:
 
@@ -1289,7 +1289,7 @@ func test_a_stuck_returning_animal_goes_back_to_wandering() -> void:
 		"it cannot reach home through a wall and must not spend forever trying")
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
@@ -1299,7 +1299,7 @@ the animal holds `MODE_RETURN` indefinitely, pressed against the water.
 depending on the seed; if it passes, do not weaken it. It is there to stay
 true, and Step 3 is what makes it reliably true rather than luckily true.
 
-- [ ] **Step 3: Implement the stuck rule**
+- [x] **Step 3: Implement the stuck rule**
 
 Add the constant beside the other defaults:
 
@@ -1337,13 +1337,13 @@ onward — with:
 Note this replaces the earlier `if next.distance_to(pos) <= 0.0: continue`
 guard from Task 3 — `STUCK_EPSILON` subsumes it.
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, two more tests, and every earlier test still green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
@@ -1365,7 +1365,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-12-rp1-phase4b-living-world.md
