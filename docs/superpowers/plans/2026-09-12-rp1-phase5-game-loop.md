@@ -122,7 +122,7 @@ this task changes no behaviour, it only moves where the value lives.
   — note `home` is appended last, so existing calls break loudly rather than
   silently taking the wrong argument.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `tests/test_entity_store.gd`:
 
@@ -167,13 +167,13 @@ func test_restore_row_takes_home_verbatim() -> void:
 	assert_eq(s.get_home(9), Vector2(1.5, 2.5))
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `get_home` is not a known method, and `restore_row` is called
 with 7 arguments but expects 6.
 
-- [ ] **Step 3: Add the columns**
+- [x] **Step 3: Add the columns**
 
 In `src/core/entity_store.gd`, beside `_x` / `_y`:
 
@@ -209,7 +209,7 @@ func set_home(id: int, pos: Vector2) -> void:
 And `restore_row` gains a trailing `home: Vector2` parameter that appends to
 both arrays.
 
-- [ ] **Step 4: Fix the one call site**
+- [x] **Step 4: Fix the one call site**
 
 `EntityCodec.decode` calls `restore_row`. v1 bytes carry no home, and the
 value that reproduces today's behaviour exactly is the entity's position:
@@ -227,19 +227,19 @@ value that reproduces today's behaviour exactly is the entity's position:
 		)
 ```
 
-- [ ] **Step 5: Run the whole suite**
+- [x] **Step 5: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, including every pre-existing entity and codec test.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/entity_store.gd src/core/save/entity_codec.gd tests/test_entity_store.gd
 git commit -m "feat: entity store carries a home anchor"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
