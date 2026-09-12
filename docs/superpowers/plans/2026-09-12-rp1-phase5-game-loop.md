@@ -265,7 +265,7 @@ for; the tests in Tasks 3–4 make it survive a save.
 - Produces: `AnimalSystem.home_of(id: int) -> Vector2` — returns
   `Vector2.ZERO` for an untracked id, matching how `mode_of` handles one.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_animal_system.gd`:
 
@@ -295,12 +295,12 @@ func test_home_of_an_untracked_id_is_zero() -> void:
 new fixture. If its name differs, use whatever the file's existing walkable
 zone helper is called; do not add a second one.
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `home_of` is not a known method.
 
-- [ ] **Step 3: Read home from the store, and expose it**
+- [x] **Step 3: Read home from the store, and expose it**
 
 In the lazy-init block, replace `"home": pos` with
 `"home": zone.entities.get_home(id)`, and update the comment, which currently
@@ -329,21 +329,21 @@ func home_of(id: int) -> Vector2:
 	return _state[id]["home"]
 ```
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS. The existing animal tests spawn animals and never call
 `set_home`, so their anchors are unchanged — `spawn()` puts home at the spawn
 position, which is what the lazy capture produced before.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/animal_system.gd tests/test_animal_system.gd
 git commit -m "feat: animals anchor from the entity row, not from where they stand"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
