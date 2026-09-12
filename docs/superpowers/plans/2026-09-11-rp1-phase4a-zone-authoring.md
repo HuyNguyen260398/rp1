@@ -2088,7 +2088,7 @@ git commit -m "docs: tick Phase 4a task 9"
 - Produces: the world. From this commit on, the PNGs are the source of truth
   and are edited in a pixel editor, not by re-running anything.
 
-- [ ] **Step 1: Grow the seeding tool**
+- [x] **Step 1: Grow the seeding tool**
 
 Replace the body of `tools/seed_zone.gd` with the full layout. It stays a
 one-shot tool and is deleted at Step 6.
@@ -2243,7 +2243,7 @@ func _save(img: Image, file_name: String) -> int:
 	return 0
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/seed_zone.gd
@@ -2252,7 +2252,7 @@ func _save(img: Image, file_name: String) -> int:
 Expected: `seed_zone: wrote a 128x128 zone to res://data/zone/home`, preceded
 by the scatter count.
 
-- [ ] **Step 3: Update the zone document**
+- [x] **Step 3: Update the zone document**
 
 Rewrite `data/zone/home/zone.json`. Every colour the seeding tool writes needs
 a legend entry, or Task 3's unknown-colour rule fires:
@@ -2309,7 +2309,7 @@ The hex values must match `Color8` triples in the tool exactly: `Color8(0, 200,
 80)` is `00c850`, `Color8(150, 220, 60)` is `96dc3c`. Getting one wrong is
 caught by `test_zone_home.gd`, not by eye.
 
-- [ ] **Step 4: Verify the real zone**
+- [x] **Step 4: Verify the real zone**
 
 ```bash
 ./tools/run_tests.sh
@@ -2320,7 +2320,7 @@ real 128x128 world — zero errors, no unpainted terrain tile, and a walkable
 spawn. If an entity landed in a pond that is fine; only the *player* spawn is
 checked, and animals wander out.
 
-- [ ] **Step 5: Look at it**
+- [x] **Step 5: Look at it**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/screenshot.gd
@@ -2331,7 +2331,7 @@ expect dirt underfoot and grass with scattered trees around. Walk the build if
 you have a keyboard; otherwise move `player_spawn` temporarily to look at a
 house and the pond, then put it back.
 
-- [ ] **Step 6: Delete the seeding tool**
+- [x] **Step 6: Delete the seeding tool**
 
 ```bash
 git rm tools/seed_zone.gd
@@ -2343,7 +2343,7 @@ its output is committed, and keeping it invites someone to re-run it and
 silently discard hand edits — exactly the trap `make_placeholder_art.gd` was
 deleted to avoid in Phase 3c.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add data/zone/home
@@ -2364,7 +2364,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 8: Tick this task**
+- [x] **Step 8: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 10 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
