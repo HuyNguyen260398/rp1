@@ -473,12 +473,16 @@ with it.
 - Trees, rocks, water, paths, three houses (exterior only)
 - CI gate 7 (`tools/check_zone.sh`) and the legend swatch tool
 
-**Phase 4b — living world**
+**Phase 4b — living world** *(done)*
 
-- `AnimalSystem`: wander within a radius, flee the player. Deliberately
-  dumb — this validates the entity pipeline, not AI.
-- A multi-consumer dirty channel, so the collision cache and
-  `ZoneRenderer` can both react to zone mutation
+- `AnimalSystem`: wander within a radius, flee the player, walk home.
+  Deliberately dumb — this validates the entity pipeline, not AI.
+
+*(The multi-consumer dirty channel moved to Stage 2. Nothing in Stage 1
+produces a tile mutation: building and harvesting are out of scope, and
+animal movement is an entity row rather than a tile, so the channel's only
+caller would have been its own test suite. See
+`docs/superpowers/specs/2026-09-12-rp1-phase4b-living-world-design.md` §2.)*
 
 *(Collision from walkable flags and `EntityRenderer` moved earlier, into
 Phase 3b.)*
