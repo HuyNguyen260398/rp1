@@ -37,6 +37,8 @@ const ARRIVE_EPSILON: float = 0.2
 const DEFAULT_WANDER_SPEED: float = 1.5
 const DEFAULT_WANDER_INTERVAL: float = 3.0
 const DEFAULT_BODY: Vector2 = Vector2(0.5, 0.375)
+const DEFAULT_FLEE_RADIUS: float = 5.0
+const DEFAULT_FLEE_SPEED: float = 4.0
 
 ## Injected so every test is exactly reproducible. The caller seeds it;
 ## main.gd uses the zone's generation_seed, so one world always behaves the
@@ -95,8 +97,21 @@ func tick(
 		var s: Dictionary = _state[id]
 		var radius: float = float(def.get("wander_radius", 0))
 		var speed: float = float(def.get("wander_speed", DEFAULT_WANDER_SPEED))
+		var flees: bool = bool(def.get("flees_player", false))
+		var flee_radius: float = float(def.get("flee_radius", DEFAULT_FLEE_RADIUS))
+		var to_player: float = pos.distance_to(player_pos)
 
-		var velocity: Vector2 = _wander_velocity(s, pos, radius, speed, zone, delta)
+		# An animal whose content does not say it flees never consults
+		# flee_radius at all: to it, the player is scenery.
+		if flees and to_player < flee_radius:
+			s["mode"] = MODE_FLEE
+
+		var velocity: Vector2 = Vector2.ZERO
+		if int(s["mode"]) == MODE_FLEE:
+			velocity = _flee_velocity(
+				pos, player_pos, float(def.get("flee_speed", DEFAULT_FLEE_SPEED)))
+		else:
+			velocity = _wander_velocity(s, pos, radius, speed, zone, delta)
 
 		if velocity.is_zero_approx():
 			continue
@@ -172,3 +187,16 @@ func _pick_target(s: Dictionary, pos: Vector2, radius: float, zone: Zone) -> voi
 func _interval_for(s: Dictionary) -> float:
 	var base: float = float(s.get("interval", DEFAULT_WANDER_INTERVAL))
 	return base * rng.randf_range(0.5, 1.5)
+
+
+## Straight away from the player, at flee_speed. Ignores the wander radius:
+## a hard fence pins a cornered animal against an invisible wall, which
+## reads as broken within thirty seconds of play.
+func _flee_velocity(pos: Vector2, player_pos: Vector2, speed: float) -> Vector2:
+	var away: Vector2 = pos - player_pos
+	if away.is_zero_approx():
+		# Exactly co-located, which only happens in a test. Any direction
+		# will do; normalized() on a zero vector returns zero and would
+		# leave the animal standing inside the player.
+		away = Vector2.RIGHT
+	return away.normalized() * speed

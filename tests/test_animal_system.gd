@@ -231,3 +231,66 @@ func test_tick_reports_how_many_moved() -> void:
 			_zone, _registry, _collision, Vector2(-100.0, -100.0), 1.0 / 60.0))
 	assert_gt(seen, 0, "something moved")
 	assert_lt(seen, 3, "the player is not one of them")
+
+
+func test_a_nearby_player_triggers_flee() -> void:
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(1, Vector2(18.0, 16.5))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_FLEE)
+
+
+func test_a_distant_player_does_not() -> void:
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	_run(1, Vector2(16.5 + 20.0, 16.5))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_WANDER)
+
+
+func test_fleeing_increases_the_distance_to_the_player() -> void:
+	var player: Vector2 = Vector2(14.0, 16.5)
+	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))
+	var before: float = _zone.entities.get_position(id).distance_to(player)
+
+	_run(30, player)
+
+	assert_gt(_zone.entities.get_position(id).distance_to(player), before,
+		"half a second of fleeing must open the gap")
+
+
+func test_an_animal_that_does_not_flee_ignores_the_player() -> void:
+	var id: int = _spawn("cow", Vector2(16.5, 16.5))
+	_run(60, Vector2(16.6, 16.5))
+	assert_eq(_system.mode_of(id), AnimalSystem.MODE_WANDER,
+		"flees_player is false, so the player is scenery -- no code knows what a cow is")
+
+
+func test_fleeing_may_leave_the_wander_radius() -> void:
+	# A player parked just inside the flee radius, on the home side, pushes
+	# the rabbit out past its 6-tile fence. A hard fence here would pin it
+	# against an invisible wall, which reads as broken.
+	var home: Vector2 = Vector2(16.5, 16.5)
+	var id: int = _spawn("rabbit", home)
+	var escaped: bool = false
+	for i: int in range(600):
+		var p: Vector2 = _zone.entities.get_position(id)
+		# Chase: stand one tile behind the rabbit, on the home side, so it
+		# is driven outward rather than in a circle.
+		var chase: Vector2 = home
+		if p.distance_to(home) > 0.1:
+			chase = p + (home - p).normalized()
+		_system.tick(_zone, _registry, _collision, chase, 1.0 / 60.0)
+		if _zone.entities.get_position(id).distance_to(home) > 6.5:
+			escaped = true
+			break
+	assert_true(escaped, "flee must beat the wander radius")
+
+
+func test_fleeing_never_ends_a_tick_inside_a_solid() -> void:
+	_zone = _make_walled_zone()
+	var id: int = _spawn("rabbit", Vector2(14.5, 16.5))
+	# Push it straight at the water column.
+	for i: int in range(300):
+		_system.tick(_zone, _registry, _collision, Vector2(12.0, 16.5), 1.0 / 60.0)
+		var p: Vector2 = _zone.entities.get_position(id)
+		var tile: Vector2i = Vector2i(floori(p.x), floori(p.y))
+		assert_true(_zone.is_walkable(tile),
+			"tick %d drove the fleeing rabbit onto %s" % [i, tile])
