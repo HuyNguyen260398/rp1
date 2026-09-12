@@ -1,5 +1,9 @@
 {
   "category": "creature",
   "required": {"id": "String", "category": "String", "display_name": "String", "sprite": "String"},
-  "optional": {"wander_radius": "int", "flees_player": "bool", "tags": "Array"}
+  "optional": {
+    "wander_radius": "int", "wander_speed": "float", "wander_interval": "float",
+    "flees_player": "bool", "flee_radius": "float", "flee_speed": "float",
+    "body_width": "float", "body_height": "float", "tags": "Array"
+  }
 }

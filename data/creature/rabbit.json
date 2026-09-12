@@ -1,3 +1,6 @@
 {"id": "rabbit", "category": "creature", "display_name": "Rabbit",
- "sprite": "res://assets/characters/rabbit.png", "wander_radius": 6,
- "flees_player": true, "tags": ["animal", "prey"]}
+ "sprite": "res://assets/characters/rabbit.png",
+ "wander_radius": 6, "wander_speed": 1.5, "wander_interval": 3.0,
+ "flees_player": true, "flee_radius": 5.0, "flee_speed": 4.0,
+ "body_width": 0.5, "body_height": 0.375,
+ "tags": ["animal", "prey"]}

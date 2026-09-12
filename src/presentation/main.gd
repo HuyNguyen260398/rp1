@@ -8,6 +8,8 @@ extends Node2D
 ## content rules exist to prevent. Phase 5's New World flow sets this.
 @export var zone_dir: String = "res://data/zone/home"
 
+var _registry: ContentRegistry = null
+var _animals: AnimalSystem = null
 var _renderer: ZoneRenderer = null
 var _entity_renderer: EntityRenderer = null
 var _player: Player = null
@@ -21,6 +23,7 @@ func _ready() -> void:
 	y_sort_enabled = true
 
 	var registry: ContentRegistry = ContentRegistry.new()
+	_registry = registry
 	var errs: PackedStringArray = registry.load_from_dir("res://data")
 	if not errs.is_empty():
 		push_error("content failed to load: %s" % ", ".join(errs))
@@ -60,6 +63,12 @@ func _ready() -> void:
 
 	_collision = CollisionBuilder.new()
 
+	_animals = AnimalSystem.new()
+	_animals.rng = RandomNumberGenerator.new()
+	# Seeded from the zone rather than from the clock, so one world always
+	# behaves the same way and a bug reported against it is reproducible.
+	_animals.rng.seed = zone.generation_seed
+
 	_player = Player.new()
 	_player.name = "Player"
 	add_child(_player)
@@ -74,3 +83,20 @@ func _ready() -> void:
 	_camera.setup(zone)
 	_camera.target_id = pid
 	_camera.make_current()
+
+
+## Animals move in the physics step, alongside the player, so both see the
+## same fixed delta and the same collision geometry.
+func _physics_process(delta: float) -> void:
+	if _animals == null or _renderer == null or _renderer.zone == null:
+		return
+	if _player == null or not _renderer.zone.entities.has(_player.entity_id):
+		return
+	var zone: Zone = _renderer.zone
+	var _moved: int = _animals.tick(
+		zone,
+		_registry,
+		_collision,
+		zone.entities.get_position(_player.entity_id),
+		delta
+	)
