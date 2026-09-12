@@ -1090,7 +1090,7 @@ git commit -m "docs: tick Phase 4a task 3"
   both are optional, and `height` has no legend — its red channel *is* the
   value.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_zone_loader.gd`:
 
@@ -1178,14 +1178,14 @@ func test_a_missing_height_map_is_not_an_error() -> void:
 	assert_eq(r.zone.get_height(Vector2i(2, 2)), 0)
 ```
 
-- [ ] **Step 2: Run the tests and watch them fail**
+- [x] **Step 2: Run the tests and watch them fail**
 
 Run: `./tools/run_tests.sh`
 
 Expected: FAIL. `get_object` and `get_height` return 0 for every tile, because
 `load_zone` still reads only the terrain map.
 
-- [ ] **Step 3: Generalise the layer loop**
+- [x] **Step 3: Generalise the layer loop**
 
 In `src/core/zone_loader.gd`, replace the single `if maps.has("terrain")` block
 in `load_zone` with:
@@ -1225,13 +1225,13 @@ static func _paint_height(zone: Zone, img: Image, size: Vector2i) -> void:
 			zone.set_height(Vector2i(x, y), data[(y * size.x + x) * 4])
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 
 Expected: PASS, five more tests, and every Task 3 test still green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/zone_loader.gd tests/test_zone_loader.gd
@@ -1252,7 +1252,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 6: Tick this task**
+- [x] **Step 6: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
