@@ -2387,7 +2387,7 @@ Editing a zone by hand means knowing which garish colour is which tile. A
 labelled swatch strip is the difference between a format a human can edit and
 one only an agent can.
 
-- [ ] **Step 1: Write the tool**
+- [x] **Step 1: Write the tool**
 
 Create `tools/zone_legend.gd`:
 
@@ -2462,7 +2462,7 @@ func _init() -> void:
 	quit(0)
 ```
 
-- [ ] **Step 2: Run it and check the output**
+- [x] **Step 2: Run it and check the output**
 
 ```bash
 ./tools/godot.sh --headless --path . -s tools/zone_legend.gd
@@ -2472,7 +2472,7 @@ Expected: fifteen rows printed — three terrain and twelve object — and
 `build/zone_legend.png` written. Open it: one swatch per row, in the order
 printed.
 
-- [ ] **Step 3: Confirm the artefact is not committed**
+- [x] **Step 3: Confirm the artefact is not committed**
 
 ```bash
 git status --short build/ 2>/dev/null
@@ -2482,7 +2482,7 @@ grep -n "^build" .gitignore || echo "build/ is NOT ignored -- add it"
 If `build/` is not in `.gitignore`, add a `build/` line. The export gate already
 writes there, so this is likely already handled.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tools/zone_legend.gd .gitignore
@@ -2502,7 +2502,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 5: Tick this task**
+- [x] **Step 5: Tick this task**
 
 ```bash
 python3 tools/mark_task_done.py 11 --plan docs/superpowers/plans/2026-09-11-rp1-phase4a-zone-authoring.md
