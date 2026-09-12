@@ -640,7 +640,7 @@ The translation table is already built two lines above where it is needed.
 **Interfaces:**
 - Consumes: `IdMap.build_translation(registry) -> PackedInt32Array` (existing)
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_save_manager.gd`:
 
@@ -692,13 +692,13 @@ func test_an_entity_type_missing_from_the_build_becomes_the_placeholder() -> voi
 	assert_true(plain.is_placeholder(type_id))
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — the first asserts `"rabbit"` and gets whatever content now
 holds the old number; the second gets `""` or an unrelated id.
 
-- [ ] **Step 3: Remap the rows**
+- [x] **Step 3: Remap the rows**
 
 In `SaveManager.load_zone`, where `entities.dat` is decoded:
 
@@ -730,21 +730,21 @@ func set_type_id(id: int, type_id: int) -> void:
 	_type_id[_slot_by_id[id]] = type_id
 ```
 
-- [ ] **Step 4: Run the whole suite**
+- [x] **Step 4: Run the whole suite**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS. `IdMap.build_translation` already resolves a saved string
 absent from the build through `register_placeholder`, which is why the second
 test passes without extra work.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd src/core/entity_store.gd tests/test_save_manager.gd
 git commit -m "fix: remap entity type ids on load, not just tile columns"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
