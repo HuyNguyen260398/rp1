@@ -1821,7 +1821,7 @@ immediately, exactly as it does today.
   `World.tick_animals(delta: float) -> void`, `World.zone: Zone`,
   `World.player_entity_id: int`
 
-- [ ] **Step 1: Create World with the code that already exists**
+- [x] **Step 1: Create World with the code that already exists**
 
 Create `src/presentation/world.gd` declaring `class_name World` and
 `extends Node2D` — the router refers to it by name. Move the body of
@@ -1860,7 +1860,7 @@ and the player:
 show them. Keep the `print` lines: the export gate asserts on the rendered
 cell count.
 
-- [ ] **Step 2: Reduce main.gd to a boot shim**
+- [x] **Step 2: Reduce main.gd to a boot shim**
 
 For this task only, `main.gd` keeps booting straight into a world:
 
@@ -1902,7 +1902,7 @@ func _physics_process(delta: float) -> void:
 		_world.tick_animals(delta)
 ```
 
-- [ ] **Step 3: Run the tests, the guard and the smoke test**
+- [x] **Step 3: Run the tests, the guard and the smoke test**
 
 Run:
 ```bash
@@ -1913,20 +1913,20 @@ Run:
 Expected: all three pass. The smoke test still exercises the data layer
 directly and is unaffected; Task 17 extends it.
 
-- [ ] **Step 4: Look at it**
+- [x] **Step 4: Look at it**
 
 Run: `./tools/godot.sh --headless --path . -s tools/screenshot.gd`
 Expected: a PNG showing the zone and the player, indistinguishable from before
 the extraction. Open it and confirm.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/presentation/world.gd src/presentation/main.gd
 git commit -m "refactor: extract World from main.gd, built from a session result"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 12 --plan docs/superpowers/plans/2026-09-12-rp1-phase5-game-loop.md
