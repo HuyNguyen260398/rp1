@@ -21,6 +21,7 @@ var _main_menu: MainMenu = null
 var _pause_menu: PauseMenu = null
 var _confirm: ConfirmPanel = null
 var _audio_director: AudioDirector = null
+var _settings: Settings = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -45,6 +46,10 @@ func _ready() -> void:
 	_audio_director.rng = RandomNumberGenerator.new()
 	_audio_director.rng.randomize()
 	_audio_director.configure(_registry)
+
+	_settings = Settings.load_from()
+	_audio_director.set_master_volume(_settings.master_volume)
+	_audio_director.set_muted(_settings.muted)
 
 	_session = GameSession.new()
 
@@ -75,6 +80,9 @@ func _ready() -> void:
 	_pause_menu.quit_to_menu_requested.connect(_on_quit_to_menu)
 	_pause_menu.quit_to_desktop_requested.connect(_save_and_quit)
 	_ui.add_child(_pause_menu)
+	_pause_menu.volume_changed.connect(_on_volume_changed)
+	_pause_menu.mute_toggled.connect(_on_mute_toggled)
+	_pause_menu.show_settings(_settings.master_volume, _settings.muted)
 
 	_confirm = ConfirmPanel.new()
 	_confirm.name = "ConfirmPanel"
@@ -218,11 +226,33 @@ func _on_quit_to_menu() -> void:
 	_show_main_menu()
 
 
+func _on_volume_changed(value: float) -> void:
+	# Applied immediately so the slider is audible while dragging;
+	# written on un-pause, because writing per drag event is a file write
+	# per pixel of travel.
+	_settings.master_volume = value
+	_audio_director.set_master_volume(value)
+
+
+func _on_mute_toggled(muted: bool) -> void:
+	_settings.muted = muted
+	_audio_director.set_muted(muted)
+
+
+func _save_settings() -> void:
+	var err: String = _settings.save_to()
+	if err != "":
+		push_error("settings: %s" % err)
+
+
 func _set_paused(paused: bool) -> void:
 	get_tree().paused = paused
 	_pause_menu.visible = paused
 	if paused:
+		_pause_menu.show_settings(_settings.master_volume, _settings.muted)
 		_pause_menu.focus_first()
+	else:
+		_save_settings()
 
 
 # --- loop -------------------------------------------------------------
@@ -264,6 +294,7 @@ func _save_and_quit() -> void:
 
 	var errors: PackedStringArray = _session.save_now(_registry, "quit")
 	if errors.is_empty() or _quit_was_refused:
+		_save_settings()
 		get_tree().quit()
 		return
 

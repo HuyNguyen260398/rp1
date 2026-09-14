@@ -40,3 +40,13 @@ func test_build_returns_a_theme_with_the_controls_the_menus_use() -> void:
 	assert_true(theme.has_stylebox("panel", "PanelContainer"))
 	assert_true(theme.has_color("font_color", "Button"))
 	assert_true(theme.has_color("font_disabled_color", "Button"))
+
+
+func test_the_theme_styles_the_settings_controls() -> void:
+	# The palette rule has no other enforcement for a control the menus
+	# start using: check_palette.sh cannot see a Color, so an unstyled
+	# HSlider would ship Godot's default grey and nothing would fail.
+	var theme: Theme = UiTheme.build()
+	assert_true(theme.has_stylebox("slider", "HSlider"))
+	assert_true(theme.has_stylebox("grabber_area", "HSlider"))
+	assert_true(theme.has_color("font_color", "CheckButton"))

@@ -62,4 +62,14 @@ static func build() -> Theme:
 
 	theme.set_stylebox("panel", "PanelContainer", _box(PANEL, BORDER))
 	theme.set_color("font_color", "Label", TEXT)
+
+	# A slider's track and its filled portion. ACCENT for the filled part
+	# so the level reads at a glance in a dim menu.
+	theme.set_stylebox("slider", "HSlider", _box(BACKGROUND, BORDER))
+	theme.set_stylebox("grabber_area", "HSlider", _box(ACCENT, ACCENT))
+	theme.set_stylebox("grabber_area_highlight", "HSlider", _box(ACCENT, TEXT))
+
+	theme.set_color("font_color", "CheckButton", TEXT)
+	theme.set_color("font_hover_color", "CheckButton", ACCENT)
+	theme.set_color("font_focus_color", "CheckButton", TEXT)
 	return theme
