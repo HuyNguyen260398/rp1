@@ -22,6 +22,7 @@ var _pause_menu: PauseMenu = null
 var _confirm: ConfirmPanel = null
 var _audio_director: AudioDirector = null
 var _settings: Settings = null
+var _save_indicator: SaveIndicator = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -83,6 +84,10 @@ func _ready() -> void:
 	_pause_menu.volume_changed.connect(_on_volume_changed)
 	_pause_menu.mute_toggled.connect(_on_mute_toggled)
 	_pause_menu.show_settings(_settings.master_volume, _settings.muted)
+
+	_save_indicator = SaveIndicator.new()
+	_save_indicator.name = "SaveIndicator"
+	_ui.add_child(_save_indicator)
 
 	_confirm = ConfirmPanel.new()
 	_confirm.name = "ConfirmPanel"
@@ -265,7 +270,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_world.tick_animals(delta)
 	_world.tick_audio(_audio_director)
-	_session.tick(delta, _registry)
+	if _session.tick(delta, _registry):
+		_save_indicator.flash()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -283,8 +289,15 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_and_quit()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT and _world != null:
-		for e: String in _session.save_if_gap_elapsed(_registry, "focus_lost"):
+		# Asked before the save, not after: save_if_gap_elapsed returns an
+		# empty array both when it saved and when it declined, so without
+		# this every alt-tab would report a save that never happened.
+		var due: bool = _session.save_gap_elapsed()
+		var errors: PackedStringArray = _session.save_if_gap_elapsed(_registry, "focus_lost")
+		for e: String in errors:
 			push_error("focus-loss save failed: %s" % e)
+		if due and errors.is_empty():
+			_save_indicator.flash()
 
 
 func _save_and_quit() -> void:

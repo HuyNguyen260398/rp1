@@ -138,6 +138,14 @@ func tick(delta: float, registry: ContentRegistry) -> bool:
 	return true
 
 
+## Whether save_if_gap_elapsed would actually write, asked before it is
+## called. It returns an empty array both on success and when it declines,
+## so a caller that must tell the two apart -- the save indicator -- has
+## no other way to know.
+func save_gap_elapsed() -> bool:
+	return zone != null and _since_any_save >= MIN_SAVE_GAP
+
+
 ## Saves unless one ran within MIN_SAVE_GAP. Returns whatever save_now
 ## would have returned, or an empty array when it declined to save.
 func save_if_gap_elapsed(registry: ContentRegistry, reason: String) -> PackedStringArray:
