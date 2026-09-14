@@ -1,0 +1,8 @@
+{
+  "category": "sound",
+  "required": {
+    "id": "String", "category": "String", "display_name": "String",
+    "streams": "Array"
+  },
+  "optional": {"gain_db": "float", "loop": "bool", "tags": "Array"}
+}

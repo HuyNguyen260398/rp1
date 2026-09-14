@@ -100,3 +100,17 @@ func test_registering_the_same_placeholder_twice_returns_the_same_id() -> void:
 func test_real_content_is_not_a_placeholder() -> void:
 	var _e: PackedStringArray = _r.load_from_dir("res://data")
 	assert_false(_r.is_placeholder(_r.numeric_of("grass")))
+
+
+func test_sound_is_the_last_category() -> void:
+	# Appended, not inserted: load_from_dir assigns numeric ids in
+	# category order, so inserting would renumber every creature and
+	# object in the build.
+	assert_eq(ContentRegistry.CATEGORIES[ContentRegistry.CATEGORIES.size() - 1], "sound")
+
+
+func test_the_real_content_loads_without_errors() -> void:
+	var r: ContentRegistry = ContentRegistry.new()
+	var errors: PackedStringArray = r.load_from_dir("res://data")
+	assert_eq(errors.size(), 0, "\n".join(errors))
+	assert_true(r.has_string("grass"))
