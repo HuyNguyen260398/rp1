@@ -16,6 +16,9 @@ var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _registry: ContentRegistry = null
 var _step_accumulator: float = 0.0
 
+## sound_id -> the variation index played last, so the next one differs.
+var _last_variation: Dictionary = {}
+
 
 ## Resolves sound ids against content. Called once per world.
 func configure(p_registry: ContentRegistry) -> void:
@@ -59,4 +62,20 @@ func _cue_for(sound_id: String) -> AudioCue:
 	var streams: Array = def.get("streams", [])
 	if streams.is_empty():
 		return null
-	return AudioCue.make(sound_id, 0, float(def.get("gain_db", 0.0)))
+
+	var variation: int = _pick_variation(sound_id, streams.size())
+	return AudioCue.make(sound_id, variation, float(def.get("gain_db", 0.0)))
+
+
+## Uniform over every variation except the one just played. Picking from a
+## range one smaller and then stepping over the previous index is uniform
+## and terminates; rejecting and retrying is neither.
+func _pick_variation(sound_id: String, count: int) -> int:
+	if count <= 1:
+		return 0
+	var previous: int = int(_last_variation.get(sound_id, -1))
+	var index: int = rng.randi_range(0, count - 2)
+	if previous >= 0 and index >= previous:
+		index += 1
+	_last_variation[sound_id] = index
+	return index

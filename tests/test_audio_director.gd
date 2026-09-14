@@ -60,3 +60,68 @@ func test_the_cue_names_the_terrains_sound() -> void:
 	var cues: Array[AudioCue] = _director.tick(AudioDirector.STEP_DISTANCE, _grass)
 	assert_eq(cues.size(), 1)
 	assert_eq(cues[0].sound_id, "step_grass")
+
+
+func _step() -> AudioCue:
+	var cues: Array[AudioCue] = _director.tick(AudioDirector.STEP_DISTANCE, _grass)
+	assert_eq(cues.size(), 1)
+	return cues[0]
+
+
+func test_a_variation_is_never_repeated_consecutively() -> void:
+	var previous: int = -1
+	for i: int in range(40):
+		var cue: AudioCue = _step()
+		assert_ne(cue.variation, previous, "variation repeated on step %d" % i)
+		previous = cue.variation
+
+
+func test_every_variation_is_reachable() -> void:
+	# A skip-the-last-index rule implemented off by one would quietly
+	# never play the last sample in the list.
+	var seen: Dictionary = {}
+	for i: int in range(60):
+		seen[_step().variation] = true
+	assert_eq(seen.size(), 3)
+
+
+func test_a_single_variation_sound_repeats_rather_than_going_silent() -> void:
+	var r: ContentRegistry = ContentRegistry.new()
+	var terrain: int = r.register({
+		"id": "sand", "category": "terrain", "display_name": "Sand",
+		"sprite": "res://assets/tiles/sand.png", "walkable": true,
+		"footstep": "step_sand",
+	})
+	var _s: int = r.register({
+		"id": "step_sand", "category": "sound", "display_name": "Sand footstep",
+		"streams": ["only.ogg"],
+	})
+	var d: AudioDirector = AudioDirector.new()
+	d.configure(r)
+	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, terrain)[0].variation, 0)
+	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, terrain)[0].variation, 0)
+
+
+func test_a_terrain_without_a_footstep_is_silent() -> void:
+	var r: ContentRegistry = ContentRegistry.new()
+	var water: int = r.register({
+		"id": "water", "category": "terrain", "display_name": "Water",
+		"sprite": "res://assets/tiles/water.png", "walkable": false,
+	})
+	var d: AudioDirector = AudioDirector.new()
+	d.configure(r)
+	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, water).size(), 0)
+
+
+func test_a_footstep_naming_content_this_build_lacks_is_silent() -> void:
+	# The save-layer placeholder rule, applied to audio: content named but
+	# missing is silence, never a crash and never an engine error.
+	var r: ContentRegistry = ContentRegistry.new()
+	var terrain: int = r.register({
+		"id": "moss", "category": "terrain", "display_name": "Moss",
+		"sprite": "res://assets/tiles/moss.png", "walkable": true,
+		"footstep": "step_moss_that_was_deleted",
+	})
+	var d: AudioDirector = AudioDirector.new()
+	d.configure(r)
+	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, terrain).size(), 0)
