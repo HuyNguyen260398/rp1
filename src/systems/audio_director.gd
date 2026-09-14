@@ -19,6 +19,12 @@ var _step_accumulator: float = 0.0
 ## sound_id -> the variation index played last, so the next one differs.
 var _last_variation: Dictionary = {}
 
+var _zone_id: String = ""
+var _bed_sound_id: String = ""
+var _bed_cue: AudioCue = null
+var _master_volume: float = 0.8
+var _muted: bool = false
+
 
 ## Resolves sound ids against content. Called once per world.
 func configure(p_registry: ContentRegistry) -> void:
@@ -30,7 +36,7 @@ func configure(p_registry: ContentRegistry) -> void:
 ## never more than one footstep: a frame spike must not machine-gun.
 func tick(distance_moved: float, terrain_id: int) -> Array[AudioCue]:
 	var cues: Array[AudioCue] = []
-	if _registry == null:
+	if _registry == null or _muted:
 		return cues
 
 	_step_accumulator += distance_moved
@@ -64,7 +70,8 @@ func _cue_for(sound_id: String) -> AudioCue:
 		return null
 
 	var variation: int = _pick_variation(sound_id, streams.size())
-	return AudioCue.make(sound_id, variation, float(def.get("gain_db", 0.0)))
+	var gain_db: float = float(def.get("gain_db", 0.0)) + linear_to_db(_master_volume)
+	return AudioCue.make(sound_id, variation, gain_db)
 
 
 ## Uniform over every variation except the one just played. Picking from a
@@ -79,3 +86,48 @@ func _pick_variation(sound_id: String, count: int) -> int:
 		index += 1
 	_last_variation[sound_id] = index
 	return index
+
+
+## Sets the bed for the zone being entered. "" is a valid ambient id and
+## means silence, which is how a zone opts out rather than by omission.
+## Idempotent: re-entering the zone already playing changes nothing.
+func enter_zone(zone_id: String, ambient_sound_id: String) -> void:
+	if zone_id == _zone_id and ambient_sound_id == _bed_sound_id:
+		return
+	_zone_id = zone_id
+	_bed_sound_id = ambient_sound_id
+	_rebuild_bed()
+
+
+## The bed that should be playing, as a cue, or null for silence.
+func bed() -> AudioCue:
+	if _muted:
+		return null
+	return _bed_cue
+
+
+func set_master_volume(v: float) -> void:
+	_master_volume = clampf(v, 0.0, 1.0)
+	_rebuild_bed()
+
+
+func master_volume() -> float:
+	return _master_volume
+
+
+func set_muted(m: bool) -> void:
+	_muted = m
+
+
+func is_muted() -> bool:
+	return _muted
+
+
+## The bed cue is rebuilt rather than recomputed per call, so that
+## re-entering a zone can be detected as "the same cue object" and the
+## stage has a cheap identity check for "is this still the same bed".
+func _rebuild_bed() -> void:
+	if _registry == null or _bed_sound_id == "":
+		_bed_cue = null
+		return
+	_bed_cue = _cue_for(_bed_sound_id)

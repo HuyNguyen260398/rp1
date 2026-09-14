@@ -125,3 +125,86 @@ func test_a_footstep_naming_content_this_build_lacks_is_silent() -> void:
 	var d: AudioDirector = AudioDirector.new()
 	d.configure(r)
 	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, terrain).size(), 0)
+
+
+func _with_bed() -> AudioDirector:
+	var _s: int = _registry.register({
+		"id": "bed_meadow", "category": "sound", "display_name": "Meadow",
+		"streams": ["meadow.ogg"], "gain_db": -18.0, "loop": true,
+	})
+	_director.enter_zone("home", "bed_meadow")
+	return _director
+
+
+func test_no_bed_before_a_zone_is_entered() -> void:
+	assert_null(_director.bed())
+
+
+func test_entering_a_zone_sets_its_bed() -> void:
+	var cue: AudioCue = _with_bed().bed()
+	assert_not_null(cue)
+	assert_eq(cue.sound_id, "bed_meadow")
+
+
+func test_a_zone_with_no_ambient_is_silent() -> void:
+	_director.enter_zone("home", "")
+	assert_null(_director.bed())
+
+
+func test_re_entering_the_same_zone_leaves_the_bed_alone() -> void:
+	# Quit to Menu and Continue re-enters the same zone. Restarting the
+	# bed there is audible and wrong.
+	var first: AudioCue = _with_bed().bed()
+	_director.enter_zone("home", "bed_meadow")
+	assert_same(first, _director.bed(), "the bed cue was rebuilt")
+
+
+func test_entering_a_different_zone_replaces_the_bed() -> void:
+	var first: AudioCue = _with_bed().bed()
+	var _s: int = _registry.register({
+		"id": "bed_cave", "category": "sound", "display_name": "Cave",
+		"streams": ["cave.ogg"], "loop": true,
+	})
+	_director.enter_zone("caves", "bed_cave")
+	assert_ne(first, _director.bed())
+	assert_eq(_director.bed().sound_id, "bed_cave")
+
+
+func test_master_volume_folds_into_every_cue() -> void:
+	# -6 dB authored, halved again by a 0.5 master: the stage never does
+	# this sum, so this is the only place it can be wrong.
+	_director.set_master_volume(0.5)
+	assert_almost_eq(_step().gain_db, -6.0 + linear_to_db(0.5), 0.01)
+
+
+func test_full_volume_leaves_the_authored_gain_alone() -> void:
+	_director.set_master_volume(1.0)
+	assert_almost_eq(_step().gain_db, -6.0, 0.01)
+
+
+func test_master_volume_is_clamped() -> void:
+	_director.set_master_volume(4.0)
+	assert_almost_eq(_director.master_volume(), 1.0, 0.001)
+	_director.set_master_volume(-1.0)
+	assert_almost_eq(_director.master_volume(), 0.0, 0.001)
+
+
+func test_the_bed_carries_master_volume_too() -> void:
+	var d: AudioDirector = _with_bed()
+	d.set_master_volume(0.5)
+	assert_almost_eq(d.bed().gain_db, -18.0 + linear_to_db(0.5), 0.01)
+
+
+func test_mute_silences_footsteps_and_the_bed() -> void:
+	var d: AudioDirector = _with_bed()
+	d.set_muted(true)
+	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, _grass).size(), 0)
+	assert_null(d.bed())
+
+
+func test_unmuting_restores_the_bed_without_re_entering_the_zone() -> void:
+	var d: AudioDirector = _with_bed()
+	d.set_muted(true)
+	d.set_muted(false)
+	assert_not_null(d.bed())
+	assert_eq(d.bed().sound_id, "bed_meadow")
