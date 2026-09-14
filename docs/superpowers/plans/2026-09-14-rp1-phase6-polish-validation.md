@@ -512,7 +512,7 @@ taste alone.
   `gain_db: float`; and `AudioDirector.tick(distance_moved: float,
   terrain_id: int) -> Array[AudioCue]`, which returns at most one cue.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_audio_director.gd`:
 
@@ -581,13 +581,13 @@ func test_the_cue_names_the_terrains_sound() -> void:
 	assert_eq(cues[0].sound_id, "step_grass")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — GUT cannot resolve the `AudioDirector` and `AudioCue`
 class names.
 
-- [ ] **Step 3: Write AudioCue**
+- [x] **Step 3: Write AudioCue**
 
 Create `src/systems/audio_cue.gd`:
 
@@ -618,7 +618,7 @@ static func make(p_sound_id: String, p_variation: int, p_gain_db: float) -> Audi
 	return c
 ```
 
-- [ ] **Step 4: Write the director's cadence**
+- [x] **Step 4: Write the director's cadence**
 
 Create `src/systems/audio_director.gd`:
 
@@ -687,25 +687,25 @@ func _cue_for(sound_id: String) -> AudioCue:
 	return AudioCue.make(sound_id, 0, float(def.get("gain_db", 0.0)))
 ```
 
-- [ ] **Step 5: Run the tests and watch them pass**
+- [x] **Step 5: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 6: Check the architecture guard**
+- [x] **Step 6: Check the architecture guard**
 
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: `Architecture guard: clean`. The director is in `src/systems/`, so
 a stray `Node` reference fails here rather than in review.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/systems/audio_cue.gd src/systems/audio_director.gd tests/test_audio_director.gd
 git commit -m "feat: footsteps paced by distance travelled"
 ```
 
-- [ ] **Step 8: Tick the plan**
+- [x] **Step 8: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
