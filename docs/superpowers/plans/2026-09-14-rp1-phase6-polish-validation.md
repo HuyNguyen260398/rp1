@@ -2265,7 +2265,7 @@ findings have somewhere to go.
 **Files:**
 - Create: `docs/playtests/YYYY-MM-DD-phase6-playtest.md`, dated the day you run it
 
-- [ ] **Step 1: Write the script**
+- [x] **Step 1: Write the script**
 
 Model it on `docs/playtests/2026-09-14-phase5-playtest.md`: what is already
 covered mechanically, then the sessions that need a person. For Phase 6 the
@@ -2285,14 +2285,14 @@ sessions are:
 
 Each entry names what would make it a failure, not just what to look at.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add docs/playtests
 git commit -m "docs: a Phase 6 playtest script"
 ```
 
-- [ ] **Step 3: Tick the plan**
+- [x] **Step 3: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 12 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
