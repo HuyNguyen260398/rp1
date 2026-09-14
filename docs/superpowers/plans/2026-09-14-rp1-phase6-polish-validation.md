@@ -316,7 +316,7 @@ absent so that saves written before this phase still load.
 - Produces: `Zone.ambient: String` — a sound id, `""` for a silent zone.
   Read by `AudioDirector.enter_zone` in Task 5 and by the router in Task 9.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `tests/test_zone_schema.gd`:
 
@@ -375,13 +375,13 @@ func test_a_zone_meta_without_ambient_loads_silent() -> void:
 	assert_eq((back.value as Zone).ambient, "")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `ambient` is not a known field on `Zone`, and the schema
 rejects it as an unknown field on a zone document.
 
-- [ ] **Step 3: Widen the two schemas**
+- [x] **Step 3: Widen the two schemas**
 
 `data/schema/terrain.json` — add to `optional`:
 
@@ -398,7 +398,7 @@ rejects it as an unknown field on a zone document.
   }
 ```
 
-- [ ] **Step 4: Carry `ambient` through the zone**
+- [x] **Step 4: Carry `ambient` through the zone**
 
 In `src/core/zone.gd`, beside `biome`:
 
@@ -426,7 +426,7 @@ and beside the `biome` read (`:144`):
 	zone.ambient = str(meta.get("ambient", ""))
 ```
 
-- [ ] **Step 5: Author the content**
+- [x] **Step 5: Author the content**
 
 `data/zone/home/zone.json` — add at the top level, beside `"biome"`:
 
@@ -456,7 +456,7 @@ The sounds these name do not exist until Task 8. That is deliberate and
 harmless: the registry validates fields, not file paths, and `AudioDirector`
 treats a sound it cannot resolve as silence (Task 4).
 
-- [ ] **Step 6: Run the tests and watch them pass**
+- [x] **Step 6: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
@@ -468,7 +468,7 @@ Then confirm the content gate is still happy with the widened schemas:
 ```
 Expected: `Zone gate: OK (1 zone(s))`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add data/schema src/core/zone.gd src/core/zone_loader.gd \
@@ -477,7 +477,7 @@ git add data/schema src/core/zone.gd src/core/zone_loader.gd \
 git commit -m "feat: terrain and zones name their sounds"
 ```
 
-- [ ] **Step 8: Tick the plan**
+- [x] **Step 8: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
