@@ -75,7 +75,8 @@ func enter_zone(zone_id: String, ambient_sound_id: String) -> void
 
 ## The whole per-frame rule. `distance_moved` is what the player actually
 ## travelled after collision resolution; `terrain_id` is the tile under
-## their feet. Returns the cues to play this frame, usually empty.
+## their feet. Returns the cues to play this frame, usually empty. At most
+## one footstep per call, so a long frame cannot fire a burst.
 func tick(distance_moved: float, terrain_id: int) -> Array[AudioCue]
 
 func set_master_volume(v: float) -> void   ## 0.0-1.0
@@ -113,9 +114,10 @@ player, and hands the cues to `AudioStage`. That is the entire wiring.
 
 ## 3. Footsteps are driven by distance, not by a timer
 
-`player.gd` already computes `moved`, the distance travelled *after*
-`MovementSystem` has resolved collision. The director accumulates it and emits
-a step every `STEP_DISTANCE` tiles.
+`player.gd` already computes `moved`, the *resolved position* after
+`MovementSystem` has applied collision — so the distance actually travelled is
+`pos.distance_to(moved)`, one line at a call site that already exists. The
+director accumulates that and emits a step every `STEP_DISTANCE` tiles.
 
 **Start at 1.6 tiles**, then tune by ear in §7. The arithmetic matters more
 than the figure: the player's `speed` is 4.5 tiles per second, so 1.6 tiles is
