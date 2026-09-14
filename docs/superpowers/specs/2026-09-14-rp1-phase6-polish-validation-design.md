@@ -70,7 +70,7 @@ func configure(registry: ContentRegistry) -> void
 ## Sets the bed for the zone being entered. "" is a valid ambient id and
 ## means silence, which is how a zone opts out rather than by omission.
 ## Idempotent: entering the zone already playing changes nothing, so a
-## Quit to Menu and Continue does not restart the bed mid-breath.
+## repeated call cannot restart the bed mid-breath.
 func enter_zone(zone_id: String, ambient_sound_id: String) -> void
 
 ## The whole per-frame rule. `distance_moved` is what the player actually
@@ -96,6 +96,13 @@ otherwise master volume would have to be applied to it somewhere else.
 **Muting emits nothing.** `tick()` returns an empty array and `bed()` returns
 `null`, rather than everything playing at -80 dB. Silence is then a policy
 decision a test can assert, and a muted game does no audio work at all.
+
+**The bed belongs to the world, not to the session.** `AudioStage` is a child
+of `World` and is freed with it, so returning to the main menu stops the
+ambience and Continue starts it again. The router must therefore reset the
+director on the way out (`enter_zone("", "")`), or the next Continue takes the
+idempotent path and hands the new stage no bed at all. Idempotence guards
+against a repeated `enter_zone`; the reset guards against a stale one.
 
 ### 2.2 AudioStage
 
