@@ -137,6 +137,24 @@ func _init() -> void:
 	var opened: SessionOpenResult = session.open_new("res://data/zone/home", registry)
 	_check(opened.ok, "opening a new world failed: %s" % opened.error)
 	if opened.ok:
+		# --- audio -------------------------------------------------------
+		# Driven from the authored zone rather than the synthetic one
+		# above: this is the only zone in the build with real terrain
+		# under the player and an ambient bed to name. AudioStage is not
+		# exercised -- it needs a scene tree and an audio device, and CI
+		# has neither. That is the line between the two halves.
+		var director: AudioDirector = AudioDirector.new()
+		director.configure(registry)
+		director.enter_zone(opened.zone.id, opened.zone.ambient)
+		var spawn_tile: Vector2i = Vector2i(
+			floori(opened.player_spawn.x), floori(opened.player_spawn.y))
+		var cues: int = 0
+		for i: int in range(100):
+			cues += director.tick(
+				AudioDirector.STEP_DISTANCE, opened.zone.get_terrain(spawn_tile)).size()
+		print("RP1 audio: %d cues over 100 steps, bed %s"
+			% [cues, "yes" if director.bed() != null else "no"])
+
 		var pid: int = opened.zone.entities.spawn(
 			registry.numeric_of("player"), opened.player_spawn)
 		session.adopt_player(pid)

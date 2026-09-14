@@ -20,6 +20,7 @@ var _ui: CanvasLayer = null
 var _main_menu: MainMenu = null
 var _pause_menu: PauseMenu = null
 var _confirm: ConfirmPanel = null
+var _audio_director: AudioDirector = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -39,6 +40,11 @@ func _ready() -> void:
 	for e: String in _registry.load_from_dir("res://data"):
 		push_error("content failed to load: %s" % e)
 	print("RP1 booted with %d content definitions" % _registry.all_string_ids().size())
+
+	_audio_director = AudioDirector.new()
+	_audio_director.rng = RandomNumberGenerator.new()
+	_audio_director.rng.randomize()
+	_audio_director.configure(_registry)
 
 	_session = GameSession.new()
 
@@ -183,6 +189,8 @@ func _enter_world(result: SessionOpenResult) -> void:
 	for e: String in _world.build(_registry, result):
 		push_error(e)
 
+	_audio_director.enter_zone(result.zone.id, result.zone.ambient)
+
 	_session.adopt_player(_world.player_entity_id)
 	_main_menu.visible = false
 	_set_paused(false)
@@ -197,6 +205,13 @@ func _on_quit_to_menu() -> void:
 		return
 
 	_set_paused(false)
+	# The AudioStage is a child of World and dies with it, so the bed
+	# stops here whatever the director thinks. Telling the director that
+	# too is not tidiness: without it, Continue would re-enter the zone it
+	# believes is already playing, take the idempotent path, and hand the
+	# fresh AudioStage no bed at all -- a silent world until the next zone
+	# change, which in Stage 1 never comes.
+	_audio_director.enter_zone("", "")
 	_world.queue_free()
 	_world = null
 	_session.close()
@@ -219,6 +234,7 @@ func _physics_process(delta: float) -> void:
 	if _world == null or get_tree().paused:
 		return
 	_world.tick_animals(delta)
+	_world.tick_audio(_audio_director)
 	_session.tick(delta, _registry)
 
 
