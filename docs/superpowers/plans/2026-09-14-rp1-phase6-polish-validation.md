@@ -1121,7 +1121,7 @@ a version field plus a strict parser would otherwise introduce.
   and the fields `master_volume: float`, `muted: bool`,
   `controls_hint_shown: bool`. Consumed by the router in Task 9.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_settings.gd`:
 
@@ -1212,12 +1212,12 @@ func test_the_file_is_human_readable() -> void:
 	assert_string_contains(text, "master_volume")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — GUT cannot resolve the `Settings` class name.
 
-- [ ] **Step 3: Write Settings**
+- [x] **Step 3: Write Settings**
 
 Create `src/core/settings.gd`:
 
@@ -1273,12 +1273,12 @@ func save_to(path: String = DEFAULT_PATH) -> String:
 	return SaveManager.atomic_write(path, JSON.stringify(doc, "  ", true).to_utf8_buffer())
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 5: Confirm no test touched the real settings file**
+- [x] **Step 5: Confirm no test touched the real settings file**
 
 ```bash
 ls ~/"Library/Application Support/Godot/app_userdata/RP1/settings.json" 2>/dev/null \
@@ -1286,14 +1286,14 @@ ls ~/"Library/Application Support/Godot/app_userdata/RP1/settings.json" 2>/dev/n
 ```
 Expected: `clean`. Every test in this task uses `user://test_settings/`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/core/settings.gd tests/test_settings.gd
 git commit -m "feat: settings that outlive the world save"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
