@@ -153,7 +153,7 @@ pins that.
   `ContentRegistry.def_of(numeric_id) -> Dictionary`. A sound def is
   `{id, category, display_name, streams: Array, gain_db: float, loop: bool}`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_sound_schema.gd`:
 
@@ -236,14 +236,14 @@ func test_the_real_content_loads_without_errors() -> void:
 	assert_true(r.has_string("grass"))
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `res://data/schema/sound.json` does not exist, so
 `FileAccess.get_file_as_string` returns `""` and the parse assert fails; and
 `CATEGORIES` has three entries, the last of which is `"creature"`.
 
-- [ ] **Step 3: Write the schema**
+- [x] **Step 3: Write the schema**
 
 Create `data/schema/sound.json`:
 
@@ -258,7 +258,7 @@ Create `data/schema/sound.json`:
 }
 ```
 
-- [ ] **Step 4: Append the category**
+- [x] **Step 4: Append the category**
 
 In `src/core/content_registry.gd:10`:
 
@@ -269,12 +269,12 @@ const CATEGORIES: PackedStringArray = ["terrain", "object", "creature", "sound"]
 `load_from_dir` already skips a category whose directory is absent, so the
 build stays green until Task 8 adds `data/sound/`.
 
-- [ ] **Step 5: Run the tests and watch them pass**
+- [x] **Step 5: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, and the total rises by the six new cases.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add data/schema/sound.json tests/test_sound_schema.gd \
@@ -282,7 +282,7 @@ git add data/schema/sound.json tests/test_sound_schema.gd \
 git commit -m "feat: sound becomes the fourth content category"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
