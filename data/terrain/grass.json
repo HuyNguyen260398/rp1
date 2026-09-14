@@ -1,2 +1,3 @@
 {"id": "grass", "category": "terrain", "display_name": "Grass",
- "sprite": "res://assets/tiles/grass.png", "walkable": true, "tags": ["natural"]}
+ "sprite": "res://assets/tiles/grass.png", "walkable": true,
+ "footstep": "step_grass", "tags": ["natural"]}

@@ -4,6 +4,7 @@
   "display_name": "Home Valley",
   "size": [128, 128],
   "biome": "temperate",
+  "ambient": "bed_meadow",
   "generation_seed": 20260911,
   "maps": {
     "terrain": "terrain.png",

@@ -314,3 +314,37 @@ func test_loading_from_the_backup_returns_the_previous_entities() -> void:
 	assert_true(backup.ok, backup.error)
 	assert_eq((live.value as Zone).entities.get_position(id), Vector2(99.5, 99.5))
 	assert_eq((backup.value as Zone).entities.get_position(id), Vector2(10.5, 10.5))
+
+
+func test_ambient_round_trips_through_zone_meta() -> void:
+	var zone: Zone = _zone()
+	zone.ambient = "bed_meadow"
+	var errors: PackedStringArray = SaveManager.save_zone(
+		_root, zone, _registry, true)
+	assert_eq(errors.size(), 0, "\n".join(errors))
+
+	var back: DecodeResult = SaveManager.load_zone(_root, zone.id, _registry)
+	assert_true(back.ok, back.error)
+	assert_eq((back.value as Zone).ambient, "bed_meadow")
+
+
+func test_a_zone_meta_without_ambient_loads_silent() -> void:
+	# Every save written before Phase 6 has no ambient key. It must load
+	# as a silent zone rather than as a failure.
+	var zone: Zone = _zone()
+	var errors: PackedStringArray = SaveManager.save_zone(
+		_root, zone, _registry, true)
+	assert_eq(errors.size(), 0, "\n".join(errors))
+
+	var meta_path: String = _root.path_join("zones/%s/zone_meta.json" % zone.id)
+	var json: JSON = JSON.new()
+	assert_eq(json.parse(FileAccess.get_file_as_string(meta_path)), OK)
+	var doc: Dictionary = json.data as Dictionary
+	doc.erase("ambient")
+	var f: FileAccess = FileAccess.open(meta_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(doc, "  ", true))
+	f.close()
+
+	var back: DecodeResult = SaveManager.load_zone(_root, zone.id, _registry)
+	assert_true(back.ok, back.error)
+	assert_eq((back.value as Zone).ambient, "")
