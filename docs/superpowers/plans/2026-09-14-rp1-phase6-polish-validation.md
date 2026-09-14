@@ -895,7 +895,7 @@ policy decision a test can assert, and a muted game does no audio work.
   `master_volume() -> float`. Consumed by the router in Task 9 and the pause
   menu in Task 10.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `tests/test_audio_director.gd`:
 
@@ -983,13 +983,13 @@ func test_unmuting_restores_the_bed_without_re_entering_the_zone() -> void:
 	assert_eq(d.bed().sound_id, "bed_meadow")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `enter_zone`, `bed`, `set_master_volume`, `master_volume`
 and `set_muted` are not known methods.
 
-- [ ] **Step 3: Implement the three rules**
+- [x] **Step 3: Implement the three rules**
 
 In `src/systems/audio_director.gd`, add the fields:
 
@@ -1069,7 +1069,7 @@ and make `tick` respect mute, as its first lines:
 > because Godot treats `-INF` as silent. Mute is still a separate rule: it
 > skips the work entirely rather than playing silence.
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
@@ -1079,14 +1079,14 @@ it fails if the cue is rebuilt even to an identical value. That is deliberate:
 identity is what the stage will use in Task 8 to decide whether to restart the
 bed player.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/audio_director.gd tests/test_audio_director.gd
 git commit -m "feat: the ambient bed, master volume and mute"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
