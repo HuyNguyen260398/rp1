@@ -23,6 +23,8 @@ var _confirm: ConfirmPanel = null
 var _audio_director: AudioDirector = null
 var _settings: Settings = null
 var _save_indicator: SaveIndicator = null
+var _title_card: TitleCard = null
+var _controls_hint: ControlsHint = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -73,6 +75,14 @@ func _ready() -> void:
 	_main_menu.continue_requested.connect(_on_continue_requested)
 	_main_menu.quit_requested.connect(_save_and_quit)
 	_ui.add_child(_main_menu)
+
+	_title_card = TitleCard.new()
+	_title_card.name = "TitleCard"
+	_ui.add_child(_title_card)
+
+	_controls_hint = ControlsHint.new()
+	_controls_hint.name = "ControlsHint"
+	_ui.add_child(_controls_hint)
 
 	_pause_menu = PauseMenu.new()
 	_pause_menu.name = "PauseMenu"
@@ -203,6 +213,14 @@ func _enter_world(result: SessionOpenResult) -> void:
 		push_error(e)
 
 	_audio_director.enter_zone(result.zone.id, result.zone.ambient)
+
+	_title_card.show_zone(result.zone.display_name)
+	# Written immediately rather than at un-pause: a player who sees the
+	# hint and then closes the window with the X has still seen it.
+	if not _settings.controls_hint_shown:
+		_controls_hint.show_once()
+		_settings.controls_hint_shown = true
+		_save_settings()
 
 	_session.adopt_player(_world.player_entity_id)
 	_main_menu.visible = false
