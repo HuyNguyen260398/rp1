@@ -62,6 +62,8 @@ written for Godot 3. Correct that once here rather than every session.
   the code, then a `docs:` commit ticking that task's checkboxes in the plan.
 - Tick plan checkboxes with `python3 tools/mark_task_done.py <task-number>`,
   never by hand — the plan files are long and it is easy to mark the wrong task.
+  Checkboxes outside a task, such as a plan's Definition of done, are ticked by
+  heading instead: `python3 tools/mark_task_done.py --section "Definition of done"`.
 
 ## Art
 
