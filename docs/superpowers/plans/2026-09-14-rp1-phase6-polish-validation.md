@@ -734,7 +734,7 @@ can.
 - Consumes: `AudioDirector.tick` and `AudioCue` from Task 3.
 - Produces: no new signatures. `AudioCue.variation` becomes meaningful.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `tests/test_audio_director.gd`:
 
@@ -804,13 +804,13 @@ func test_a_footstep_naming_content_this_build_lacks_is_silent() -> void:
 	assert_eq(d.tick(AudioDirector.STEP_DISTANCE, terrain).size(), 0)
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `test_a_variation_is_never_repeated_consecutively` fails on
 the second step, because `_cue_for` hardcodes variation 0.
 
-- [ ] **Step 3: Implement the rotation**
+- [x] **Step 3: Implement the rotation**
 
 In `src/systems/audio_director.gd`, add the field and replace `_cue_for`:
 
@@ -846,19 +846,19 @@ func _pick_variation(sound_id: String, count: int) -> int:
 	return index
 ```
 
-- [ ] **Step 4: Run the tests and watch them pass**
+- [x] **Step 4: Run the tests and watch them pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/audio_director.gd tests/test_audio_director.gd
 git commit -m "feat: footstep variations that never repeat back to back"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
