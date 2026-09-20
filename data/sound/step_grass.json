@@ -1,0 +1,5 @@
+{"id": "step_grass", "category": "sound", "display_name": "Grass footstep",
+ "streams": ["res://assets/audio/step_grass_1.ogg",
+             "res://assets/audio/step_grass_2.ogg",
+             "res://assets/audio/step_grass_3.ogg"],
+ "gain_db": -6.0, "loop": false}

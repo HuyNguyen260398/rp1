@@ -1,0 +1,3 @@
+{"id": "bed_meadow", "category": "sound", "display_name": "Meadow ambience",
+ "streams": ["res://assets/audio/bed_meadow.ogg"],
+ "gain_db": -18.0, "loop": true}
