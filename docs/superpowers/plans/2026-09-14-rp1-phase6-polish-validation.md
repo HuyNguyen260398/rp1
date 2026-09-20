@@ -1334,7 +1334,7 @@ checked on the actual file, not the pack page.
 - Produces: the sound ids `step_grass`, `step_dirt`, `bed_meadow`, resolvable
   through `ContentRegistry`.
 
-- [ ] **Step 1: Source the audio, checking the licence on each file**
+- [x] **Step 1: Source the audio, checking the licence on each file**
 
 Every file must be **Ogg Vorbis** (`.ogg`). Convert if the source is WAV:
 
@@ -1346,7 +1346,7 @@ ffmpeg -i source.wav -c:a libvorbis -q:a 5 assets/audio/step_grass_1.ogg
 property that Task 8 sets from the content def, and because an uncompressed
 ambient bed is megabytes for no audible gain.
 
-- [ ] **Step 2: Write the licence file before the audio is committed**
+- [x] **Step 2: Write the licence file before the audio is committed**
 
 Create `assets/audio/LICENSE.txt`, following the form of
 `assets/tiles/LICENSE.txt`:
@@ -1364,13 +1364,13 @@ Licence: <CC0 1.0 | CC-BY 4.0>. <If CC-BY: ATTRIBUTION REQUIRED -- the
 Add the same pack to `assets/CREDITS.md` **now**, in the form the existing
 entries use. `CLAUDE.md`: record every pack at import time, not later.
 
-- [ ] **Step 3: Verify the licence gate**
+- [x] **Step 3: Verify the licence gate**
 
 Run: `./tools/check_asset_licences.sh`
 Expected: `Asset licences: OK`. It fails if `assets/audio/` has no
 `LICENSE.txt`, which is the point.
 
-- [ ] **Step 4: Write the content files**
+- [x] **Step 4: Write the content files**
 
 Create `data/sound/step_grass.json`:
 
@@ -1404,7 +1404,7 @@ The bed sits well below the footsteps. An ambient bed that competes with the
 foreground is the most common mixing mistake in a first pass, and `gain_db` is
 data precisely so this is a JSON edit in Task 14 and not a code change.
 
-- [ ] **Step 5: Import, and confirm the registry sees them**
+- [x] **Step 5: Import, and confirm the registry sees them**
 
 ```bash
 ./tools/godot.sh --headless --path . --import
@@ -1421,14 +1421,14 @@ Then confirm the paths resolve, which the schema cannot check:
 Expected: it prints the world without new errors. (A missing `.ogg` shows up
 as an engine error at load time, not as a validation failure.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add assets/audio assets/CREDITS.md data/sound
 git commit -m "feat: the first audio assets, licensed at import time"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
