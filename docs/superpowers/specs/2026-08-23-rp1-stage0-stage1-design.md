@@ -506,20 +506,33 @@ Phase 3b.)*
 
 ## 11. Acceptance criteria
 
-- [ ] Walk from any corner of the zone to any other with no collision bugs
-- [ ] Quit and relaunch: world, player position and facing, and all animal positions restored
-- [ ] A 128x128 zone's chunk payloads round-trip **byte-identical** through save and load
+- [x] Walk from any corner of the zone to any other with no collision bugs
+- [x] Quit and relaunch: world, player position and facing, and all animal positions restored
+- [x] A 128x128 zone's chunk payloads round-trip **byte-identical** through save and load
       (compare decompressed payloads, not raw file bytes -- compression need not be deterministic)
-- [ ] A full zone save completes in under 100 ms
-- [ ] A save written against an older `format_version` still loads, via a committed fixture
-- [ ] An unknown string ID loads as a placeholder and survives a resave with its original string intact
-- [ ] Zone loads in under 1 second
-- [ ] 60 FPS with all 16 chunks loaded
-- [ ] All five CI gates green
+- [x] A full zone save completes in under 100 ms
+- [x] A save written against an older `format_version` still loads, via a committed fixture
+- [x] An unknown string ID loads as a placeholder and survives a resave with its original string intact
+- [x] Zone loads in under 1 second
+- [x] 60 FPS with all 16 chunks loaded
+- [x] All five CI gates green
 - [ ] Exported build runs on a clean machine
-- [ ] **Adding a new tree type is one JSON file plus one PNG, with no code change**
+- [x] **Adding a new tree type is one JSON file plus one PNG, with no code change**
 
 The last criterion is the real test of whether the architecture worked.
+
+Walked 2026-09-21; the result of every line, with its evidence, is in
+`docs/playtests/2026-09-21-phase6-findings.md`. Two ticks carry caveats
+that the wording here hides:
+
+- **"All five CI gates"** predates gates 6 and 7. There are seven, and the
+  tick means all seven.
+- **"one JSON file plus one PNG"** is not literally what adding a tree
+  takes. You add a content JSON and a slice to `tools/import_manifest.json`;
+  the PNG is *generated*, because `check_palette.gd` rejects any asset the
+  manifest does not declare. Placing it costs a legend colour and pixels in
+  the zone's `object.png`. The tick is for the substance -- **no code
+  change**, proved by commit `abac715` -- not for the count.
 
 Note: the draft plan's "save file under 5 MB" criterion was removed. Sixteen ZSTD-compressed chunks total tens of kilobytes, so the criterion passes without conveying information; the byte-identical round-trip and 100 ms budget replace it with something that can actually fail.
 
