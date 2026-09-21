@@ -2312,7 +2312,7 @@ me" is not by itself sufficient to make something Stage 1 work.**
 - Create: `docs/playtests/YYYY-MM-DD-phase6-findings.md`, dated the day you run it
 - Modify: `IDEAS.md` (for everything triaged there)
 
-- [ ] **Step 1: Play for thirty minutes across several sittings**
+- [x] **Step 1: Play for thirty minutes across several sittings**
 
 Not one sitting. Quit and come back, because the things that annoy on the
 third return are different from the ones that annoy in the first ten minutes —
@@ -2322,7 +2322,7 @@ Write findings down **as they happen**, in a list. Do not fix anything yet:
 fixing while playing turns thirty minutes of play into three hours of
 debugging and one finding.
 
-- [ ] **Step 2: Triage every finding into exactly one bucket**
+- [x] **Step 2: Triage every finding into exactly one bucket**
 
 In the findings file:
 
@@ -2334,7 +2334,7 @@ In the findings file:
 
 A finding with no bucket is not triaged. The phase does not close with one.
 
-- [ ] **Step 3: Fix the fix-now bucket, TDD where there is a rule**
+- [x] **Step 3: Fix the fix-now bucket, TDD where there is a rule**
 
 Anything that is a rule — cadence, a threshold, a condition — gets a failing
 test first, in `tests/test_audio_director.gd` or wherever it belongs. Anything
@@ -2343,7 +2343,7 @@ putting the mix in data bought.
 
 Commit each fix separately, `fix:` prefixed, naming the finding.
 
-- [ ] **Step 4: Re-run everything**
+- [x] **Step 4: Re-run everything**
 
 ```bash
 ./tools/run_tests.sh
@@ -2355,14 +2355,14 @@ Commit each fix separately, `fix:` prefixed, naming the finding.
 ```
 Expected: all six exit 0.
 
-- [ ] **Step 5: Commit the findings**
+- [x] **Step 5: Commit the findings**
 
 ```bash
 git add docs/playtests IDEAS.md
 git commit -m "docs: Phase 6 play pass findings, triaged"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 13 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
