@@ -1465,7 +1465,7 @@ outside would duplicate the collision result and drift from it.
   `AudioStage.play(cues: Array[AudioCue]) -> void`,
   `AudioStage.set_bed(cue: AudioCue) -> void`.
 
-- [ ] **Step 1: Publish the distance the player actually travelled**
+- [x] **Step 1: Publish the distance the player actually travelled**
 
 In `src/presentation/player.gd`, add beside `entity_id`:
 
@@ -1496,7 +1496,7 @@ func _physics_process(delta: float) -> void:
 		return
 ```
 
-- [ ] **Step 2: Write AudioStage**
+- [x] **Step 2: Write AudioStage**
 
 Create `src/presentation/audio_stage.gd`:
 
@@ -1589,7 +1589,7 @@ func _stream_for(cue: AudioCue) -> AudioStream:
 	return stream
 ```
 
-- [ ] **Step 3: Give World an audio tick**
+- [x] **Step 3: Give World an audio tick**
 
 In `src/presentation/world.gd`, add the field:
 
@@ -1623,7 +1623,7 @@ func tick_audio(director: AudioDirector) -> void:
 	_audio.set_bed(director.bed())
 ```
 
-- [ ] **Step 4: Wire the router**
+- [x] **Step 4: Wire the router**
 
 In `src/presentation/main.gd`, add the field:
 
@@ -1671,7 +1671,7 @@ and in `_on_quit_to_menu`, before `_world.queue_free()`:
 > protects against a stale one.** Removing either one produces a bug that
 > only shows up on the second world of a session.
 
-- [ ] **Step 5: Make the smoke test exercise the director headlessly**
+- [x] **Step 5: Make the smoke test exercise the director headlessly**
 
 In `tools/smoke.gd`, after the zone is built, drive a few steps so that CI
 catches a director that throws on real content:
@@ -1690,7 +1690,7 @@ catches a director that throws on real content:
 `AudioStage` is not exercised here: it needs a scene tree and an audio device,
 and CI has neither. That is the line between the two halves.
 
-- [ ] **Step 6: Run everything**
+- [x] **Step 6: Run everything**
 
 ```bash
 ./tools/run_tests.sh
@@ -1701,7 +1701,7 @@ Expected: tests PASS; guard clean — `AudioStage` is in `presentation/`, so
 its `extends Node` is legal there and would fail in `systems/`; smoke prints
 a non-zero cue count and `bed yes`.
 
-- [ ] **Step 7: Play it — the first listening test**
+- [x] **Step 7: Play it — the first listening test**
 
 ```bash
 ./tools/godot.sh --path .
@@ -1715,14 +1715,14 @@ and when walking into a tree; the bed audible but underneath, not competing.
 Do not tune the numbers yet — Task 14 is where retuning belongs, with the
 whole game to listen to. Note what sounds wrong and move on.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/presentation tools/smoke.gd
 git commit -m "feat: the game makes its first sound"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 8 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
@@ -1755,7 +1755,7 @@ router writes settings on release and when the pause menu closes, not on every
   `PauseMenu.show_settings(volume: float, muted: bool) -> void` for the router
   to push the loaded values in.
 
-- [ ] **Step 1: Write the failing theme test**
+- [x] **Step 1: Write the failing theme test**
 
 Add to `tests/test_ui_theme.gd`:
 
@@ -1770,12 +1770,12 @@ func test_the_theme_styles_the_settings_controls() -> void:
 	assert_true(theme.has_color("font_color", "CheckButton"))
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `has_stylebox("slider", "HSlider")` is false.
 
-- [ ] **Step 3: Style the two controls**
+- [x] **Step 3: Style the two controls**
 
 In `src/ui/ui_theme.gd`, inside `build()` before `return theme`:
 
@@ -1794,7 +1794,7 @@ In `src/ui/ui_theme.gd`, inside `build()` before `return theme`:
 No new `Color` is introduced — every one of these is an existing constant,
 which is the whole point of the file.
 
-- [ ] **Step 4: Add the controls to the pause menu**
+- [x] **Step 4: Add the controls to the pause menu**
 
 In `src/ui/pause_menu.gd`, add the signals and fields:
 
@@ -1843,7 +1843,7 @@ func show_settings(volume: float, muted: bool) -> void:
 	_mute.set_pressed_no_signal(muted)
 ```
 
-- [ ] **Step 5: Wire the router**
+- [x] **Step 5: Wire the router**
 
 In `src/presentation/main.gd`, add the field:
 
@@ -1909,7 +1909,7 @@ volume change made and then quit from is not lost:
 	_save_settings()
 ```
 
-- [ ] **Step 6: Run the tests**
+- [x] **Step 6: Run the tests**
 
 ```bash
 ./tools/run_tests.sh
@@ -1917,7 +1917,7 @@ volume change made and then quit from is not lost:
 ```
 Expected: PASS and clean.
 
-- [ ] **Step 7: Play it**
+- [x] **Step 7: Play it**
 
 ```bash
 ./tools/godot.sh --path .
@@ -1935,14 +1935,14 @@ cat ~/"Library/Application Support/Godot/app_userdata/RP1/settings.json"
 Expected: the volume and mute you left, and `settings.json` at the `user://`
 root rather than inside `saves/`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/ui src/presentation/main.gd tests/test_ui_theme.gd
 git commit -m "feat: volume and mute on the pause menu"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 9 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
@@ -1970,7 +1970,7 @@ lines of wiring and a label that fades.
 - Consumes: `GameSession.tick(delta, registry) -> bool` (existing).
 - Produces: `SaveIndicator.flash() -> void`.
 
-- [ ] **Step 1: Write the indicator**
+- [x] **Step 1: Write the indicator**
 
 Create `src/ui/save_indicator.gd`:
 
@@ -2011,7 +2011,7 @@ func flash() -> void:
 	_tween.tween_property(_label, "modulate:a", 0.0, FADE_SECONDS)
 ```
 
-- [ ] **Step 2: Wire it**
+- [x] **Step 2: Wire it**
 
 In `src/presentation/main.gd`, add the field:
 
@@ -2049,7 +2049,7 @@ Also flash it on a successful focus-loss save, in `_notification`:
 > the window closes is a flicker nobody can read, and Quit to Menu leaves the
 > indicator behind with the world.
 
-- [ ] **Step 3: Verify it**
+- [x] **Step 3: Verify it**
 
 Testing a five-minute autosave by waiting five minutes is not a test. Verify
 it against the focus-loss path instead, which uses the same indicator and
@@ -2064,14 +2064,14 @@ to another window. "Saved" appears top-right and fades. Click back, walk,
 click away again — it fires each time the gap has elapsed and stays silent
 when it has not.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/ui/save_indicator.gd src/presentation/main.gd
 git commit -m "feat: an autosave the player can see"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 10 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
@@ -2104,7 +2104,7 @@ keys move. It is shown once per player, ever: the flag is the third field in
 - Produces: `TitleCard.show_zone(name: String) -> void`,
   `ControlsHint.show_once() -> void`.
 
-- [ ] **Step 1: Write the title card**
+- [x] **Step 1: Write the title card**
 
 Create `src/ui/title_card.gd`:
 
@@ -2148,7 +2148,7 @@ func show_zone(zone_name: String) -> void:
 	tween.tween_property(_label, "modulate:a", 0.0, FADE_OUT)
 ```
 
-- [ ] **Step 2: Write the controls hint**
+- [x] **Step 2: Write the controls hint**
 
 Create `src/ui/controls_hint.gd`:
 
@@ -2188,7 +2188,7 @@ func show_once() -> void:
 	tween.tween_property(_label, "modulate:a", 0.0, FADE_OUT)
 ```
 
-- [ ] **Step 3: Wire both**
+- [x] **Step 3: Wire both**
 
 In `src/presentation/main.gd`, add the fields:
 
@@ -2223,7 +2223,7 @@ and in `_enter_world`, after the director enters the zone:
 The flag is written immediately rather than at un-pause: a player who sees the
 hint and then closes the window with the X has still seen it.
 
-- [ ] **Step 4: Play it**
+- [x] **Step 4: Play it**
 
 ```bash
 ./tools/godot.sh --path .
@@ -2239,14 +2239,14 @@ New World: "Home Valley" fades in at the top and away; the controls hint sits
 at the bottom and fades. Quit to Menu, Continue: the title card appears again
 (it belongs to arriving), the hint does not (it belongs to the player).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/ui/title_card.gd src/ui/controls_hint.gd src/presentation/main.gd
 git commit -m "feat: a title card on arrival and a hint for a first world"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 11 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
