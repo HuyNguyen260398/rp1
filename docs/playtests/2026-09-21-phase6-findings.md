@@ -63,3 +63,67 @@ exercised outside this working copy.
 
 Phase 6 does not close, and the Definition of done is not ticked, until
 Task 14 and Task 15 are done.
+
+---
+
+# Stage 1 acceptance criteria — the §11 walk
+
+**Task 15 Step 2.** Walked 2026-09-21 against
+`docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` §11.
+Ten of eleven criteria hold. The eleventh is Task 14 and is not done.
+
+| # | Criterion | Result | Evidence |
+|---|---|---|---|
+| 1 | Corner-to-corner walk, no collision bugs | PASS | Task 13 play pass, no findings; `test_movement_system`, `test_walkability` |
+| 2 | Quit/relaunch restores world, player pos + facing, animals | PASS | `smoke.gd` reopen assertions; `test_game_session` |
+| 3 | Chunk payloads round-trip byte-identical | PASS | `tests/test_chunk_codec.gd:51` |
+| 4 | Full zone save under 100 ms | PASS | measured **3.6 ms**; smoke reports 5–7 ms |
+| 5 | Older `format_version` loads via committed fixture | PASS | `tests/fixtures/v1_chunk.chunk`, `v1_entities.dat`, `test_migrations.gd` |
+| 6 | Unknown string id → placeholder, string intact | PASS | `test_content_registry.gd:87`, `test_id_map.gd:59` |
+| 7 | Zone loads under 1 second | PASS | measured **42.5 ms** |
+| 8 | 60 FPS with all 16 chunks | PASS | `--print-fps`: **120 FPS, 8.33 mspf**, vsync-capped |
+| 9 | All CI gates green | PASS | run 35549382932, `verify` + `export` both green |
+| 10 | **Exported build runs on a clean machine** | **NOT DONE** | Task 14 — no VM run |
+| 11 | **New tree = one JSON + one PNG, no code change** | PASS | commit `abac715` |
+
+Criterion 9 reads "all five CI gates" because the spec predates gates 6
+and 7. There are seven, and all seven are green.
+
+## Criterion 11, in detail
+
+Proved rather than asserted, as Task 15 Step 2 requires. A `dead_tree` was
+added and rendered. **Zero `.gd` files changed** — the substance of the
+criterion holds.
+
+The letter of it does not, and the difference is worth keeping:
+
+- You do **not** add a PNG. You add a slice to `tools/import_manifest.json`
+  and `tools/quantize.gd` produces the PNG. Hand-added art cannot pass the
+  palette gate, because `check_palette.gd` fails any file in `assets/` that
+  the manifest does not declare. That is stronger than the criterion claims.
+- Defining the tree is one content JSON. *Placing* it is two more data
+  edits: a legend colour in `zone.json` and pixels in `object.png`. Neither
+  is code, but "one JSON file" undercounts.
+
+A better wording for the Stage 2 spec: **adding a new tree type is one
+content JSON, one manifest slice and a pipeline run, with no code change.**
+
+The sprite is 56x57 — the first object in the game that is not 32x32.
+`tileset_builder._texture_origin` centres oversized art from geometry
+alone, so `y_offset` stayed 0 and that needed no code either.
+
+Numbers before → after: content definitions 19 → 20, cells rendered
+17389 → 17392 (the three trees), palette gate 16 → 17 files.
+
+## Definition-of-done lines verified mechanically
+
+- **No test writes to `user://saves/` or the real `user://settings.json`.**
+  Recorded both mtimes, ran the full suite and the smoke test, re-read
+  them: unchanged (`08:47:41` and `21:30:43` before and after).
+- **`settings.json` at the `user://` root, not inside `saves/`.** It sits
+  beside `saves/` in the RP1 user-data directory.
+
+## Still blocking the phase
+
+Only **Task 14**. Criterion 10 cannot be closed from this machine, and the
+Definition of done cannot be ticked while it is open.
