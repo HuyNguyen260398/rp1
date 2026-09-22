@@ -196,3 +196,59 @@ When the VM run happens, the phase closes in one pass:
 
 Steps 1 and 2 of Task 15 are already done: every gate was re-run green on
 2026-09-22, and the §11 walk is recorded above.
+
+---
+
+# Task 14 — substitute verification, 2026-09-22
+
+The clean-machine run is deferred by decision (below). Rather than close
+the phase on the deferral alone, the strongest check available without a
+VM was run, following the precedent set in the Phase 3c plan, where a full
+platform export was replaced by a `--main-pack` run and the substitution
+was written down rather than glossed.
+
+**What was run.** The CI artifact from run 35552525118 was downloaded and
+the game launched from its **shipped `.pck`**, from a directory containing
+no `project.godot`:
+
+```bash
+gh run download 35552525118 --name rp1-builds
+cd <empty dir>
+Godot --main-pack .../rp1-builds/linux/rp1.pck --quit-after 400 -- --new-world
+```
+
+`binary_format/embed_pck=false`, so CI emits the pack as its own file and
+it can be run directly. Running outside the project with `--main-pack`
+means resources resolve **from the pack**, never from this machine's
+`.godot/` import cache -- which is the precise substitution that makes a
+local run worthless, and the reason Task 14 forbids one.
+
+**Result:**
+
+| Check | Result |
+|---|---|
+| Seven `.oggvorbisstr` streams present in the pack | yes, all seven |
+| Boots from the pack | `RP1 booted with 20 content definitions` |
+| Renders from the pack | `RP1 rendered 17392 cells` |
+| `ERROR` / `WARNING` / `cannot load` / `failed` lines | **0** |
+| `AudioStage` stream-resolution failures | none |
+
+The last row is the one that matters. `AudioStage._stream_for` calls
+`push_error("audio: cannot load '%s' for %s")` when `ResourceLoader.exists`
+fails on a stream path. Zero such errors while running off the pack means
+every sound id resolved to a real stream inside the shipped artifact.
+
+**What this does and does not establish.** It closes the export-only
+failure with the worst consequence -- audio that resolves from a developer's
+import cache and is absent from a player's build -- on real evidence rather
+than on inference.
+
+It does **not** establish what only a clean machine can:
+
+- Audio *audibly* playing. Nothing here has ears, and no gate ever will.
+- Window size on a display that is not this Mac's.
+- The save and `settings.json` landing in another OS's user-data directory.
+- Console cleanliness under a shipped platform binary rather than the pack.
+- The controls hint seen by a person on a first world.
+
+Those five are what the deferred VM run still owes.
