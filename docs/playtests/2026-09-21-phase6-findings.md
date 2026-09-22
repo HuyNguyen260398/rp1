@@ -127,3 +127,72 @@ Numbers before → after: content definitions 19 → 20, cells rendered
 
 Only **Task 14**. Criterion 10 cannot be closed from this machine, and the
 Definition of done cannot be ticked while it is open.
+
+---
+
+# Task 14 — attempted 2026-09-22, not satisfied
+
+Recorded because an attempt that does not count is worth more in the file
+than a silence that looks like one was never made.
+
+**What was run:** the game natively on the development Mac (Apple M5 Pro,
+arm64), i.e. a local `./tools/godot.sh --path .` run. All six checks were
+reported as passing.
+
+**Why it does not close the task.** Two independent reasons:
+
+1. **There is no macOS export preset.** `export_presets.cfg` defines
+   `Linux` and `Windows`, both `x86_64`. The CI artifact therefore holds an
+   x86_64 ELF and an x86_64 `.exe`, neither of which runs natively on an
+   arm64 Mac. Whatever was run, it was not the artifact under test.
+2. **A local run uses this machine's import cache.** `.godot/` holds six
+   phases of imported assets. Audio can resolve from that cache while being
+   absent from the PCK a player receives. The development Mac is the one
+   configuration that cannot detect the failure the task exists to find.
+
+The plan states the rule directly: "The artifact under test is the zip CI
+produced, not a local export. A local build shares this machine's import
+cache, which is exactly the difference that hides the failure."
+
+## What CI has already closed
+
+The residual risk is narrower than it was before Phase 6's CI runs. From
+the export job of run 35552525118:
+
+| Evidence | Result |
+|---|---|
+| All seven `.ogg` in the PCK | stored as `oggvorbisstr` |
+| Exported build boots | `RP1 booted with 20 content definitions` |
+| Exported build renders | `RP1 rendered 17392 cells` |
+
+So "assets never reach the PCK" -- the failure mode with the worst
+consequence -- is closed by evidence rather than by assumption.
+
+**What remains genuinely unverified**, and only a real machine can settle:
+
+- Audio *audibly* playing. CI has no sound device, so no gate can hear it.
+- Window size on a display that is not this Mac's.
+- The save landing in the OS's real user-data directory.
+- Console cleanliness in a shipped build.
+- The controls hint on a first world.
+
+## Closing checklist
+
+Phase 6 stands at 13 of 15 tasks. Deliberately left open, by decision
+rather than oversight: the clean-machine run is to be recorded last.
+
+When the VM run happens, the phase closes in one pass:
+
+1. Run the artifact from CI run 35552525118 (main has no Phase 6 build)
+   on a machine that has never had Godot. A Windows 11 ARM VM runs the
+   x86_64 `.exe` under Windows' own x64 emulation.
+2. Record VM OS and version, the run id, and all six check outcomes here.
+3. `python3 tools/mark_task_done.py 14 --plan <plan>`
+4. Tick §11 criterion 10, "Exported build runs on a clean machine", in
+   `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md`.
+5. Phase 6 design spec `**Status:** draft` -> `accepted`.
+6. `python3 tools/mark_task_done.py 15 --plan <plan>`
+7. `python3 tools/mark_task_done.py --section "Definition of done" --plan <plan>`
+
+Steps 1 and 2 of Task 15 are already done: every gate was re-run green on
+2026-09-22, and the §11 walk is recorded above.
