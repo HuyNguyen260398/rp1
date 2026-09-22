@@ -17,6 +17,7 @@ var _entity_renderer: EntityRenderer = null
 var _player: Player = null
 var _camera: FollowCamera = null
 var _collision: CollisionBuilder = null
+var _audio: AudioStage = null
 
 
 ## Assembles the world. Returns the problems worth showing the player;
@@ -56,6 +57,11 @@ func build(registry: ContentRegistry, result: SessionOpenResult) -> PackedString
 	add_child(_entity_renderer)
 	_entity_renderer.setup(registry)
 	_entity_renderer.entities = zone.entities
+
+	_audio = AudioStage.new()
+	_audio.name = "AudioStage"
+	add_child(_audio)
+	_audio.setup(registry)
 
 	_collision = CollisionBuilder.new()
 
@@ -105,3 +111,17 @@ func tick_animals(delta: float) -> void:
 		zone.entities.get_position(player_entity_id),
 		delta
 	)
+
+
+## Audio is ticked from the same physics step as movement, so the distance
+## the player covered and the cues it produces belong to the same frame.
+## The director is passed in rather than owned: it outlives the world, so
+## a volume change on the menu is not lost when a world is torn down.
+func tick_audio(director: AudioDirector) -> void:
+	if _player == null or zone == null or _audio == null:
+		return
+	var pos: Vector2 = zone.entities.get_position(player_entity_id)
+	var tile: Vector2i = Vector2i(floori(pos.x), floori(pos.y))
+	var terrain_id: int = zone.get_terrain(tile) if zone.in_bounds(tile) else 0
+	_audio.play(director.tick(_player.distance_moved_last_step, terrain_id))
+	_audio.set_bed(director.bed())

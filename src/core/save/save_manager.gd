@@ -70,6 +70,7 @@ static func save_zone(
 		"size_x": zone.size_tiles.x,
 		"size_y": zone.size_tiles.y,
 		"biome": zone.biome,
+		"ambient": zone.ambient,
 		"generation_seed": zone.generation_seed,
 	}
 	var meta_err: String = atomic_write(
@@ -142,6 +143,7 @@ static func load_zone(
 	)
 	zone.display_name = str(meta.get("display_name", zone.id))
 	zone.biome = str(meta.get("biome", "temperate"))
+	zone.ambient = str(meta.get("ambient", ""))
 	zone.generation_seed = int(meta.get("generation_seed", 0))
 
 	var chunk_dir: String = zdir.path_join("chunks")

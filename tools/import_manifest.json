@@ -16,6 +16,9 @@
     {"source": "slates-outdoor/sheet.png", "rect": [352, 576, 32, 32],
      "out": "assets/objects/pine_tree.png"},
 
+    {"source": "slates-outdoor/sheet.png", "rect": [456, 640, 56, 57],
+     "out": "assets/objects/dead_tree.png"},
+
     {"source": "slates-outdoor/sheet.png", "rect": [320, 288, 32, 32],
      "out": "assets/objects/rock_small.png"},
 

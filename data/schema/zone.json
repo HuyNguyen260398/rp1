@@ -6,6 +6,7 @@
     "player_spawn": "Array"
   },
   "optional": {
-    "biome": "String", "generation_seed": "int", "entities": "Array"
+    "biome": "String", "generation_seed": "int", "entities": "Array",
+    "ambient": "String"
   }
 }

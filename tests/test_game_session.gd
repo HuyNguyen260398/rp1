@@ -250,3 +250,18 @@ func test_a_corrupt_live_save_can_be_recovered_from_the_backup() -> void:
 	var recovered: SessionOpenResult = _session().open_saved(_registry, true)
 	assert_true(recovered.ok, recovered.error)
 	assert_eq(recovered.zone.entities.get_position(pid), Vector2(10.5, 10.5))
+
+
+func test_the_gap_predicate_agrees_with_what_the_gap_save_does() -> void:
+	# save_if_gap_elapsed returns an empty array both when it saved and
+	# when it declined, so a caller that needs to know which -- the save
+	# indicator -- has to be able to ask first. Without this, every
+	# alt-tab reports "Saved" whether or not anything was written.
+	var s: GameSession = _opened()
+	s.save_now(_registry, "new_world")
+	assert_false(s.save_gap_elapsed(), "a save just ran, so the gap has not elapsed")
+
+	s.tick(GameSession.MIN_SAVE_GAP + 1.0, _registry)
+	assert_true(s.save_gap_elapsed(), "the gap has elapsed, so a focus loss would save")
+	assert_eq(s.save_if_gap_elapsed(_registry, "focus_lost").size(), 0)
+	assert_false(s.save_gap_elapsed(), "and the save it just did resets the gap")

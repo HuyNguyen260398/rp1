@@ -41,6 +41,7 @@ static func load_zone(dir: String, registry: ContentRegistry) -> ZoneLoadResult:
 	var zone: Zone = Zone.new(str(doc["id"]), size)
 	zone.display_name = str(doc["display_name"])
 	zone.biome = str(doc.get("biome", "temperate"))
+	zone.ambient = str(doc.get("ambient", ""))
 	zone.generation_seed = int(doc.get("generation_seed", 0))
 
 	var spawn: Array = doc["player_spawn"]

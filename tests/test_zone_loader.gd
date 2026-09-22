@@ -415,3 +415,11 @@ func test_the_zone_comes_back_with_no_dirty_chunks() -> void:
 
 	assert_eq(r.zone.dirty_chunk_coords(), [] as Array[Vector2i],
 		"the first paint is a full render_zone(), so nothing is pending")
+
+
+func test_ambient_is_carried_from_the_authored_zone() -> void:
+	var r: ContentRegistry = ContentRegistry.new()
+	var _e: PackedStringArray = r.load_from_dir("res://data")
+	var result: ZoneLoadResult = ZoneLoader.load_zone("res://data/zone/home", r)
+	assert_not_null(result.zone, "\n".join(result.errors))
+	assert_eq(result.zone.ambient, "bed_meadow")

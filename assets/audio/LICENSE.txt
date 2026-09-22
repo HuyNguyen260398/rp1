@@ -1,0 +1,28 @@
+Audio assets. Used as authored -- unlike assets/tiles/, nothing here is
+derived. These files are byte-identical to the packs as published.
+
+Source:  Fantozzi's Footsteps (Grass/Sand & Stone)
+         (Fantozzi, via qubodup, CC0 1.0)
+         https://opengameart.org/content/fantozzis-footsteps-grasssand-stone
+Files:   step_grass_1-3.ogg  <- Fantozzi-Sand{L1,R1,L2}.ogg
+         step_dirt_1-3.ogg   <- Fantozzi-Stone{L1,R1,L2}.ogg
+Licence: CC0 1.0. No attribution required. Credited in assets/CREDITS.md
+         anyway, because the policy table there is a record of what was
+         checked, not only of what is owed.
+
+         The surface mapping is the pack author's own: the submission
+         reads "'Sand' sounds like grass too. 'Stone' could be most hard
+         surfaces". Stone is the dirt path -- a packed path is a hard
+         surface, and the alternative packs carry one gravel take, not
+         the three the content files need.
+
+Source:  Ambient Bird Sounds (isaiah658, CC0 1.0)
+         https://opengameart.org/content/ambient-bird-sounds
+Files:   bed_meadow.ogg  <- birds-isaiah658.ogg
+Licence: CC0 1.0. The pack's notice reads "Credit to isaiah658 is not
+         needed but is appreciated." Appreciated is not required, so this
+         is a courtesy credit, not a licence condition.
+
+Every file is Ogg Vorbis. This is load-bearing, not a preference:
+AudioStage.set_bed only sets `loop` when the stream is an
+AudioStreamOggVorbis, so an mp3 bed would play once and stop.

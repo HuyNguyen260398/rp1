@@ -20,6 +20,11 @@ var _ui: CanvasLayer = null
 var _main_menu: MainMenu = null
 var _pause_menu: PauseMenu = null
 var _confirm: ConfirmPanel = null
+var _audio_director: AudioDirector = null
+var _settings: Settings = null
+var _save_indicator: SaveIndicator = null
+var _title_card: TitleCard = null
+var _controls_hint: ControlsHint = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -39,6 +44,15 @@ func _ready() -> void:
 	for e: String in _registry.load_from_dir("res://data"):
 		push_error("content failed to load: %s" % e)
 	print("RP1 booted with %d content definitions" % _registry.all_string_ids().size())
+
+	_audio_director = AudioDirector.new()
+	_audio_director.rng = RandomNumberGenerator.new()
+	_audio_director.rng.randomize()
+	_audio_director.configure(_registry)
+
+	_settings = Settings.load_from()
+	_audio_director.set_master_volume(_settings.master_volume)
+	_audio_director.set_muted(_settings.muted)
 
 	_session = GameSession.new()
 
@@ -62,6 +76,14 @@ func _ready() -> void:
 	_main_menu.quit_requested.connect(_save_and_quit)
 	_ui.add_child(_main_menu)
 
+	_title_card = TitleCard.new()
+	_title_card.name = "TitleCard"
+	_ui.add_child(_title_card)
+
+	_controls_hint = ControlsHint.new()
+	_controls_hint.name = "ControlsHint"
+	_ui.add_child(_controls_hint)
+
 	_pause_menu = PauseMenu.new()
 	_pause_menu.name = "PauseMenu"
 	_pause_menu.theme = theme
@@ -69,6 +91,13 @@ func _ready() -> void:
 	_pause_menu.quit_to_menu_requested.connect(_on_quit_to_menu)
 	_pause_menu.quit_to_desktop_requested.connect(_save_and_quit)
 	_ui.add_child(_pause_menu)
+	_pause_menu.volume_changed.connect(_on_volume_changed)
+	_pause_menu.mute_toggled.connect(_on_mute_toggled)
+	_pause_menu.show_settings(_settings.master_volume, _settings.muted)
+
+	_save_indicator = SaveIndicator.new()
+	_save_indicator.name = "SaveIndicator"
+	_ui.add_child(_save_indicator)
 
 	_confirm = ConfirmPanel.new()
 	_confirm.name = "ConfirmPanel"
@@ -183,6 +212,16 @@ func _enter_world(result: SessionOpenResult) -> void:
 	for e: String in _world.build(_registry, result):
 		push_error(e)
 
+	_audio_director.enter_zone(result.zone.id, result.zone.ambient)
+
+	_title_card.show_zone(result.zone.display_name)
+	# Written immediately rather than at un-pause: a player who sees the
+	# hint and then closes the window with the X has still seen it.
+	if not _settings.controls_hint_shown:
+		_controls_hint.show_once()
+		_settings.controls_hint_shown = true
+		_save_settings()
+
 	_session.adopt_player(_world.player_entity_id)
 	_main_menu.visible = false
 	_set_paused(false)
@@ -197,17 +236,46 @@ func _on_quit_to_menu() -> void:
 		return
 
 	_set_paused(false)
+	# The AudioStage is a child of World and dies with it, so the bed
+	# stops here whatever the director thinks. Telling the director that
+	# too is not tidiness: without it, Continue would re-enter the zone it
+	# believes is already playing, take the idempotent path, and hand the
+	# fresh AudioStage no bed at all -- a silent world until the next zone
+	# change, which in Stage 1 never comes.
+	_audio_director.enter_zone("", "")
 	_world.queue_free()
 	_world = null
 	_session.close()
 	_show_main_menu()
 
 
+func _on_volume_changed(value: float) -> void:
+	# Applied immediately so the slider is audible while dragging;
+	# written on un-pause, because writing per drag event is a file write
+	# per pixel of travel.
+	_settings.master_volume = value
+	_audio_director.set_master_volume(value)
+
+
+func _on_mute_toggled(muted: bool) -> void:
+	_settings.muted = muted
+	_audio_director.set_muted(muted)
+
+
+func _save_settings() -> void:
+	var err: String = _settings.save_to()
+	if err != "":
+		push_error("settings: %s" % err)
+
+
 func _set_paused(paused: bool) -> void:
 	get_tree().paused = paused
 	_pause_menu.visible = paused
 	if paused:
+		_pause_menu.show_settings(_settings.master_volume, _settings.muted)
 		_pause_menu.focus_first()
+	else:
+		_save_settings()
 
 
 # --- loop -------------------------------------------------------------
@@ -219,7 +287,9 @@ func _physics_process(delta: float) -> void:
 	if _world == null or get_tree().paused:
 		return
 	_world.tick_animals(delta)
-	_session.tick(delta, _registry)
+	_world.tick_audio(_audio_director)
+	if _session.tick(delta, _registry):
+		_save_indicator.flash()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -237,8 +307,15 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_and_quit()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT and _world != null:
-		for e: String in _session.save_if_gap_elapsed(_registry, "focus_lost"):
+		# Asked before the save, not after: save_if_gap_elapsed returns an
+		# empty array both when it saved and when it declined, so without
+		# this every alt-tab would report a save that never happened.
+		var due: bool = _session.save_gap_elapsed()
+		var errors: PackedStringArray = _session.save_if_gap_elapsed(_registry, "focus_lost")
+		for e: String in errors:
 			push_error("focus-loss save failed: %s" % e)
+		if due and errors.is_empty():
+			_save_indicator.flash()
 
 
 func _save_and_quit() -> void:
@@ -248,6 +325,7 @@ func _save_and_quit() -> void:
 
 	var errors: PackedStringArray = _session.save_now(_registry, "quit")
 	if errors.is_empty() or _quit_was_refused:
+		_save_settings()
 		get_tree().quit()
 		return
 

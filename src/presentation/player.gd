@@ -31,6 +31,11 @@ const SPAWN_SEARCH_RADIUS: int = 64
 var zone: Zone = null
 var entity_id: int = EntityStore.INVALID_ID
 
+## Distance covered in the last physics step, after collision resolution.
+## Published rather than recomputed by World: recomputing it outside this
+## function would duplicate the collision result and drift from it.
+var distance_moved_last_step: float = 0.0
+
 var _collision: CollisionBuilder = null
 
 
@@ -76,6 +81,7 @@ static func find_spawn_tile(p_zone: Zone, near: Vector2i) -> Vector2i:
 
 
 func _physics_process(delta: float) -> void:
+	distance_moved_last_step = 0.0
 	if zone == null or not zone.entities.has(entity_id):
 		return
 
@@ -99,6 +105,7 @@ func _physics_process(delta: float) -> void:
 	var bounds: Rect2 = Rect2(Vector2.ZERO, Vector2(zone.size_tiles))
 
 	var moved: Vector2 = MovementSystem.move(pos, velocity, delta, body, solids, bounds)
+	distance_moved_last_step = pos.distance_to(moved)
 	zone.entities.set_position(entity_id, moved)
 	zone.entities.set_facing(
 		entity_id, MovementSystem.facing_from(velocity, zone.entities.get_facing(entity_id))

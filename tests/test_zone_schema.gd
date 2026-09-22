@@ -77,3 +77,9 @@ func test_the_optional_fields_are_accepted() -> void:
 	doc["generation_seed"] = 0
 	doc["entities"] = [{"type": "rabbit", "at": [2.5, 2.5]}]
 	assert_eq(SchemaValidator.validate(doc, _schema), PackedStringArray())
+
+
+func test_ambient_is_an_optional_string() -> void:
+	var doc: Dictionary = _valid_doc()
+	doc["ambient"] = "bed_meadow"
+	assert_eq(SchemaValidator.validate(doc, _schema), PackedStringArray())

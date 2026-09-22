@@ -9,6 +9,10 @@ var id: String
 var display_name: String
 var size_tiles: Vector2i
 var biome: String = "temperate"
+
+## The ambient bed's sound id. "" is a silent zone, which is what every
+## zone saved before Phase 6 decodes to.
+var ambient: String = ""
 var generation_seed: int = 0
 var entities: EntityStore
 
