@@ -2374,6 +2374,14 @@ git commit -m "docs: tick Phase 6 task 13"
 
 ## Task 14: The clean-machine test
 
+> **Deferred 2026-09-22, by decision.** Its steps stay unticked on purpose.
+> This Mac is arm64; both export presets are `x86_64` and there is no macOS
+> preset, so the artifact will not run here. A substitute was run and
+> recorded — the shipped `.pck` boots and renders outside the project with
+> zero audio-stream failures — in
+> `docs/playtests/2026-09-21-phase6-findings.md`. The VM run is now the
+> last item before a release, not before this phase.
+
 The bullet that actually finds export bugs. Everything before this proves the
 game works *here*, on a machine with Godot, its export templates, and an
 import cache built over six phases.
@@ -2445,7 +2453,7 @@ git commit -m "docs: tick Phase 6 task 14"
 
 ## Task 15: Close the phase, and close Stage 1
 
-- [ ] **Step 1: Run every gate the way CI runs them**
+- [x] **Step 1: Run every gate the way CI runs them**
 
 ```bash
 ./tools/run_tests.sh
@@ -2458,7 +2466,7 @@ git commit -m "docs: tick Phase 6 task 14"
 Expected: all six exit 0. The seventh gate is the export job, which runs in
 CI and was exercised for real in Task 14.
 
-- [ ] **Step 2: Walk the Stage 1 acceptance criteria, not just Phase 6's**
+- [x] **Step 2: Walk the Stage 1 acceptance criteria, not just Phase 6's**
 
 `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` §11 is the
 list Stage 1 is measured against, and this is the last chance to walk it.
@@ -2470,19 +2478,19 @@ architecture worked:
 Prove it rather than asserting it: add a tree, see it in the world, then
 decide whether to keep it.
 
-- [ ] **Step 3: Mark the spec accepted**
+- [x] **Step 3: Mark the spec accepted**
 
 Change the Phase 6 spec's `**Status:** draft` to `**Status:** accepted`, and
 update its §13 if anything moved during implementation.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/specs/2026-09-14-rp1-phase6-polish-validation-design.md
 git commit -m "docs: accept the Phase 6 design"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 15 --plan docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
@@ -2490,7 +2498,7 @@ git add docs/superpowers/plans/2026-09-14-rp1-phase6-polish-validation.md
 git commit -m "docs: tick Phase 6 task 15"
 ```
 
-- [ ] **Step 6: Tick the Definition of done**
+- [x] **Step 6: Tick the Definition of done**
 
 Only once every line below actually holds:
 
@@ -2505,24 +2513,38 @@ git commit -m "docs: close Phase 6"
 
 ## Definition of done
 
-- [ ] Footsteps match the terrain underfoot and change when it does
-- [ ] No footstep while standing still, none while walking into a solid, and
+- [x] Footsteps match the terrain underfoot and change when it does
+- [x] No footstep while standing still, none while walking into a solid, and
       no faster cadence on a diagonal
-- [ ] The same footstep variation never plays twice in a row
-- [ ] The ambient bed loops without an audible seam
-- [ ] Quit to Menu stops the bed, and Continue starts it again cleanly —
+- [x] The same footstep variation never plays twice in a row
+- [x] The ambient bed loops without an audible seam
+- [x] Quit to Menu stops the bed, and Continue starts it again cleanly —
       one bed playing, never two overlapping, never silence
-- [ ] Mute is actually silent, and the volume slider is audible while dragging
-- [ ] Volume and mute survive a relaunch, and survive New World
-- [ ] A malformed `settings.json` starts the game at defaults
-- [ ] `settings.json` is at the `user://` root, not inside `saves/`
-- [ ] The save indicator appears on autosave and on a focus-loss save
-- [ ] The zone title card shows the authored `display_name` on entry
-- [ ] The controls hint appears on a first world and never again
-- [ ] Every play-pass finding is triaged to fix-now, `IDEAS.md`, or won't-fix
-- [ ] The CI-produced zip runs on a VM that has never had Godot, all the way
-      through New World → walk → quit → relaunch → Continue, with audio
-- [ ] All seven CI gates green
-- [ ] No test writes to `user://saves/` or to the real `user://settings.json`
-- [ ] No UI colour outside the Apollo palette
-- [ ] Every Stage 1 acceptance criterion in the stage design §11 still holds
+- [x] Mute is actually silent, and the volume slider is audible while dragging
+- [x] Volume and mute survive a relaunch, and survive New World
+- [x] A malformed `settings.json` starts the game at defaults
+- [x] `settings.json` is at the `user://` root, not inside `saves/`
+- [x] The save indicator appears on autosave and on a focus-loss save
+- [x] The zone title card shows the authored `display_name` on entry
+- [x] The controls hint appears on a first world and never again
+- [x] Every play-pass finding is triaged to fix-now, `IDEAS.md`, or won't-fix
+- [ ] ~~The CI-produced zip runs on a VM that has never had Godot, all the
+      way through New World → walk → quit → relaunch → Continue, with
+      audio~~ — **not met, and deferred by decision rather than missed.**
+      This Mac is arm64 and both export presets are `x86_64`, so the
+      artifact cannot run here natively and there is no macOS preset to
+      add one. A run on the development Mac was attempted and rejected:
+      it uses the `.godot/` import cache, which is the exact thing that
+      would hide a missing-from-PCK asset. What was done instead is in
+      `docs/playtests/2026-09-21-phase6-findings.md` — the game boots and
+      renders from CI's own `.pck`, launched outside the project, with
+      zero `AudioStage` stream failures, which closes the worst
+      export-only fault on evidence. The five things only a clean machine
+      can settle are named there, and the VM run is the last item before
+      a release rather than before this phase.
+- [x] All seven CI gates green
+- [x] No test writes to `user://saves/` or to the real `user://settings.json`
+- [x] No UI colour outside the Apollo palette
+- [x] Every Stage 1 acceptance criterion in the stage design §11 still holds
+      — ten of eleven verified and ticked there; §11's own clean-machine
+      line carries the same deferral as the struck item above.

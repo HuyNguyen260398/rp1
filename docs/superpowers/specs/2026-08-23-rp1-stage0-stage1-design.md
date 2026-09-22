@@ -516,7 +516,11 @@ Phase 3b.)*
 - [x] Zone loads in under 1 second
 - [x] 60 FPS with all 16 chunks loaded
 - [x] All five CI gates green
-- [ ] Exported build runs on a clean machine
+- [ ] ~~Exported build runs on a clean machine~~ — **deferred, not met.**
+      See the Phase 6 plan's Definition of done and
+      `docs/playtests/2026-09-21-phase6-findings.md`. The shipped `.pck`
+      was verified to boot, render and resolve every audio stream off the
+      import cache; what remains needs a machine that never had Godot.
 - [x] **Adding a new tree type is one JSON file plus one PNG, with no code change**
 
 The last criterion is the real test of whether the architecture worked.

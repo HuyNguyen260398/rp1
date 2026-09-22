@@ -1,6 +1,6 @@
 # RP1 — Phase 6 Design: Polish and Validation
 
-**Status:** draft
+**Status:** accepted
 **Date:** 2026-09-14
 **Refines:** `docs/superpowers/specs/2026-08-23-rp1-stage0-stage1-design.md` §10 (Phase 6)
 **Follows:** Phase 5 (game loop closure)
