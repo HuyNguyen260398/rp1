@@ -83,6 +83,14 @@ written for Godot 3. Correct that once here rather than every session.
 
 ## Scope
 
-Stage 1 scope is fixed. Out of scope: building, crafting, combat, inventory,
-procedural generation, multiple zones, elevation *rendering*, NPC schedules,
-day/night. Good ideas go in `IDEAS.md`, not into the code.
+Stage 1 is closed. **Stage 2 — building** is current; its scope is fixed by
+`docs/superpowers/specs/2026-09-22-rp1-stage2-design.md` §1.
+
+In scope: build mode with a mouse-driven tile cursor; placing and removing
+floors, walls and objects; an inventory of bulk resource counts; harvesting
+that yields items and placing that spends them; greedy-meshed chunk colliders.
+
+Out of scope: undo/redo (edits are command objects so it can come later, but
+no stack yet), blueprints, a controller path for the build cursor, crafting,
+combat, procedural generation, multiple zones, elevation *rendering*, NPCs and
+NPC schedules, farming, day/night. Good ideas go in `IDEAS.md`, not into the code.
