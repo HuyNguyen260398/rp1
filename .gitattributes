@@ -1,0 +1,12 @@
+# Text is stored and checked out as LF on every OS. Without this, Windows
+# checkouts with core.autocrlf=true show every Godot-rewritten .import file
+# as modified. Shell scripts must be LF or bash refuses them.
+* text=auto eol=lf
+
+# Binary content, never line-converted or diffed as text.
+*.png   binary
+*.bmp   binary
+*.ogg   binary
+*.ttf   binary
+*.dat   binary
+*.chunk binary
