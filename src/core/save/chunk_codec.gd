@@ -118,6 +118,8 @@ static func decode(bytes: PackedByteArray) -> DecodeResult:
 	chunk.object_id = payload.slice(o, o + u16); o += u16
 	chunk.height = payload.slice(o, o + u8); o += u8
 	chunk.flags = payload.slice(o, o + u8)
-	# Freshly loaded data matches disk, so it is not pending a write.
-	chunk.dirty = false
+	# Freshly loaded data matches disk, so no consumer owes it work. The
+	# decoded chunk starts at version 0 and every watcher starts empty,
+	# which compares equal.
+	chunk.version = 0
 	return DecodeResult.success(chunk)

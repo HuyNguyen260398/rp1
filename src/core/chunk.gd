@@ -15,7 +15,11 @@ const FLAG_WALKABLE: int = 1 << 0
 const FLAG_BLOCKS_LIGHT: int = 1 << 1
 
 var coord: Vector2i
-var dirty: bool = false
+## Advanced by every write. Consumers remember the number they last acted
+## on and compare, rather than consuming a shared flag: a boolean can only
+## be consumed once, and the renderer, the save and the collider all need
+## to see the same edit. See the Stage 2 design §3.1.
+var version: int = 0
 
 var terrain_id: PackedByteArray
 var floor_id: PackedByteArray
@@ -46,7 +50,7 @@ func get_terrain(l: Vector2i) -> int:
 
 func set_terrain(l: Vector2i, value: int) -> void:
 	terrain_id.encode_u16(Coords.local_index(l) * 2, value)
-	dirty = true
+	version += 1
 
 
 func get_floor(l: Vector2i) -> int:
@@ -55,7 +59,7 @@ func get_floor(l: Vector2i) -> int:
 
 func set_floor(l: Vector2i, value: int) -> void:
 	floor_id.encode_u16(Coords.local_index(l) * 2, value)
-	dirty = true
+	version += 1
 
 
 func get_object(l: Vector2i) -> int:
@@ -64,7 +68,7 @@ func get_object(l: Vector2i) -> int:
 
 func set_object(l: Vector2i, value: int) -> void:
 	object_id.encode_u16(Coords.local_index(l) * 2, value)
-	dirty = true
+	version += 1
 
 
 func get_height(l: Vector2i) -> int:
@@ -73,7 +77,7 @@ func get_height(l: Vector2i) -> int:
 
 func set_height(l: Vector2i, value: int) -> void:
 	height[Coords.local_index(l)] = value
-	dirty = true
+	version += 1
 
 
 func get_flags(l: Vector2i) -> int:
@@ -82,7 +86,7 @@ func get_flags(l: Vector2i) -> int:
 
 func set_flags(l: Vector2i, value: int) -> void:
 	flags[Coords.local_index(l)] = value
-	dirty = true
+	version += 1
 
 
 func is_walkable(l: Vector2i) -> bool:
