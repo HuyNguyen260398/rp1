@@ -78,7 +78,7 @@ consumed once, and two consumers consuming it is the bug.
 - Produces: `Chunk.version: int`, starting at `0`, strictly increasing on every
   write. `Chunk.dirty` no longer exists.
 
-- [ ] **Step 1: Rewrite the two failing tests in `tests/test_chunk.gd`**
+- [x] **Step 1: Rewrite the two failing tests in `tests/test_chunk.gd`**
 
 Replace `test_setters_mark_the_chunk_dirty` and
 `test_getters_do_not_mark_the_chunk_dirty`, and fix the assertion at line 22:
@@ -129,12 +129,12 @@ func test_getters_do_not_advance_the_version() -> void:
 	assert_eq(_c.version, after_write, "reading must not advance the version")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Invalid access to property or key 'version' on a base object of type 'RefCounted (Chunk)'`.
 
-- [ ] **Step 3: Change the declaration in `src/core/chunk.gd`**
+- [x] **Step 3: Change the declaration in `src/core/chunk.gd`**
 
 Replace line 18:
 
@@ -146,7 +146,7 @@ Replace line 18:
 var version: int = 0
 ```
 
-- [ ] **Step 4: Bump it in all five setters**
+- [x] **Step 4: Bump it in all five setters**
 
 In each of `set_terrain`, `set_floor`, `set_object`, `set_height` and
 `set_flags`, replace `dirty = true` with:
@@ -155,7 +155,7 @@ In each of `set_terrain`, `set_floor`, `set_object`, `set_height` and
 	version += 1
 ```
 
-- [ ] **Step 5: Fix the decoder**
+- [x] **Step 5: Fix the decoder**
 
 `src/core/save/chunk_codec.gd:122` currently reads `chunk.dirty = false`.
 Replace it, keeping the comment's intent:
@@ -167,7 +167,7 @@ Replace it, keeping the comment's intent:
 	chunk.version = 0
 ```
 
-- [ ] **Step 6: Fix the codec test**
+- [x] **Step 6: Fix the codec test**
 
 In `tests/test_chunk_codec.gd`, replace `test_decoded_chunk_is_not_dirty`:
 
@@ -178,7 +178,7 @@ func test_a_decoded_chunk_starts_at_version_zero() -> void:
 	assert_eq(back.version, 0, "a chunk read from disk owes no consumer work")
 ```
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: the Chunk and ChunkCodec tests PASS. Tests in `test_zone.gd`,
@@ -186,14 +186,14 @@ Expected: the Chunk and ChunkCodec tests PASS. Tests in `test_zone.gd`,
 `test_animal_budget.gd` will still FAIL — they call `clear_dirty()` and
 `dirty_chunk_coords()`, which Task 3 removes. That is expected here.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/chunk.gd src/core/save/chunk_codec.gd tests/test_chunk.gd tests/test_chunk_codec.gd
 git commit -m "feat: a chunk carries a version, not a dirty flag"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
