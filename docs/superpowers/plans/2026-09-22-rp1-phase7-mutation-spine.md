@@ -223,7 +223,7 @@ The comparison lives in exactly one place. Three consumers implementing
     `changed()` reports every chunk. Used when a consumer is pointed at a
     different zone.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_chunk_watcher.gd`:
 
@@ -308,12 +308,12 @@ func test_a_chunk_created_after_the_last_look_is_reported() -> void:
 		"a chunk brought into existence by a write is work")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — GUT cannot resolve the `ChunkWatcher` class name.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/core/chunk_watcher.gd`:
 
@@ -368,19 +368,19 @@ func forget() -> void:
 Note the `-1` default in `changed()`: a chunk never seen cannot compare equal
 to version `0`, which is what makes a fresh watcher report everything.
 
-- [ ] **Step 4: Run the test**
+- [x] **Step 4: Run the test**
 
 Run: `./tools/run_tests.sh`
 Expected: all seven `test_chunk_watcher.gd` tests PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/chunk_watcher.gd tests/test_chunk_watcher.gd
 git commit -m "feat: a per-consumer chunk watcher"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
