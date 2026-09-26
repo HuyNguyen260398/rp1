@@ -117,9 +117,15 @@ func test_invalidate_forces_a_rebuild() -> void:
 
 
 func test_invalidate_changed_drops_only_the_touched_chunk() -> void:
+	# Chunks are created lazily, so chunk_coords() on a fresh zone is empty.
+	# Bring all four into existence from size_tiles, or the first-look
+	# assertion below compares 0 to 0 and passes vacuously.
 	var z: Zone = Zone.new("t", Vector2i(64, 64))
-	for c: Vector2i in z.chunk_coords():
-		var _c: Chunk = z.get_chunk(c, true)
+	var dims: Vector2i = z.size_tiles / Coords.CHUNK_SIZE
+	for y: int in range(dims.y):
+		for x: int in range(dims.x):
+			var _c: Chunk = z.get_chunk(Vector2i(x, y), true)
+	assert_eq(z.chunk_coords().size(), 4, "the fixture zone is 2x2 chunks")
 	var b: CollisionBuilder = CollisionBuilder.new()
 	for c: Vector2i in z.chunk_coords():
 		var _r: Array[Rect2i] = b.solids_for(z, c)
