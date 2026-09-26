@@ -34,7 +34,8 @@ func _init() -> void:
 	_check(zone.entities.has(id), "entity spawned")
 
 	var save_root: String = "user://smoke_save"
-	var save_errs: PackedStringArray = SaveManager.save_zone(save_root, zone, registry, true)
+	var save_errs: PackedStringArray = SaveManager.save_zone(
+		save_root, zone, registry, ChunkWatcher.new(), true)
 	_check(save_errs.is_empty(), "save failed: %s" % ", ".join(save_errs))
 
 	var loaded: DecodeResult = SaveManager.load_zone(save_root, "smoke", registry)

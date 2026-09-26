@@ -49,8 +49,13 @@ static func _zone_dir(save_root: String, zone_id: String) -> String:
 ## autosave rewrites in Stage 1. id_map.json, zone_meta.json and the chunks
 ## are written once per world, and rotating an unchanged file only doubles
 ## the disk cost. A Stage 2 that makes chunks mutable must rotate them too.
+## `watcher` is the caller's record of what it has already written. It is
+## required rather than optional: an accidental omission would silently
+## write every chunk on every save, which is the kind of regression that
+## looks like a performance problem months later.
 static func save_zone(
 	save_root: String, zone: Zone, registry: ContentRegistry,
+	watcher: ChunkWatcher,
 	all_chunks: bool = false, keep_backup: bool = false
 ) -> PackedStringArray:
 	var errors: PackedStringArray = []
@@ -80,7 +85,7 @@ static func save_zone(
 	if meta_err != "":
 		errors.append(meta_err)
 
-	var targets: Array[Vector2i] = zone.chunk_coords() if all_chunks else zone.dirty_chunk_coords()
+	var targets: Array[Vector2i] = zone.chunk_coords() if all_chunks else watcher.changed(zone)
 	for c: Vector2i in targets:
 		var chunk: Chunk = zone.get_chunk(c)
 		var err: String = atomic_write(
@@ -97,7 +102,7 @@ static func save_zone(
 		errors.append(ent_err)
 
 	if errors.is_empty():
-		zone.clear_dirty()
+		watcher.mark_seen(zone)
 	return errors
 
 
@@ -158,7 +163,6 @@ static func load_zone(
 		_translate_column(chunk.terrain_id, table)
 		_translate_column(chunk.floor_id, table)
 		_translate_column(chunk.object_id, table)
-		chunk.dirty = false
 		zone.install_chunk(chunk)
 
 	var ent_name: String = "entities.dat.bak" if use_backup else "entities.dat"
@@ -184,9 +188,10 @@ static func load_zone(
 	# written before a content change carries stale values. Same reasoning
 	# as ZoneLoader, which refuses an authored flags column outright.
 	Walkability.recompute_zone(zone, registry)
-	# The recompute touches every chunk. A freshly loaded world is by
-	# definition not in need of saving, and leaving it dirty would make
-	# the first autosave rewrite all 16 chunks for nothing.
-	zone.clear_dirty()
+	# The recompute advances every chunk's version, and nothing here can
+	# lower it again -- a version that went backwards would blind a
+	# consumer that had already seen a higher one. There is nothing to
+	# clear: the caller marks the zone it just opened as seen, so only
+	# later edits are work.
 
 	return DecodeResult.success(zone)

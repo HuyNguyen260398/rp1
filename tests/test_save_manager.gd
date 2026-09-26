@@ -65,7 +65,7 @@ func test_atomic_write_overwrites_existing_content() -> void:
 
 
 func test_save_writes_the_expected_layout() -> void:
-	var errs: PackedStringArray = SaveManager.save_zone(_root, _zone(), _registry, true)
+	var errs: PackedStringArray = SaveManager.save_zone(_root, _zone(), _registry, ChunkWatcher.new(), true)
 	assert_eq(errs.size(), 0, "save produced no errors: %s" % ", ".join(errs))
 	assert_true(FileAccess.file_exists(_root.path_join("id_map.json")))
 	assert_true(FileAccess.file_exists(_root.path_join("zones/home/zone_meta.json")))
@@ -77,7 +77,7 @@ func test_save_writes_the_expected_layout() -> void:
 
 func test_round_trip_preserves_the_whole_zone() -> void:
 	var original: Zone = _zone()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, ChunkWatcher.new(), true)
 
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_true(result.ok, "load succeeded: %s" % result.error)
@@ -94,7 +94,7 @@ func test_round_trip_preserves_the_whole_zone() -> void:
 
 func test_chunk_payloads_round_trip_byte_identical() -> void:
 	var original: Zone = _zone()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, ChunkWatcher.new(), true)
 	var back: Zone = SaveManager.load_zone(_root, "home", _registry).value
 	for c: Vector2i in original.chunk_coords():
 		var a: Chunk = original.get_chunk(c)
@@ -109,15 +109,16 @@ func test_chunk_payloads_round_trip_byte_identical() -> void:
 func test_save_completes_within_the_budget() -> void:
 	var z: Zone = _zone()
 	var start: int = Time.get_ticks_msec()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, ChunkWatcher.new(), true)
 	var elapsed: int = Time.get_ticks_msec() - start
 	assert_lt(elapsed, 100, "full zone save took %d ms, budget is 100 ms" % elapsed)
 
 
-func test_only_dirty_chunks_are_rewritten() -> void:
+func test_only_changed_chunks_are_rewritten() -> void:
 	var z: Zone = _zone()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, true)
-	assert_eq(z.dirty_chunk_coords().size(), 0, "saving clears dirty flags")
+	var w: ChunkWatcher = ChunkWatcher.new()
+	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, w, true)
+	assert_eq(w.changed(z).size(), 0, "a full save leaves nothing owing")
 
 	# Deleting the file and asserting it is NOT recreated is deterministic.
 	# A modified-time comparison would not be: mtime has one-second
@@ -126,20 +127,39 @@ func test_only_dirty_chunks_are_rewritten() -> void:
 	DirAccess.remove_absolute(untouched)
 
 	z.set_terrain(Vector2i(0, 0), _registry.numeric_of("water"))
-	assert_eq(z.dirty_chunk_coords(), [Vector2i(0, 0)] as Array[Vector2i])
+	assert_eq(w.changed(z), [Vector2i(0, 0)] as Array[Vector2i])
 
-	var _e2: PackedStringArray = SaveManager.save_zone(_root, z, _registry)
+	var _e2: PackedStringArray = SaveManager.save_zone(_root, z, _registry, w)
 	assert_false(FileAccess.file_exists(untouched), "clean chunk was not rewritten")
 	assert_true(
 		FileAccess.file_exists(_root.path_join("zones/home/chunks/0_0.chunk")),
-		"the dirty chunk was written"
+		"the changed chunk was written"
 	)
+
+
+func test_the_renderer_consuming_first_does_not_rob_the_save() -> void:
+	# The Stage 1 bug, as a test. Both consumers used to clear one flag.
+	var z: Zone = _zone()
+	var saver: ChunkWatcher = ChunkWatcher.new()
+	var renderer: ChunkWatcher = ChunkWatcher.new()
+	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, saver, true)
+	renderer.mark_seen(z)
+
+	z.set_object(Vector2i(1, 1), 3)
+
+	# The renderer repaints and records, exactly as _process does.
+	assert_eq(renderer.changed(z).size(), 1)
+	renderer.mark_seen(z)
+
+	# The save must still see the edit.
+	assert_eq(saver.changed(z), [Vector2i(0, 0)] as Array[Vector2i],
+		"the save lost an edit the renderer had already drawn")
 
 
 func test_old_save_still_loads_after_new_content_is_added() -> void:
 	# The acceptance criterion the string-id scheme exists to satisfy.
 	var original: Zone = _zone()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, original, _registry, ChunkWatcher.new(), true)
 
 	var extended: ContentRegistry = ContentRegistry.new()
 	var _errs: PackedStringArray = extended.load_from_dir("res://data")
@@ -161,7 +181,7 @@ func test_old_save_still_loads_after_new_content_is_added() -> void:
 
 func test_save_referencing_removed_content_loads_as_a_placeholder() -> void:
 	var z: Zone = _zone()
-	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, z, _registry, ChunkWatcher.new(), true)
 
 	# Rewrite id_map.json as though the save had used a tile this build lacks.
 	var map_path: String = _root.path_join("id_map.json")
@@ -184,7 +204,7 @@ func test_loading_a_missing_zone_fails_cleanly() -> void:
 
 
 func test_loading_a_corrupt_chunk_fails_cleanly() -> void:
-	var _e: PackedStringArray = SaveManager.save_zone(_root, _zone(), _registry, true)
+	var _e: PackedStringArray = SaveManager.save_zone(_root, _zone(), _registry, ChunkWatcher.new(), true)
 	var _w: String = SaveManager.atomic_write(
 		_root.path_join("zones/home/chunks/0_0.chunk"), PackedByteArray([0, 1, 2, 3])
 	)
@@ -200,7 +220,7 @@ func test_entity_type_ids_survive_content_added_after_the_save() -> void:
 	var zone: Zone = _zone()
 	var rabbit_id: int = zone.entities.spawn(
 		_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
-	var errs: PackedStringArray = SaveManager.save_zone(_root, zone, _registry, true)
+	var errs: PackedStringArray = SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), true)
 	assert_eq(errs.size(), 0, ", ".join(errs))
 
 	var shifted: ContentRegistry = ContentRegistry.new()
@@ -225,7 +245,7 @@ func test_an_entity_type_missing_from_the_build_becomes_the_placeholder() -> voi
 		"id": "dodo", "category": "creature", "display_name": "Dodo", "sprite": "",
 	})
 	var id: int = zone.entities.spawn(gone, Vector2(5.5, 5.5))
-	SaveManager.save_zone(_root, zone, _registry, true)
+	SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), true)
 
 	# A registry built from data/ alone has never heard of a dodo.
 	var plain: ContentRegistry = ContentRegistry.new()
@@ -251,7 +271,7 @@ func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
 	# a plain grass tile is not.
 	zone.set_flags(Vector2i(3, 3), Chunk.FLAG_WALKABLE)
 	zone.set_flags(Vector2i(5, 5), 0)
-	SaveManager.save_zone(_root, zone, _registry, true)
+	SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), true)
 
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_true(result.ok, result.error)
@@ -260,14 +280,18 @@ func test_walkability_is_recomputed_on_load_not_trusted_from_disk() -> void:
 	assert_true(back.is_walkable(Vector2i(5, 5)), "plain grass came back blocked")
 
 
-func test_a_freshly_loaded_zone_is_not_dirty() -> void:
-	# The recompute above touches every chunk. If it left them dirty the
-	# first autosave would rewrite all 16 for nothing.
+func test_a_freshly_loaded_zone_owes_the_save_nothing() -> void:
+	# The recompute on load touches every chunk. A consumer marks the
+	# loaded state as seen and only later edits are work; nothing has to
+	# be cleared for the first autosave to stay cheap.
 	var zone: Zone = _zone()
-	SaveManager.save_zone(_root, zone, _registry, true)
+	SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), true)
 	var result: DecodeResult = SaveManager.load_zone(_root, "home", _registry)
 	assert_true(result.ok, result.error)
-	assert_eq((result.value as Zone).dirty_chunk_coords().size(), 0)
+	var loaded: Zone = result.value
+	var w: ChunkWatcher = ChunkWatcher.new()
+	w.mark_seen(loaded)
+	assert_eq(w.changed(loaded).size(), 0)
 
 
 func test_the_first_write_leaves_no_backup() -> void:
@@ -303,10 +327,10 @@ func test_writing_without_keep_backup_rotates_nothing() -> void:
 func test_loading_from_the_backup_returns_the_previous_entities() -> void:
 	var zone: Zone = _zone()
 	var id: int = zone.entities.spawn(_registry.numeric_of("rabbit"), Vector2(10.5, 10.5))
-	SaveManager.save_zone(_root, zone, _registry, true, true)
+	SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), true, true)
 
 	zone.entities.set_position(id, Vector2(99.5, 99.5))
-	SaveManager.save_zone(_root, zone, _registry, false, true)
+	SaveManager.save_zone(_root, zone, _registry, ChunkWatcher.new(), false, true)
 
 	var live: DecodeResult = SaveManager.load_zone(_root, "home", _registry, false)
 	var backup: DecodeResult = SaveManager.load_zone(_root, "home", _registry, true)
@@ -320,7 +344,7 @@ func test_ambient_round_trips_through_zone_meta() -> void:
 	var zone: Zone = _zone()
 	zone.ambient = "bed_meadow"
 	var errors: PackedStringArray = SaveManager.save_zone(
-		_root, zone, _registry, true)
+		_root, zone, _registry, ChunkWatcher.new(), true)
 	assert_eq(errors.size(), 0, "\n".join(errors))
 
 	var back: DecodeResult = SaveManager.load_zone(_root, zone.id, _registry)
@@ -333,7 +357,7 @@ func test_a_zone_meta_without_ambient_loads_silent() -> void:
 	# as a silent zone rather than as a failure.
 	var zone: Zone = _zone()
 	var errors: PackedStringArray = SaveManager.save_zone(
-		_root, zone, _registry, true)
+		_root, zone, _registry, ChunkWatcher.new(), true)
 	assert_eq(errors.size(), 0, "\n".join(errors))
 
 	var meta_path: String = _root.path_join("zones/%s/zone_meta.json" % zone.id)
