@@ -113,6 +113,17 @@ func tick_animals(delta: float) -> void:
 	)
 
 
+## Drops cached collision rects for every chunk edited since the last
+## step, so a tile placed this frame is solid to the player and the animals
+## on the next one. Called by the router before tick_animals(): the router
+## is an ancestor of the player, so it runs first in the physics step and
+## both movers read the same, current geometry.
+func tick_collision() -> void:
+	if _collision == null or zone == null:
+		return
+	var _dropped: int = _collision.invalidate_changed(zone)
+
+
 ## Audio is ticked from the same physics step as movement, so the distance
 ## the player covered and the cues it produces belong to the same frame.
 ## The director is passed in rather than owned: it outlives the world, so
@@ -125,3 +136,52 @@ func tick_audio(director: AudioDirector) -> void:
 	var terrain_id: int = zone.get_terrain(tile) if zone.in_bounds(tile) else 0
 	_audio.play(director.tick(_player.distance_moved_last_step, terrain_id))
 	_audio.set_bed(director.bed())
+
+
+# --- debug ------------------------------------------------------------
+
+## World is PROCESS_MODE_PAUSABLE, so this is not heard while paused.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_place"):
+		get_viewport().set_input_as_handled()
+		_debug_place_wall()
+
+
+## DEBUG ONLY -- removed in Phase 10 when build mode lands. This exists to
+## prove the Phase 7 mutation spine end to end: one edit, seen by the
+## renderer, the collider and the save without any of them robbing the
+## others.
+func _debug_place_wall() -> void:
+	if zone == null or not zone.entities.has(player_entity_id):
+		return
+	var tile: Vector2i = _player_facing_tile()
+	if not zone.in_bounds(tile):
+		return
+	if zone.get_object(tile) != ContentRegistry.ID_UNKNOWN:
+		return
+	# A wall dropped across the player's own body would trap them inside a
+	# solid, which is a movement bug report rather than a spine test.
+	var feet: Vector2 = zone.entities.get_position(player_entity_id)
+	var tile_rect: Rect2 = Rect2(Vector2(tile), Vector2.ONE)
+	if tile_rect.intersects(MovementSystem.body_rect(feet, _player.body)):
+		return
+	zone.set_object(tile, _registry.numeric_of("wall_wood"))
+	# Walkability owns the walkable rule; setting the flag byte by hand
+	# would also clobber FLAG_BLOCKS_LIGHT, which shares it.
+	var _changed: int = Walkability.recompute_chunk(
+		zone.get_chunk(Coords.world_to_chunk(tile)), _registry)
+
+
+## The tile one step from the player in the direction they face. Facing
+## is an octant index from MovementSystem.facing_from(): 0 is south and
+## each step turns a quarter of PI toward east, so this is its inverse.
+## Diagonal facings yield the diagonal neighbour.
+func _player_facing_tile() -> Vector2i:
+	var feet: Vector2 = zone.entities.get_position(player_entity_id)
+	# Position is the bottom-centre of the body; the tile the player stands
+	# on is the one under the body's centre, not under its bottom edge.
+	var centre: Vector2 = feet - Vector2(0.0, _player.body.y * 0.5)
+	var standing: Vector2i = Vector2i(floori(centre.x), floori(centre.y))
+	var octant: int = zone.entities.get_facing(player_entity_id)
+	var dir: Vector2 = Vector2.from_angle(PI * 0.5 - octant * PI * 0.25)
+	return standing + Vector2i(roundi(dir.x), roundi(dir.y))
