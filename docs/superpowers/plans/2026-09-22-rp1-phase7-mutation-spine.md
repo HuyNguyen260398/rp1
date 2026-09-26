@@ -514,7 +514,7 @@ git commit -m "docs: tick Phase 7 task 3"
   `SaveManager.save_zone(save_root: String, zone: Zone, registry: ContentRegistry, watcher: ChunkWatcher, all_chunks: bool = false, keep_backup: bool = false) -> PackedStringArray`
   — `watcher` is required and inserted after `registry`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `tests/test_save_manager.gd`, replace `test_only_dirty_chunks_are_rewritten`
 and `test_a_freshly_loaded_zone_is_not_dirty`:
@@ -568,12 +568,12 @@ delete the chunk directory before the second save and assert on what
 reappears. Pick whichever matches the helpers already in the file; do not
 invent a second style.
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `save_zone` takes 5 arguments, not 6.
 
-- [ ] **Step 3: Change the signature**
+- [x] **Step 3: Change the signature**
 
 In `src/core/save/save_manager.gd`, replace lines 52-55:
 
@@ -589,7 +589,7 @@ static func save_zone(
 ) -> PackedStringArray:
 ```
 
-- [ ] **Step 4: Use the watcher, and stop clearing**
+- [x] **Step 4: Use the watcher, and stop clearing**
 
 Replace line 83:
 
@@ -618,7 +618,7 @@ comment:
 	# watcher was already marked seen above. Nothing further is owed.
 ```
 
-- [ ] **Step 5: Give GameSession the watcher**
+- [x] **Step 5: Give GameSession the watcher**
 
 In `src/systems/game_session.gd`, add near the other fields:
 
@@ -640,7 +640,7 @@ add `_save_watcher.forget()` after the zone is assigned — versions are per
 zone, and carrying them across worlds would make the first save of a new world
 skip chunks.
 
-- [ ] **Step 6: Correct two comments that versions made stale, and leave `all_chunks` alone**
+- [x] **Step 6: Correct two comments that versions made stale, and leave `all_chunks` alone**
 
 `src/systems/game_session.gd:30` and `tests/test_game_session.gd:105` both
 explain that "nothing in Stage 1 dirties a tile, so a dirty-only first save
@@ -659,20 +659,20 @@ every chunk's id columns and must write them all regardless of what any
 watcher believes. Removing the flag would make a recompute write only the
 chunks a player happened to touch, which corrupts the rest silently.
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all scripts. This is the first point in the phase where the
 whole suite is green again.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd src/systems/game_session.gd tests/test_save_manager.gd tests/test_game_session.gd
 git commit -m "feat: the save keeps its own record of what it has written"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
