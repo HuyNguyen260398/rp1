@@ -35,7 +35,6 @@ func before_each() -> void:
 		for x: int in range(128):
 			_zone.set_terrain(Vector2i(x, y), grass)
 	Walkability.recompute_zone(_zone, _registry)
-	_zone.clear_dirty()
 
 	var rabbit: int = _registry.numeric_of("rabbit")
 	for n: int in range(ANIMALS):
