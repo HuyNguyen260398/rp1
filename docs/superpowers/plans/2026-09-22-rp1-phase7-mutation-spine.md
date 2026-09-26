@@ -693,7 +693,7 @@ git commit -m "docs: tick Phase 7 task 4"
 - Produces: `ZoneRenderer.refresh_changed(p_zone: Zone) -> int` — returns cells
   painted, `0` when nothing changed. `refresh_dirty` no longer exists.
 
-- [ ] **Step 1: Rewrite the repaint path**
+- [x] **Step 1: Rewrite the repaint path**
 
 In `src/presentation/zone_renderer.gd`, add a field beside `var zone: Zone`:
 
@@ -739,7 +739,7 @@ In `render_zone()`, after the full paint, add:
 so a full paint leaves the renderer owing nothing, and pointing the renderer
 at a different zone does not carry stale versions across.
 
-- [ ] **Step 2: Update the smoke test**
+- [x] **Step 2: Update the smoke test**
 
 In `tools/smoke.gd`, replace lines 59-67:
 
@@ -755,7 +755,7 @@ In `tools/smoke.gd`, replace lines 59-67:
 		"repainting a chunk does not change the cell count")
 ```
 
-- [ ] **Step 3: Run the tests and the smoke test**
+- [x] **Step 3: Run the tests and the smoke test**
 
 ```bash
 ./tools/run_tests.sh
@@ -763,14 +763,14 @@ In `tools/smoke.gd`, replace lines 59-67:
 ```
 Expected: tests PASS; smoke prints `Smoke test: OK (300 iterations)`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/zone_renderer.gd tools/smoke.gd
 git commit -m "feat: the renderer repaints from its own watcher"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
