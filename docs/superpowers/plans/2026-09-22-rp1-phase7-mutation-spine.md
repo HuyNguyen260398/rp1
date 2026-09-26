@@ -796,7 +796,7 @@ something does.
   the cached rects for every chunk whose version moved, returns how many were
   dropped.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_collision_builder.gd`:
 
@@ -836,12 +836,12 @@ func test_a_rebuilt_chunk_reflects_the_new_tiles() -> void:
 		"the rebuilt chunk reflects the newly solid tile")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `invalidate_changed` is not a method of `CollisionBuilder`.
 
-- [ ] **Step 3: Implement it**
+- [x] **Step 3: Implement it**
 
 Add to `src/systems/collision_builder.gd`:
 
@@ -861,7 +861,7 @@ func invalidate_changed(zone: Zone) -> int:
 	return changed.size()
 ```
 
-- [ ] **Step 4: Correct the stale header**
+- [x] **Step 4: Correct the stale header**
 
 Replace lines 17-21 of `src/systems/collision_builder.gd`:
 
@@ -876,19 +876,19 @@ Replace lines 17-21 of `src/systems/collision_builder.gd`:
 The old text blamed "Phase 4", which never owned this — Phase 4 introduced
 entity movement, not tile mutation. Do not preserve that sentence.
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/collision_builder.gd tests/test_collision_builder.gd
 git commit -m "feat: the collider rebuilds only the chunks that changed"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
