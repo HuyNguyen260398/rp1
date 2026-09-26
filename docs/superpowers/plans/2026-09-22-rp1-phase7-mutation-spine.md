@@ -407,7 +407,7 @@ reaches for the familiar name. It goes.
 - Produces: `Zone` with no `dirty_chunk_coords()` and no `clear_dirty()`.
   Callers use a `ChunkWatcher`.
 
-- [ ] **Step 1: Replace the Zone dirty test**
+- [x] **Step 1: Replace the Zone dirty test**
 
 In `tests/test_zone.gd`, replace `test_dirty_tracking`:
 
@@ -423,7 +423,7 @@ func test_writes_advance_the_version_of_each_touched_chunk() -> void:
 	assert_eq(w.changed(_z).size(), 0)
 ```
 
-- [ ] **Step 2: Replace the loader test**
+- [x] **Step 2: Replace the loader test**
 
 In `tests/test_zone_loader.gd`, replace `test_the_zone_comes_back_with_no_dirty_chunks`:
 
@@ -439,14 +439,14 @@ func test_a_freshly_loaded_zone_owes_a_watcher_nothing_once_seen() -> void:
 		"a loaded zone reports no work once seen")
 ```
 
-- [ ] **Step 3: Run them and watch them fail**
+- [x] **Step 3: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — the new tests fail, and the existing `clear_dirty()` calls in
 `test_animal_system.gd` and `test_animal_budget.gd` still compile because the
 function still exists.
 
-- [ ] **Step 4: Delete both functions from `src/core/zone.gd`**
+- [x] **Step 4: Delete both functions from `src/core/zone.gd`**
 
 Remove `dirty_chunk_coords()` (lines 58-64) and `clear_dirty()` (lines 66-68)
 entirely. Leave `install_chunk`'s comment at line 39 intact but correct it:
@@ -456,7 +456,7 @@ entirely. Leave `install_chunk`'s comment at line 39 intact but correct it:
 ## version: a loaded chunk matches disk, so no consumer owes it work.
 ```
 
-- [ ] **Step 5: Drop the loader's clear**
+- [x] **Step 5: Drop the loader's clear**
 
 In `src/core/zone_loader.gd`, delete the `zone.clear_dirty()` call at line 81
 and replace the comment above it:
@@ -466,7 +466,7 @@ and replace the comment above it:
 	# freshly built zone is already at the state a watcher will mark seen.
 ```
 
-- [ ] **Step 6: Fix the four incidental call sites**
+- [x] **Step 6: Fix the four incidental call sites**
 
 In `tests/test_animal_system.gd` (lines 25, 139, 185) and
 `tests/test_animal_budget.gd` (line 38), these tests called `zone.clear_dirty()`
@@ -474,21 +474,21 @@ only to establish a quiet baseline. They no longer need it — **delete the
 line** in all four places. Nothing replaces it: animals move entities, not
 tiles, so they never advanced a chunk version in the first place.
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: `test_zone.gd`, `test_zone_loader.gd`, `test_animal_system.gd` and
 `test_animal_budget.gd` PASS. `test_save_manager.gd` still FAILS — Task 4
 fixes it. `tools/smoke.gd` is not run by the suite.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/zone.gd src/core/zone_loader.gd tests/test_zone.gd tests/test_zone_loader.gd tests/test_animal_system.gd tests/test_animal_budget.gd
 git commit -m "feat: the zone no longer owns a shared dirty flag"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
