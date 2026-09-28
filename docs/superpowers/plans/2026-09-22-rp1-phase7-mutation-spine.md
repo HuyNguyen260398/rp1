@@ -1005,12 +1005,12 @@ git commit -m "docs: tick Phase 7 task 7"
 
 ## Definition of done
 
-- [ ] `Chunk.dirty` does not exist anywhere in `src/`, `tools/` or `tests/`
-- [ ] `Zone.clear_dirty` and `Zone.dirty_chunk_coords` do not exist
-- [ ] A renderer watcher and a save watcher both observe the same edit, proved
+- [x] `Chunk.dirty` does not exist anywhere in `src/`, `tools/` or `tests/`
+- [x] `Zone.clear_dirty` and `Zone.dirty_chunk_coords` do not exist
+- [x] A renderer watcher and a save watcher both observe the same edit, proved
       by `test_the_renderer_consuming_first_does_not_rob_the_save`
-- [ ] A wall placed with the debug key survives a full process relaunch
-- [ ] A placed wall blocks movement on the frame after it is placed
-- [ ] Only changed chunks are rewritten on an incremental save
-- [ ] `collision_builder.gd`'s header no longer blames Phase 4
-- [ ] All six local gates green, and CI green on the branch
+- [x] A wall placed with the debug key survives a full process relaunch
+- [x] A placed wall blocks movement on the frame after it is placed
+- [x] Only changed chunks are rewritten on an incremental save
+- [x] `collision_builder.gd`'s header no longer blames Phase 4
+- [x] All six local gates green, and CI green on the branch
