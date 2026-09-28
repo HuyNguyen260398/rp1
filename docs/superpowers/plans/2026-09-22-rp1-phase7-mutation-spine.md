@@ -914,13 +914,13 @@ The vertical slice. No UI, no mouse, no inventory, no cost — those are Phases
 - Produces: nothing later phases depend on. **The debug action is removed in
   Phase 10**, when the real build mode lands. Leave a comment saying so.
 
-- [ ] **Step 1: Add the input action**
+- [x] **Step 1: Add the input action**
 
 In `project.godot`, under `[input]`, add a `debug_place` action bound to `B`,
 matching the shape of the existing `pause` entry exactly (including
 `"deadzone": 0.2`).
 
-- [ ] **Step 2: Place a wall on the faced tile**
+- [x] **Step 2: Place a wall on the faced tile**
 
 In `src/presentation/world.gd`, add:
 
@@ -951,12 +951,12 @@ follow the file's existing pattern rather than introducing a second one):
 direction. If `world.gd` has no such helper, add one next to the existing
 facing code and keep it private.
 
-- [ ] **Step 3: Rebuild collision each frame from the watcher**
+- [x] **Step 3: Rebuild collision each frame from the watcher**
 
 Wherever `world.gd` ticks the collider, call `invalidate_changed(zone)` before
 reading rects, so a placed wall becomes solid on the next frame.
 
-- [ ] **Step 4: Run it and place a wall**
+- [x] **Step 4: Run it and place a wall**
 
 ```bash
 ./tools/godot.sh --path .
@@ -964,17 +964,17 @@ reading rects, so a placed wall becomes solid on the next frame.
 
 New World, walk, press **B**. Check by hand:
 
-- [ ] A wooden wall appears on the tile the player faces
-- [ ] The player cannot walk into it
-- [ ] Pressing B against an occupied tile does nothing
-- [ ] Quit to Menu, then Continue — **the wall is still there**
-- [ ] Quit the process entirely, relaunch, Continue — **the wall is still there**
+- [x] A wooden wall appears on the tile the player faces
+- [x] The player cannot walk into it
+- [x] Pressing B against an occupied tile does nothing
+- [x] Quit to Menu, then Continue — **the wall is still there**
+- [x] Quit the process entirely, relaunch, Continue — **the wall is still there**
 
 The last two are the phase. If the wall survives a Quit to Menu but not a
 process relaunch, the save did not see the edit and the watcher wiring in
 Task 4 is wrong.
 
-- [ ] **Step 5: Run every gate**
+- [x] **Step 5: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -986,14 +986,14 @@ Task 4 is wrong.
 ```
 Expected: all six exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot src/presentation/world.gd
 git commit -m "feat: a wall placed in play survives a relaunch"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
