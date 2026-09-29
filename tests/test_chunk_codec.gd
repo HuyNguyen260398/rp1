@@ -58,10 +58,10 @@ func test_columns_round_trip_byte_identical() -> void:
 	assert_eq(back.flags, original.flags)
 
 
-func test_decoded_chunk_is_not_dirty() -> void:
-	# A chunk just read from disk matches disk, so saving it again is waste.
-	var back: Chunk = ChunkCodec.decode(ChunkCodec.encode(_sample_chunk())).value
-	assert_false(back.dirty)
+func test_a_decoded_chunk_starts_at_version_zero() -> void:
+	var c: Chunk = _sample_chunk()
+	var back: Chunk = ChunkCodec.decode(ChunkCodec.encode(c)).value as Chunk
+	assert_eq(back.version, 0, "a chunk read from disk owes no consumer work")
 
 
 func test_compression_actually_shrinks_repetitive_data() -> void:

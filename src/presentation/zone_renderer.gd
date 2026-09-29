@@ -18,6 +18,9 @@ var _build: TilesetBuildResult = null
 ## is inert and only repaints when called explicitly.
 var zone: Zone = null
 
+## This renderer's own record of what it has painted. See refresh_changed().
+var _watcher: ChunkWatcher = ChunkWatcher.new()
+
 
 func _ready() -> void:
 	_ensure_layers()
@@ -73,6 +76,10 @@ func render_zone(zone: Zone) -> int:
 	var painted: int = 0
 	for c: Vector2i in zone.chunk_coords():
 		painted += _paint_chunk(zone, c)
+	# A full paint leaves the renderer owing nothing, and forgetting first
+	# means pointing it at a different zone carries no stale versions across.
+	_watcher.forget()
+	_watcher.mark_seen(zone)
 	return painted
 
 
@@ -112,20 +119,23 @@ func cells_painted() -> int:
 	return total
 
 
-## Repaints only the chunks the zone has marked dirty, then clears the
-## flags. This is the only repaint permitted from _process: a full
+## Repaints only the chunks whose version has moved since this renderer
+## last painted them. The only repaint permitted from _process: a full
 ## render_zone() every frame would be 16,384 set_cell calls per frame.
-func refresh_dirty(p_zone: Zone) -> int:
-	var dirty: Array[Vector2i] = p_zone.dirty_chunk_coords()
-	if dirty.is_empty():
+##
+## The watcher is private to the renderer. Nothing is cleared, so the save
+## and the collider still see the same edits -- see Stage 2 design §3.1.
+func refresh_changed(p_zone: Zone) -> int:
+	var changed: Array[Vector2i] = _watcher.changed(p_zone)
+	if changed.is_empty():
 		return 0
 	var painted: int = 0
-	for c: Vector2i in dirty:
+	for c: Vector2i in changed:
 		painted += _paint_chunk(p_zone, c)
-	p_zone.clear_dirty()
+	_watcher.mark_seen(p_zone)
 	return painted
 
 
 func _process(_delta: float) -> void:
 	if zone != null:
-		refresh_dirty(zone)
+		refresh_changed(zone)

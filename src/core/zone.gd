@@ -36,8 +36,8 @@ func get_chunk(c: Vector2i, create: bool = false) -> Chunk:
 	return chunk
 
 
-## Installs a pre-built chunk, used by the loader. Does not mark it dirty:
-## a chunk just read from disk already matches disk.
+## Installs a pre-built chunk, used by the loader. Does not advance its
+## version: a loaded chunk matches disk, so no consumer owes it work.
 func install_chunk(chunk: Chunk) -> void:
 	_chunks[chunk.coord] = chunk
 
@@ -53,19 +53,6 @@ func chunk_coords() -> Array[Vector2i]:
 
 func in_bounds(w: Vector2i) -> bool:
 	return w.x >= 0 and w.y >= 0 and w.x < size_tiles.x and w.y < size_tiles.y
-
-
-func dirty_chunk_coords() -> Array[Vector2i]:
-	var out: Array[Vector2i] = []
-	for c: Vector2i in chunk_coords():
-		if (_chunks[c] as Chunk).dirty:
-			out.append(c)
-	return out
-
-
-func clear_dirty() -> void:
-	for c: Vector2i in _chunks:
-		(_chunks[c] as Chunk).dirty = false
 
 
 func get_terrain(w: Vector2i) -> int:

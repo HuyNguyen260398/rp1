@@ -102,8 +102,10 @@ func _opened() -> GameSession:
 
 
 func test_the_first_save_writes_every_chunk() -> void:
-	# Nothing in Stage 1 dirties a tile, so a dirty-only first save writes
-	# an empty chunks/ directory and Continue paints a black screen.
+	# A fresh ChunkWatcher has seen nothing, and changed() defaults an
+	# unseen chunk to -1, which never equals a real version. So a first
+	# save writes every chunk even without needs_full_save -- the old
+	# black-screen-Continue hazard is gone, and this pins that down.
 	var s: GameSession = _opened()
 	assert_eq(s.save_now(_registry, "new_world").size(), 0)
 

@@ -78,7 +78,7 @@ consumed once, and two consumers consuming it is the bug.
 - Produces: `Chunk.version: int`, starting at `0`, strictly increasing on every
   write. `Chunk.dirty` no longer exists.
 
-- [ ] **Step 1: Rewrite the two failing tests in `tests/test_chunk.gd`**
+- [x] **Step 1: Rewrite the two failing tests in `tests/test_chunk.gd`**
 
 Replace `test_setters_mark_the_chunk_dirty` and
 `test_getters_do_not_mark_the_chunk_dirty`, and fix the assertion at line 22:
@@ -129,12 +129,12 @@ func test_getters_do_not_advance_the_version() -> void:
 	assert_eq(_c.version, after_write, "reading must not advance the version")
 ```
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Invalid access to property or key 'version' on a base object of type 'RefCounted (Chunk)'`.
 
-- [ ] **Step 3: Change the declaration in `src/core/chunk.gd`**
+- [x] **Step 3: Change the declaration in `src/core/chunk.gd`**
 
 Replace line 18:
 
@@ -146,7 +146,7 @@ Replace line 18:
 var version: int = 0
 ```
 
-- [ ] **Step 4: Bump it in all five setters**
+- [x] **Step 4: Bump it in all five setters**
 
 In each of `set_terrain`, `set_floor`, `set_object`, `set_height` and
 `set_flags`, replace `dirty = true` with:
@@ -155,7 +155,7 @@ In each of `set_terrain`, `set_floor`, `set_object`, `set_height` and
 	version += 1
 ```
 
-- [ ] **Step 5: Fix the decoder**
+- [x] **Step 5: Fix the decoder**
 
 `src/core/save/chunk_codec.gd:122` currently reads `chunk.dirty = false`.
 Replace it, keeping the comment's intent:
@@ -167,7 +167,7 @@ Replace it, keeping the comment's intent:
 	chunk.version = 0
 ```
 
-- [ ] **Step 6: Fix the codec test**
+- [x] **Step 6: Fix the codec test**
 
 In `tests/test_chunk_codec.gd`, replace `test_decoded_chunk_is_not_dirty`:
 
@@ -178,7 +178,7 @@ func test_a_decoded_chunk_starts_at_version_zero() -> void:
 	assert_eq(back.version, 0, "a chunk read from disk owes no consumer work")
 ```
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: the Chunk and ChunkCodec tests PASS. Tests in `test_zone.gd`,
@@ -186,14 +186,14 @@ Expected: the Chunk and ChunkCodec tests PASS. Tests in `test_zone.gd`,
 `test_animal_budget.gd` will still FAIL — they call `clear_dirty()` and
 `dirty_chunk_coords()`, which Task 3 removes. That is expected here.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/chunk.gd src/core/save/chunk_codec.gd tests/test_chunk.gd tests/test_chunk_codec.gd
 git commit -m "feat: a chunk carries a version, not a dirty flag"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -223,7 +223,7 @@ The comparison lives in exactly one place. Three consumers implementing
     `changed()` reports every chunk. Used when a consumer is pointed at a
     different zone.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_chunk_watcher.gd`:
 
@@ -308,12 +308,12 @@ func test_a_chunk_created_after_the_last_look_is_reported() -> void:
 		"a chunk brought into existence by a write is work")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — GUT cannot resolve the `ChunkWatcher` class name.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/core/chunk_watcher.gd`:
 
@@ -368,19 +368,19 @@ func forget() -> void:
 Note the `-1` default in `changed()`: a chunk never seen cannot compare equal
 to version `0`, which is what makes a fresh watcher report everything.
 
-- [ ] **Step 4: Run the test**
+- [x] **Step 4: Run the test**
 
 Run: `./tools/run_tests.sh`
 Expected: all seven `test_chunk_watcher.gd` tests PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/chunk_watcher.gd tests/test_chunk_watcher.gd
 git commit -m "feat: a per-consumer chunk watcher"
 ```
 
-- [ ] **Step 6: Tick the plan**
+- [x] **Step 6: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -407,7 +407,7 @@ reaches for the familiar name. It goes.
 - Produces: `Zone` with no `dirty_chunk_coords()` and no `clear_dirty()`.
   Callers use a `ChunkWatcher`.
 
-- [ ] **Step 1: Replace the Zone dirty test**
+- [x] **Step 1: Replace the Zone dirty test**
 
 In `tests/test_zone.gd`, replace `test_dirty_tracking`:
 
@@ -423,7 +423,7 @@ func test_writes_advance_the_version_of_each_touched_chunk() -> void:
 	assert_eq(w.changed(_z).size(), 0)
 ```
 
-- [ ] **Step 2: Replace the loader test**
+- [x] **Step 2: Replace the loader test**
 
 In `tests/test_zone_loader.gd`, replace `test_the_zone_comes_back_with_no_dirty_chunks`:
 
@@ -439,14 +439,14 @@ func test_a_freshly_loaded_zone_owes_a_watcher_nothing_once_seen() -> void:
 		"a loaded zone reports no work once seen")
 ```
 
-- [ ] **Step 3: Run them and watch them fail**
+- [x] **Step 3: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — the new tests fail, and the existing `clear_dirty()` calls in
 `test_animal_system.gd` and `test_animal_budget.gd` still compile because the
 function still exists.
 
-- [ ] **Step 4: Delete both functions from `src/core/zone.gd`**
+- [x] **Step 4: Delete both functions from `src/core/zone.gd`**
 
 Remove `dirty_chunk_coords()` (lines 58-64) and `clear_dirty()` (lines 66-68)
 entirely. Leave `install_chunk`'s comment at line 39 intact but correct it:
@@ -456,7 +456,7 @@ entirely. Leave `install_chunk`'s comment at line 39 intact but correct it:
 ## version: a loaded chunk matches disk, so no consumer owes it work.
 ```
 
-- [ ] **Step 5: Drop the loader's clear**
+- [x] **Step 5: Drop the loader's clear**
 
 In `src/core/zone_loader.gd`, delete the `zone.clear_dirty()` call at line 81
 and replace the comment above it:
@@ -466,7 +466,7 @@ and replace the comment above it:
 	# freshly built zone is already at the state a watcher will mark seen.
 ```
 
-- [ ] **Step 6: Fix the four incidental call sites**
+- [x] **Step 6: Fix the four incidental call sites**
 
 In `tests/test_animal_system.gd` (lines 25, 139, 185) and
 `tests/test_animal_budget.gd` (line 38), these tests called `zone.clear_dirty()`
@@ -474,21 +474,21 @@ only to establish a quiet baseline. They no longer need it — **delete the
 line** in all four places. Nothing replaces it: animals move entities, not
 tiles, so they never advanced a chunk version in the first place.
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: `test_zone.gd`, `test_zone_loader.gd`, `test_animal_system.gd` and
 `test_animal_budget.gd` PASS. `test_save_manager.gd` still FAILS — Task 4
 fixes it. `tools/smoke.gd` is not run by the suite.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/zone.gd src/core/zone_loader.gd tests/test_zone.gd tests/test_zone_loader.gd tests/test_animal_system.gd tests/test_animal_budget.gd
 git commit -m "feat: the zone no longer owns a shared dirty flag"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -514,7 +514,7 @@ git commit -m "docs: tick Phase 7 task 3"
   `SaveManager.save_zone(save_root: String, zone: Zone, registry: ContentRegistry, watcher: ChunkWatcher, all_chunks: bool = false, keep_backup: bool = false) -> PackedStringArray`
   — `watcher` is required and inserted after `registry`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `tests/test_save_manager.gd`, replace `test_only_dirty_chunks_are_rewritten`
 and `test_a_freshly_loaded_zone_is_not_dirty`:
@@ -568,12 +568,12 @@ delete the chunk directory before the second save and assert on what
 reappears. Pick whichever matches the helpers already in the file; do not
 invent a second style.
 
-- [ ] **Step 2: Run them and watch them fail**
+- [x] **Step 2: Run them and watch them fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `save_zone` takes 5 arguments, not 6.
 
-- [ ] **Step 3: Change the signature**
+- [x] **Step 3: Change the signature**
 
 In `src/core/save/save_manager.gd`, replace lines 52-55:
 
@@ -589,7 +589,7 @@ static func save_zone(
 ) -> PackedStringArray:
 ```
 
-- [ ] **Step 4: Use the watcher, and stop clearing**
+- [x] **Step 4: Use the watcher, and stop clearing**
 
 Replace line 83:
 
@@ -618,7 +618,7 @@ comment:
 	# watcher was already marked seen above. Nothing further is owed.
 ```
 
-- [ ] **Step 5: Give GameSession the watcher**
+- [x] **Step 5: Give GameSession the watcher**
 
 In `src/systems/game_session.gd`, add near the other fields:
 
@@ -640,7 +640,7 @@ add `_save_watcher.forget()` after the zone is assigned — versions are per
 zone, and carrying them across worlds would make the first save of a new world
 skip chunks.
 
-- [ ] **Step 6: Correct two comments that versions made stale, and leave `all_chunks` alone**
+- [x] **Step 6: Correct two comments that versions made stale, and leave `all_chunks` alone**
 
 `src/systems/game_session.gd:30` and `tests/test_game_session.gd:105` both
 explain that "nothing in Stage 1 dirties a tile, so a dirty-only first save
@@ -659,20 +659,20 @@ every chunk's id columns and must write them all regardless of what any
 watcher believes. Removing the flag would make a recompute write only the
 chunks a player happened to touch, which corrupts the rest silently.
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all scripts. This is the first point in the phase where the
 whole suite is green again.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/core/save/save_manager.gd src/systems/game_session.gd tests/test_save_manager.gd tests/test_game_session.gd
 git commit -m "feat: the save keeps its own record of what it has written"
 ```
 
-- [ ] **Step 9: Tick the plan**
+- [x] **Step 9: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -693,7 +693,7 @@ git commit -m "docs: tick Phase 7 task 4"
 - Produces: `ZoneRenderer.refresh_changed(p_zone: Zone) -> int` — returns cells
   painted, `0` when nothing changed. `refresh_dirty` no longer exists.
 
-- [ ] **Step 1: Rewrite the repaint path**
+- [x] **Step 1: Rewrite the repaint path**
 
 In `src/presentation/zone_renderer.gd`, add a field beside `var zone: Zone`:
 
@@ -739,7 +739,7 @@ In `render_zone()`, after the full paint, add:
 so a full paint leaves the renderer owing nothing, and pointing the renderer
 at a different zone does not carry stale versions across.
 
-- [ ] **Step 2: Update the smoke test**
+- [x] **Step 2: Update the smoke test**
 
 In `tools/smoke.gd`, replace lines 59-67:
 
@@ -755,7 +755,7 @@ In `tools/smoke.gd`, replace lines 59-67:
 		"repainting a chunk does not change the cell count")
 ```
 
-- [ ] **Step 3: Run the tests and the smoke test**
+- [x] **Step 3: Run the tests and the smoke test**
 
 ```bash
 ./tools/run_tests.sh
@@ -763,14 +763,14 @@ In `tools/smoke.gd`, replace lines 59-67:
 ```
 Expected: tests PASS; smoke prints `Smoke test: OK (300 iterations)`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/zone_renderer.gd tools/smoke.gd
 git commit -m "feat: the renderer repaints from its own watcher"
 ```
 
-- [ ] **Step 5: Tick the plan**
+- [x] **Step 5: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -796,7 +796,7 @@ something does.
   the cached rects for every chunk whose version moved, returns how many were
   dropped.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_collision_builder.gd`:
 
@@ -836,12 +836,12 @@ func test_a_rebuilt_chunk_reflects_the_new_tiles() -> void:
 		"the rebuilt chunk reflects the newly solid tile")
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `invalidate_changed` is not a method of `CollisionBuilder`.
 
-- [ ] **Step 3: Implement it**
+- [x] **Step 3: Implement it**
 
 Add to `src/systems/collision_builder.gd`:
 
@@ -861,7 +861,7 @@ func invalidate_changed(zone: Zone) -> int:
 	return changed.size()
 ```
 
-- [ ] **Step 4: Correct the stale header**
+- [x] **Step 4: Correct the stale header**
 
 Replace lines 17-21 of `src/systems/collision_builder.gd`:
 
@@ -876,19 +876,19 @@ Replace lines 17-21 of `src/systems/collision_builder.gd`:
 The old text blamed "Phase 4", which never owned this — Phase 4 introduced
 entity movement, not tile mutation. Do not preserve that sentence.
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/collision_builder.gd tests/test_collision_builder.gd
 git commit -m "feat: the collider rebuilds only the chunks that changed"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -914,13 +914,13 @@ The vertical slice. No UI, no mouse, no inventory, no cost — those are Phases
 - Produces: nothing later phases depend on. **The debug action is removed in
   Phase 10**, when the real build mode lands. Leave a comment saying so.
 
-- [ ] **Step 1: Add the input action**
+- [x] **Step 1: Add the input action**
 
 In `project.godot`, under `[input]`, add a `debug_place` action bound to `B`,
 matching the shape of the existing `pause` entry exactly (including
 `"deadzone": 0.2`).
 
-- [ ] **Step 2: Place a wall on the faced tile**
+- [x] **Step 2: Place a wall on the faced tile**
 
 In `src/presentation/world.gd`, add:
 
@@ -951,12 +951,12 @@ follow the file's existing pattern rather than introducing a second one):
 direction. If `world.gd` has no such helper, add one next to the existing
 facing code and keep it private.
 
-- [ ] **Step 3: Rebuild collision each frame from the watcher**
+- [x] **Step 3: Rebuild collision each frame from the watcher**
 
 Wherever `world.gd` ticks the collider, call `invalidate_changed(zone)` before
 reading rects, so a placed wall becomes solid on the next frame.
 
-- [ ] **Step 4: Run it and place a wall**
+- [x] **Step 4: Run it and place a wall**
 
 ```bash
 ./tools/godot.sh --path .
@@ -964,17 +964,17 @@ reading rects, so a placed wall becomes solid on the next frame.
 
 New World, walk, press **B**. Check by hand:
 
-- [ ] A wooden wall appears on the tile the player faces
-- [ ] The player cannot walk into it
-- [ ] Pressing B against an occupied tile does nothing
-- [ ] Quit to Menu, then Continue — **the wall is still there**
-- [ ] Quit the process entirely, relaunch, Continue — **the wall is still there**
+- [x] A wooden wall appears on the tile the player faces
+- [x] The player cannot walk into it
+- [x] Pressing B against an occupied tile does nothing
+- [x] Quit to Menu, then Continue — **the wall is still there**
+- [x] Quit the process entirely, relaunch, Continue — **the wall is still there**
 
 The last two are the phase. If the wall survives a Quit to Menu but not a
 process relaunch, the save did not see the edit and the watcher wiring in
 Task 4 is wrong.
 
-- [ ] **Step 5: Run every gate**
+- [x] **Step 5: Run every gate**
 
 ```bash
 ./tools/run_tests.sh
@@ -986,14 +986,14 @@ Task 4 is wrong.
 ```
 Expected: all six exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot src/presentation/world.gd
 git commit -m "feat: a wall placed in play survives a relaunch"
 ```
 
-- [ ] **Step 7: Tick the plan**
+- [x] **Step 7: Tick the plan**
 
 ```bash
 python3 tools/mark_task_done.py 7 --plan docs/superpowers/plans/2026-09-22-rp1-phase7-mutation-spine.md
@@ -1005,12 +1005,12 @@ git commit -m "docs: tick Phase 7 task 7"
 
 ## Definition of done
 
-- [ ] `Chunk.dirty` does not exist anywhere in `src/`, `tools/` or `tests/`
-- [ ] `Zone.clear_dirty` and `Zone.dirty_chunk_coords` do not exist
-- [ ] A renderer watcher and a save watcher both observe the same edit, proved
+- [x] `Chunk.dirty` does not exist anywhere in `src/`, `tools/` or `tests/`
+- [x] `Zone.clear_dirty` and `Zone.dirty_chunk_coords` do not exist
+- [x] A renderer watcher and a save watcher both observe the same edit, proved
       by `test_the_renderer_consuming_first_does_not_rob_the_save`
-- [ ] A wall placed with the debug key survives a full process relaunch
-- [ ] A placed wall blocks movement on the frame after it is placed
-- [ ] Only changed chunks are rewritten on an incremental save
-- [ ] `collision_builder.gd`'s header no longer blames Phase 4
-- [ ] All six local gates green, and CI green on the branch
+- [x] A wall placed with the debug key survives a full process relaunch
+- [x] A placed wall blocks movement on the frame after it is placed
+- [x] Only changed chunks are rewritten on an incremental save
+- [x] `collision_builder.gd`'s header no longer blames Phase 4
+- [x] All six local gates green, and CI green on the branch

@@ -14,13 +14,14 @@ extends RefCounted
 ## An instance rather than pure statics because it caches. Rebuilding 1024
 ## tiles per chunk per frame is not affordable.
 ##
-## Invalidation is an EXPLICIT call, not a subscription to the zone's dirty
-## flags: ZoneRenderer.refresh_dirty() already consumes and clears those, so
-## a second subscriber would race it and whichever ran second would see
-## nothing to do. Nothing mutates a zone during play in Phase 3b. Phase 4
-## introduces zone mutation and owns the multi-consumer dirty channel.
+## Invalidation is an EXPLICIT call -- invalidate_changed() -- driven by a
+## private ChunkWatcher rather than by a shared flag. Stage 1 had a single
+## boolean that both ZoneRenderer and SaveManager cleared, so a second
+## consumer saw nothing. Phase 7 replaced it with per-chunk versions; see
+## the Stage 2 design §3.1.
 
 var _cache: Dictionary = {}  ## Vector2i chunk coord -> Array[Rect2i]
+var _watcher: ChunkWatcher = ChunkWatcher.new()
 
 
 func rects_for_chunk(chunk: Chunk) -> Array[Rect2i]:
@@ -76,3 +77,15 @@ func solids_near(zone: Zone, area: Rect2) -> Array[Rect2i]:
 
 func invalidate(chunk_coord: Vector2i) -> void:
 	_cache.erase(chunk_coord)
+
+
+## Drops cached rects for every chunk whose version has moved since this
+## builder last looked. Returns how many were dropped. Call once per frame
+## before reading rects; rebuilding 1024 tiles per chunk per frame is not
+## affordable, and rebuilding only what changed is the whole point.
+func invalidate_changed(zone: Zone) -> int:
+	var changed: Array[Vector2i] = _watcher.changed(zone)
+	for c: Vector2i in changed:
+		_cache.erase(c)
+	_watcher.mark_seen(zone)
+	return changed.size()

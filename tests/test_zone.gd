@@ -71,13 +71,15 @@ func test_in_bounds() -> void:
 	assert_false(_z.in_bounds(Vector2i(-1, 0)))
 
 
-func test_dirty_tracking() -> void:
-	assert_eq(_z.dirty_chunk_coords().size(), 0)
-	_z.set_terrain(Vector2i(0, 0), 1)
-	_z.set_terrain(Vector2i(64, 0), 1)
-	assert_eq(_z.dirty_chunk_coords().size(), 2, "two chunks touched")
-	_z.clear_dirty()
-	assert_eq(_z.dirty_chunk_coords().size(), 0)
+func test_writes_advance_the_version_of_each_touched_chunk() -> void:
+	var w: ChunkWatcher = ChunkWatcher.new()
+	w.mark_seen(_z)
+	assert_eq(w.changed(_z).size(), 0)
+	_z.set_object(Vector2i(1, 1), 4)
+	_z.set_object(Vector2i(40, 40), 4)
+	assert_eq(w.changed(_z).size(), 2, "two chunks touched")
+	w.mark_seen(_z)
+	assert_eq(w.changed(_z).size(), 0)
 
 
 func test_chunk_coords_are_sorted_for_determinism() -> void:

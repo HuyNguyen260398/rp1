@@ -114,3 +114,54 @@ func test_invalidate_forces_a_rebuild() -> void:
 
 	_b.invalidate(Vector2i(0, 0))
 	assert_eq(_b.solids_for(z, Vector2i(0, 0)).size(), 1, "rebuilt after invalidation")
+
+
+func test_invalidate_changed_drops_only_the_touched_chunk() -> void:
+	# Chunks are created lazily, so chunk_coords() on a fresh zone is empty.
+	# Bring all four into existence from size_tiles, or the first-look
+	# assertion below compares 0 to 0 and passes vacuously.
+	var z: Zone = Zone.new("t", Vector2i(64, 64))
+	var dims: Vector2i = z.size_tiles / Coords.CHUNK_SIZE
+	for y: int in range(dims.y):
+		for x: int in range(dims.x):
+			var _c: Chunk = z.get_chunk(Vector2i(x, y), true)
+	assert_eq(z.chunk_coords().size(), 4, "the fixture zone is 2x2 chunks")
+	var b: CollisionBuilder = CollisionBuilder.new()
+	for c: Vector2i in z.chunk_coords():
+		var _r: Array[Rect2i] = b.solids_for(z, c)
+	# A builder that has never looked has seen nothing, so its first call
+	# drops every chunk. That is correct -- it cannot know its cache is
+	# current -- and it is what settles the watcher for the asserts below.
+	assert_eq(b.invalidate_changed(z), z.chunk_coords().size(),
+		"the first look treats every chunk as changed")
+	assert_eq(b.invalidate_changed(z), 0, "a quiet zone invalidates nothing")
+
+	z.set_flags(Vector2i(1, 1), 0)
+	assert_eq(b.invalidate_changed(z), 1, "only the touched chunk is dropped")
+	assert_eq(b.invalidate_changed(z), 0, "the drop is not repeated")
+
+
+func test_a_rebuilt_chunk_reflects_the_new_tiles() -> void:
+	# A fresh chunk has every flag byte at 0, which already means NOT
+	# walkable -- so "make a tile solid" on a fresh chunk changes nothing
+	# and would assert vacuously. Make the chunk walkable first, so that
+	# clearing one tile is a real change.
+	var z: Zone = Zone.new("t", Vector2i(64, 64))
+	var _c: Chunk = z.get_chunk(Vector2i(0, 0), true)
+	for y: int in range(Coords.CHUNK_SIZE):
+		for x: int in range(Coords.CHUNK_SIZE):
+			z.set_flags(Vector2i(x, y), Chunk.FLAG_WALKABLE)
+
+	# Read through solids_for(), the cached path. rects_for_chunk() never
+	# caches, so asserting on it would pass without any invalidation at all.
+	var b: CollisionBuilder = CollisionBuilder.new()
+	var _n0: int = b.invalidate_changed(z)
+	var before: int = b.solids_for(z, Vector2i(0, 0)).size()
+	assert_eq(before, 0, "an all-walkable chunk needs no collision rects")
+
+	z.set_flags(Vector2i(2, 2), 0)
+	assert_eq(b.solids_for(z, Vector2i(0, 0)).size(), before,
+		"without invalidation the cache still holds the old rects")
+	var _n: int = b.invalidate_changed(z)
+	assert_gt(b.solids_for(z, Vector2i(0, 0)).size(), before,
+		"the rebuilt chunk reflects the newly solid tile")

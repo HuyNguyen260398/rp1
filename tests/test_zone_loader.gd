@@ -410,11 +410,15 @@ func test_an_unpainted_tile_is_not_walkable() -> void:
 	assert_false(r.zone.is_walkable(Vector2i(10, 10)))
 
 
-func test_the_zone_comes_back_with_no_dirty_chunks() -> void:
+func test_a_freshly_loaded_zone_owes_a_watcher_nothing_once_seen() -> void:
+	# The loader used to clear_dirty() after building. With versions there
+	# is nothing to clear: a consumer marks the loaded state as seen and
+	# only later edits are work.
 	var r: ZoneLoadResult = _four_by_four_with_an_oak()
-
-	assert_eq(r.zone.dirty_chunk_coords(), [] as Array[Vector2i],
-		"the first paint is a full render_zone(), so nothing is pending")
+	var w: ChunkWatcher = ChunkWatcher.new()
+	w.mark_seen(r.zone)
+	assert_eq(w.changed(r.zone), [] as Array[Vector2i],
+		"a loaded zone reports no work once seen")
 
 
 func test_ambient_is_carried_from_the_authored_zone() -> void:

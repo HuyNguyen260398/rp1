@@ -22,7 +22,6 @@ func _make_zone() -> Zone:
 		for x: int in range(32):
 			zone.set_terrain(Vector2i(x, y), grass)
 	Walkability.recompute_zone(zone, _registry)
-	zone.clear_dirty()
 	return zone
 
 
@@ -136,7 +135,6 @@ func _make_walled_zone() -> Zone:
 		for x: int in range(32):
 			zone.set_terrain(Vector2i(x, y), water if x == 16 else grass)
 	Walkability.recompute_zone(zone, _registry)
-	zone.clear_dirty()
 	return zone
 
 
@@ -182,7 +180,6 @@ func test_an_enclosed_animal_dwells_rather_than_spinning() -> void:
 			zone.set_terrain(Vector2i(x, y), water)
 	zone.set_terrain(Vector2i(16, 16), grass)
 	Walkability.recompute_zone(zone, _registry)
-	zone.clear_dirty()
 	_zone = zone
 
 	var id: int = _spawn("rabbit", Vector2(16.5, 16.5))

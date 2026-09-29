@@ -25,11 +25,17 @@ var zone: Zone = null
 var player_entity_id: int = 0
 var playtime: float = 0.0
 
-## The first save of a world must write every chunk. Nothing in Stage 1
-## dirties a tile -- building is out of scope and animals move entity rows,
-## not tiles -- so a dirty-only first save writes no chunks at all and
-## Continue loads a black screen.
+## The first save of a world must write every chunk. A fresh ChunkWatcher
+## has seen nothing and changed() defaults an unseen chunk to -1, which
+## never equals a real version, so a first save already writes every chunk
+## without this flag -- the Stage 1 hazard of a black-screen Continue is
+## gone. The flag stays because the id-recompute path must rewrite every
+## chunk regardless of what any watcher believes.
 var needs_full_save: bool = false
+
+## The save's own view of what it has written. Held here rather than in
+## SaveManager, which is all static functions and has nowhere to keep it.
+var _save_watcher: ChunkWatcher = ChunkWatcher.new()
 
 var _since_autosave: float = 0.0
 var _since_any_save: float = 0.0
@@ -53,6 +59,7 @@ func open_new(zone_dir: String, registry: ContentRegistry) -> SessionOpenResult:
 			"could not load the zone from %s: %s" % [zone_dir, ", ".join(loaded.errors)])
 
 	zone = loaded.zone
+	_save_watcher.forget()
 	player_entity_id = 0
 	playtime = 0.0
 	needs_full_save = true
@@ -93,6 +100,7 @@ func open_saved(registry: ContentRegistry, use_backup: bool = false) -> SessionO
 			% meta.player_entity_id)
 
 	zone = loaded_zone
+	_save_watcher.forget()
 	playtime = meta.playtime
 	player_entity_id = meta.player_entity_id
 	needs_full_save = false
@@ -160,7 +168,7 @@ func save_now(registry: ContentRegistry, reason: String) -> PackedStringArray:
 
 	var started: int = Time.get_ticks_msec()
 	var errors: PackedStringArray = SaveManager.save_zone(
-		save_root, zone, registry, needs_full_save, true)
+		save_root, zone, registry, _save_watcher, needs_full_save, true)
 
 	var meta: WorldMeta = WorldMeta.new()
 	meta.zone_id = zone.id

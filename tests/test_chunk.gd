@@ -19,7 +19,7 @@ func test_column_sizes_match_the_spec() -> void:
 func test_new_chunk_is_zeroed_and_clean() -> void:
 	assert_eq(_c.get_terrain(Vector2i(0, 0)), 0)
 	assert_eq(_c.get_height(Vector2i(31, 31)), 0)
-	assert_false(_c.dirty, "a freshly constructed chunk is not dirty")
+	assert_eq(_c.version, 0, "a freshly constructed chunk is at version 0")
 
 
 func test_coord_is_stored() -> void:
@@ -63,15 +63,49 @@ func test_every_tile_is_addressable() -> void:
 			assert_eq(_c.get_terrain(Vector2i(x, y)), (y * 32 + x) % 65536)
 
 
-func test_setters_mark_the_chunk_dirty() -> void:
-	assert_false(_c.dirty)
+func test_a_fresh_chunk_starts_at_version_zero() -> void:
+	assert_eq(_c.version, 0, "a freshly constructed chunk is at version 0")
+
+
+func test_every_setter_advances_the_version() -> void:
+	var before: int = _c.version
+	_c.set_terrain(Vector2i(1, 1), 7)
+	assert_gt(_c.version, before, "writing terrain advances the version")
+
+	before = _c.version
+	_c.set_floor(Vector2i(1, 1), 7)
+	assert_gt(_c.version, before, "writing floor advances the version")
+
+	before = _c.version
+	_c.set_object(Vector2i(1, 1), 7)
+	assert_gt(_c.version, before, "writing object advances the version")
+
+	before = _c.version
 	_c.set_height(Vector2i(1, 1), 3)
-	assert_true(_c.dirty, "writing a tile marks the chunk dirty")
+	assert_gt(_c.version, before, "writing height advances the version")
+
+	before = _c.version
+	_c.set_flags(Vector2i(1, 1), 1)
+	assert_gt(_c.version, before, "writing flags advances the version")
 
 
-func test_getters_do_not_mark_the_chunk_dirty() -> void:
-	var _unused: int = _c.get_terrain(Vector2i(1, 1))
-	assert_false(_c.dirty, "reading must not dirty the chunk")
+func test_the_version_never_goes_backwards() -> void:
+	# Two consumers compare against a remembered number. If a write could
+	# lower it, a consumer that had already seen a higher one would go
+	# blind to every later edit.
+	var seen: int = _c.version
+	for i: int in range(50):
+		_c.set_object(Vector2i(i % 32, 0), i)
+		assert_gt(_c.version, seen, "version decreased or stalled on write %d" % i)
+		seen = _c.version
+
+
+func test_getters_do_not_advance_the_version() -> void:
+	_c.set_object(Vector2i(2, 2), 5)
+	var after_write: int = _c.version
+	var _t: int = _c.get_terrain(Vector2i(2, 2))
+	var _o: int = _c.get_object(Vector2i(2, 2))
+	assert_eq(_c.version, after_write, "reading must not advance the version")
 
 
 func test_walkable_flag() -> void:

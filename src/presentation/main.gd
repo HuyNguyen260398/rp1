@@ -286,6 +286,7 @@ func _physics_process(delta: float) -> void:
 	# autosave clock measure unpaused play rather than wall time.
 	if _world == null or get_tree().paused:
 		return
+	_world.tick_collision()
 	_world.tick_animals(delta)
 	_world.tick_audio(_audio_director)
 	if _session.tick(delta, _registry):

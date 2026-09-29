@@ -34,7 +34,8 @@ func _init() -> void:
 	_check(zone.entities.has(id), "entity spawned")
 
 	var save_root: String = "user://smoke_save"
-	var save_errs: PackedStringArray = SaveManager.save_zone(save_root, zone, registry, true)
+	var save_errs: PackedStringArray = SaveManager.save_zone(
+		save_root, zone, registry, ChunkWatcher.new(), true)
 	_check(save_errs.is_empty(), "save failed: %s" % ", ".join(save_errs))
 
 	var loaded: DecodeResult = SaveManager.load_zone(save_root, "smoke", registry)
@@ -56,16 +57,15 @@ func _init() -> void:
 	_check(renderer.cells_painted() == painted,
 		"layers hold %d cells but render reported %d" % [renderer.cells_painted(), painted])
 
-	# A chunk marked dirty is repainted; an unmarked one is not touched.
+	# A chunk whose version moved is repainted; an untouched one is not.
 	var before_dirty: int = renderer.cells_painted()
-	zone.clear_dirty()
-	_check(renderer.refresh_dirty(zone) == 0, "a clean zone repaints nothing")
-	zone.set_terrain(Vector2i(0, 0), grass)
-	var repainted: int = renderer.refresh_dirty(zone)
-	_check(repainted > 0, "a dirtied chunk is repainted")
-	_check(repainted < painted, "a dirty repaint touches one chunk, not the whole zone")
+	_check(renderer.refresh_changed(zone) == 0, "a quiet zone repaints nothing")
+	zone.set_object(Vector2i(1, 1), 0)
+	var repainted: int = renderer.refresh_changed(zone)
+	_check(repainted > 0, "a changed chunk repaints")
+	_check(repainted < painted, "a changed repaint touches one chunk, not the whole zone")
 	_check(renderer.cells_painted() == before_dirty,
-		"repainting a chunk does not change the total cell count")
+		"repainting a chunk does not change the cell count")
 
 	# --- movement --------------------------------------------------------
 	# A purpose-built fixture: an 8x8 patch of grass with one oak in it.

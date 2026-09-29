@@ -74,11 +74,8 @@ static func load_zone(dir: String, registry: ContentRegistry) -> ZoneLoadResult:
 	# once left oaks standing on walkable tiles.
 	Walkability.recompute_zone(zone, registry)
 
-	# AFTER the recompute, not before. recompute_zone dirties every chunk it
-	# writes to, and the caller's first paint is a full render_zone() rather
-	# than a dirty-driven repaint, so none of that is pending work. Clearing
-	# first would leave every chunk falsely dirty on frame one.
-	zone.clear_dirty()
+	# Nothing to clear: install_chunk() never advances a version, so a
+	# freshly built zone is already at the state a watcher will mark seen.
 
 	result.zone = zone
 	return result
