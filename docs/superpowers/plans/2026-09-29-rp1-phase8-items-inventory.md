@@ -1173,7 +1173,7 @@ Phase 10.
 - Consumes: `GameSession.inventory` (Task 4), `Inventory.add`,
   `Inventory.count_of` (Task 2).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_input_map.gd`:
 
@@ -1188,12 +1188,12 @@ func test_the_debug_grant_action_is_bound_to_g() -> void:
 	assert_true(found, "debug_grant is not bound to G")
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `debug_grant` does not exist.
 
-- [ ] **Step 3: Add the action and the handler**
+- [x] **Step 3: Add the action and the handler**
 
 In `project.godot`, directly after the closing `}` of `debug_place`, add
 (physical keycode 71 is `G`):
@@ -1233,7 +1233,7 @@ func _debug_grant_wood() -> void:
 	print("RP1 inventory: wood %d" % _session.inventory.count_of("wood"))
 ```
 
-- [ ] **Step 4: Run the tests and every local gate**
+- [x] **Step 4: Run the tests and every local gate**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites; `test_the_movement_actions_still_exist` still
@@ -1249,7 +1249,7 @@ Run each, and expect exit 0 from all:
 ./tools/check_zone.sh                                       # Zone gate: OK
 ```
 
-- [ ] **Step 5: Prove the phase by hand**
+- [x] **Step 5: Prove the phase by hand**
 
 Run the game (`./tools/godot.sh --path .`), then:
 
@@ -1267,7 +1267,7 @@ Run the game (`./tools/godot.sh --path .`), then:
 Write down what you saw for each step in the task's commit message body. If
 any step differs, stop and report it — do not tick the task.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot src/presentation/main.gd tests/test_input_map.gd
@@ -1276,7 +1276,7 @@ git commit -m "feat: a debug key that grants wood
 Manual run: <one line per step 1-5 above>"
 ```
 
-- [ ] **Step 7: Tick the task**
+- [x] **Step 7: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 6 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
