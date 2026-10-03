@@ -380,3 +380,36 @@ func test_a_backup_with_no_inventory_opens_empty() -> void:
 	var r: SessionOpenResult = restored.open_saved(_registry, true)
 	assert_true(r.ok, r.error)
 	assert_true(restored.inventory.is_empty())
+
+
+const STAGE1_SAVE: String = "res://tests/fixtures/stage1_save"
+
+
+func test_a_stage1_save_opens_with_an_empty_inventory() -> void:
+	# Written by the Stage 1 build at a175711, before inventories existed.
+	# "No migration needed" has to fail loudly here if it stops being true.
+	assert_false(FileAccess.file_exists(InventoryCodec.path_in(STAGE1_SAVE)),
+		"precondition: the fixture predates inventory.json")
+	var s: GameSession = GameSession.new()
+	s.save_root = STAGE1_SAVE
+	var r: SessionOpenResult = s.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_eq(r.zone.id, "home")
+	assert_true(r.zone.entities.has(r.player_entity_id))
+	assert_true(s.inventory.is_empty())
+	assert_almost_eq(s.playtime, 61.0, 0.001)
+
+
+func test_a_stage1_save_gains_an_inventory_on_its_first_stage2_save() -> void:
+	var s: GameSession = GameSession.new()
+	s.save_root = STAGE1_SAVE
+	assert_true(s.open_saved(_registry).ok)
+	# Redirected before saving: the committed fixture must never be written.
+	s.save_root = _root
+	s.needs_full_save = true
+	s.inventory.add("wood", 3)
+	assert_eq(s.save_now(_registry, "upgrade").size(), 0)
+
+	var again: GameSession = _session()
+	assert_true(again.open_saved(_registry).ok)
+	assert_eq(again.inventory.count_of("wood"), 3)
