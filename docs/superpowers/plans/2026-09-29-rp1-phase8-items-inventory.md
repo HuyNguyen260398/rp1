@@ -798,7 +798,7 @@ inventory's lifecycle is the same decisions. Four rules:
 - Produces: `GameSession.inventory: Inventory` — never `null`; the live
   inventory for whatever world is open. Task 6's debug key adds to it.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_game_session.gd` (it already has `_session()`,
 `_opened()`, `_root` and a wiping `before_each`):
@@ -917,12 +917,12 @@ func test_a_backup_with_no_inventory_opens_empty() -> void:
 	assert_true(restored.inventory.is_empty())
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `GameSession` has no member `inventory`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `src/systems/game_session.gd`, after `var playtime: float = 0.0` (line 26):
 
@@ -988,7 +988,7 @@ line, insert:
 
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites — including every pre-existing
@@ -999,14 +999,14 @@ Also run the smoke gate, which exercises `save_now` end to end:
 Run: `./tools/godot.sh --headless --path . -s tools/smoke.gd`
 Expected: `Smoke test: OK (300 iterations)`, exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/game_session.gd tests/test_game_session.gd
 git commit -m "feat: the inventory is saved with the world it belongs to"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
