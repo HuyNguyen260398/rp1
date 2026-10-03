@@ -1039,7 +1039,7 @@ worktree. Generating it with today's code would prove nothing.
 - Produces: `res://tests/fixtures/stage1_save/`, a read-only fixture. Tests
   open it with `save_root` pointed at it and **never save to it**.
 
-- [ ] **Step 1: Generate the fixture with the Stage 1 build**
+- [x] **Step 1: Generate the fixture with the Stage 1 build**
 
 From the repository root, in Git Bash:
 
@@ -1082,7 +1082,7 @@ listing shows `meta.json`, `id_map.json`, `zones/home/zone_meta.json`,
 **no** `inventory.json` and no `.bak` — if either appears, the worktree was
 not at `a175711`; delete the output and start again.
 
-- [ ] **Step 2: Write the test**
+- [x] **Step 2: Write the test**
 
 Append to `tests/test_game_session.gd`:
 
@@ -1120,7 +1120,7 @@ func test_a_stage1_save_gains_an_inventory_on_its_first_stage2_save() -> void:
 	assert_eq(again.inventory.count_of("wood"), 3)
 ```
 
-- [ ] **Step 3: Run the tests**
+- [x] **Step 3: Run the tests**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites. This test passes on first run — the behaviour was
@@ -1132,14 +1132,14 @@ revert that change and confirm PASS again.
 Run: `git status --short tests/fixtures/stage1_save`
 Expected: only the new, untracked fixture — no test wrote into it.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tests/fixtures/stage1_save tests/test_game_session.gd
 git commit -m "test: a committed Stage 1 save opens with an empty inventory"
 ```
 
-- [ ] **Step 5: Tick the task**
+- [x] **Step 5: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
