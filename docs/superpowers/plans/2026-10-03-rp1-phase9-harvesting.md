@@ -1251,22 +1251,22 @@ git commit -m "docs: tick Phase 9 task 4"
 
 ## Definition of done
 
-- [ ] Every shipped `harvestable` resolves to a registered item with a
+- [x] Every shipped `harvestable` resolves to a registered item with a
       valid range — `test_every_shipped_harvestable_resolves`
-- [ ] Harvesting clears the object, opens the tile and credits the yield —
+- [x] Harvesting clears the object, opens the tile and credits the yield —
       Task 3's `test_harvest_system.gd` tests
-- [ ] A refused harvest changes no tile, no flag and no count
-- [ ] Chop, relaunch: the object is still gone and the yield still counted —
+- [x] A refused harvest changes no tile, no flag and no count
+- [x] Chop, relaunch: the object is still gone and the yield still counted —
       `test_a_harvested_object_stays_gone_and_its_yield_stays_counted` and
       Task 4 step 5
-- [ ] The same holds for a harvest made after the first save —
+- [x] The same holds for a harvest made after the first save —
       `test_a_harvest_after_the_first_save_reaches_disk`
-- [ ] `E` and a gamepad button are bound to `interact`
-- [ ] No object id, item id or amount is written in GDScript:
+- [x] `E` and a gamepad button are bound to `interact`
+- [x] No object id, item id or amount is written in GDScript:
       `grep -nE '"(wood|stone|oak_tree|pine_tree|dead_tree|rock_small|rock_large)"' src/systems/harvest_system.gd src/systems/harvest_result.gd src/presentation/world.gd`
       prints nothing
-- [ ] No save format changed: `git diff main --stat` shows none of
+- [x] No save format changed: `git diff main --stat` shows none of
       `chunk_codec.gd`, `entity_codec.gd`, `inventory_codec.gd`, `save_manager.gd`
-- [ ] All six local gates green, and CI green on the branch
+- [x] All six local gates green, and CI green on the branch
 
 Tick with `python3 tools/mark_task_done.py --section "Definition of done" --plan docs/superpowers/plans/2026-10-03-rp1-phase9-harvesting.md`.
