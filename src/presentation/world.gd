@@ -7,6 +7,12 @@ extends Node2D
 ## Everything here was main.gd's _ready() before Phase 5 gave main.gd a
 ## menu to show first.
 
+## Emitted when the player presses interact, carrying the tile they face.
+## The world only says where. What interacting there means is the
+## router's decision -- Stage 2 design 3.5: presentation emits, the
+## router decides -- so no presentation node writes to the Zone for it.
+signal interact_requested(tile: Vector2i)
+
 var zone: Zone = null
 var player_entity_id: int = EntityStore.INVALID_ID
 
@@ -142,6 +148,11 @@ func tick_audio(director: AudioDirector) -> void:
 
 ## World is PROCESS_MODE_PAUSABLE, so this is not heard while paused.
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		get_viewport().set_input_as_handled()
+		if zone != null and zone.entities.has(player_entity_id):
+			interact_requested.emit(_player_facing_tile())
+		return
 	if event.is_action_pressed("debug_place"):
 		get_viewport().set_input_as_handled()
 		_debug_place_wall()

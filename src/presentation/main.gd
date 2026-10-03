@@ -15,6 +15,7 @@ extends Node2D
 
 var _registry: ContentRegistry = null
 var _session: GameSession = null
+var _harvest: HarvestSystem = null
 var _world: World = null
 var _ui: CanvasLayer = null
 var _main_menu: MainMenu = null
@@ -55,6 +56,9 @@ func _ready() -> void:
 	_audio_director.set_muted(_settings.muted)
 
 	_session = GameSession.new()
+
+	_harvest = HarvestSystem.new()
+	_harvest.rng.randomize()
 
 	_ui = CanvasLayer.new()
 	_ui.name = "UI"
@@ -209,6 +213,7 @@ func _enter_world(result: SessionOpenResult) -> void:
 	_world = World.new()
 	_world.name = "World"
 	add_child(_world)
+	_world.interact_requested.connect(_on_interact_requested)
 	for e: String in _world.build(_registry, result):
 		push_error(e)
 
@@ -225,6 +230,23 @@ func _enter_world(result: SessionOpenResult) -> void:
 	_session.adopt_player(_world.player_entity_id)
 	_main_menu.visible = false
 	_set_paused(false)
+
+
+## The world said which tile the player reached for; this decides what
+## that means. Until build mode it means one thing: harvest it. A refusal
+## is silence -- there was nothing to take -- unless the content itself
+## is wrong, which is worth an error.
+func _on_interact_requested(tile: Vector2i) -> void:
+	if _world == null or _session.zone == null:
+		return
+	var result: HarvestResult = _harvest.harvest(
+		_session.zone, tile, _session.inventory, _registry)
+	if result.ok:
+		print("RP1 harvested %s: %s +%d (now %d)" % [
+			result.object_id, result.item_id, result.amount,
+			_session.inventory.count_of(result.item_id)])
+	elif result.reason == HarvestResult.BAD_YIELD:
+		push_error("harvest refused: %s" % result.detail)
 
 
 func _on_quit_to_menu() -> void:
