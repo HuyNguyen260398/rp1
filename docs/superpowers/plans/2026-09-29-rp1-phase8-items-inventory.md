@@ -565,7 +565,7 @@ discovers later, while a failed open offers them the backup now.
   - `InventoryCodec.from_json_string(text: String) -> DecodeResult` — `value`
     is an `Inventory` on success; `error` starts with `"inventory.json: "`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_inventory_codec.gd`:
 
@@ -671,12 +671,12 @@ func test_a_count_that_is_not_a_number_is_refused() -> void:
 	assert_false(_decode('{"format_version": 1, "items": {"wood": "12"}}').ok)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `InventoryCodec` is not a known class.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/core/save/inventory_codec.gd`:
 
@@ -747,19 +747,19 @@ static func from_json_string(text: String) -> DecodeResult:
 
 `inv.add` refuses a zero, which is exactly how a zero count is dropped.
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/save/inventory_codec.gd tests/test_inventory_codec.gd
 git commit -m "feat: inventory.json, beside meta.json"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
