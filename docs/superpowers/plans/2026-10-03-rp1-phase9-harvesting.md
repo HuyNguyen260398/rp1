@@ -294,7 +294,7 @@ as `[2.0, 4.0]`. Whole-number floats are accepted; `2.5` is not.
   — static. `""` when the value is a well-formed, resolvable yield;
   otherwise one sentence starting with `"harvestable"` naming the problem.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_harvest_system.gd`:
 
@@ -374,13 +374,13 @@ func test_every_shipped_harvestable_resolves() -> void:
 	assert_gt(checked, 0, "the loop must not pass by finding nothing to check")
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL, exit 3 — `test_harvest_system.gd` does not parse:
 `Identifier "HarvestSystem" not declared in the current scope`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/systems/harvest_system.gd`:
 
@@ -441,7 +441,7 @@ static func _is_whole(v: Variant) -> bool:
 	return is_equal_approx(float(v), roundf(float(v)))
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
@@ -449,14 +449,14 @@ Expected: PASS, all suites.
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: `Architecture guard: clean`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/harvest_system.gd src/systems/harvest_system.gd.uid tests/test_harvest_system.gd tests/test_harvest_system.gd.uid
 git commit -m "feat: harvestable resolves against the registry"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-10-03-rp1-phase9-harvesting.md
