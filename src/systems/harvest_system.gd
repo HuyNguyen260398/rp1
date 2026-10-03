@@ -52,3 +52,48 @@ static func _is_whole(v: Variant) -> bool:
 	if not (v is int or v is float):
 		return false
 	return is_equal_approx(float(v), roundf(float(v)))
+
+
+## Removes the object on `tile` and credits its yield to `inventory`.
+##
+## Every refusal returns before the first write, so a refused harvest
+## changes no tile, no flag and no count. The object is cleared through
+## Zone.set_object, which advances the chunk's version: that is how the
+## renderer, the collider and the save each learn of it, with nothing
+## here knowing they exist.
+func harvest(
+	zone: Zone, tile: Vector2i, inventory: Inventory, registry: ContentRegistry
+) -> HarvestResult:
+	if not zone.in_bounds(tile):
+		return HarvestResult.refusal(HarvestResult.OUT_OF_BOUNDS)
+	var obj: int = zone.get_object(tile)
+	if obj == ContentRegistry.ID_UNKNOWN:
+		return HarvestResult.refusal(HarvestResult.NOTHING_THERE)
+	var def: Dictionary = registry.def_of(obj)
+	if registry.is_placeholder(obj) or not def.has("harvestable"):
+		return HarvestResult.refusal(HarvestResult.NOT_HARVESTABLE)
+	var object_id: String = registry.string_of(obj)
+	var problem: String = yield_error(def["harvestable"], registry)
+	if problem != "":
+		return HarvestResult.refusal(
+			HarvestResult.BAD_YIELD, "%s: %s" % [object_id, problem])
+
+	var yields: Dictionary = def["harvestable"]
+	var bounds: Array = yields["amount"]
+	var amount: int = rng.randi_range(roundi(float(bounds[0])), roundi(float(bounds[1])))
+	var item_id: String = str(yields["item"])
+
+	zone.set_object(tile, ContentRegistry.ID_UNKNOWN)
+	# Walkability owns the walkable rule; setting the flag byte by hand
+	# would also clobber FLAG_BLOCKS_LIGHT, which shares it.
+	var _changed: int = Walkability.recompute_chunk(
+		zone.get_chunk(Coords.world_to_chunk(tile)), registry)
+	# Cannot refuse: yield_error guaranteed an id and an amount of at least 1.
+	var _added: bool = inventory.add(item_id, amount)
+
+	var r: HarvestResult = HarvestResult.new()
+	r.ok = true
+	r.object_id = object_id
+	r.item_id = item_id
+	r.amount = amount
+	return r
