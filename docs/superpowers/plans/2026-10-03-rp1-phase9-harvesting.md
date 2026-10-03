@@ -910,7 +910,7 @@ same key to mean other things; the router is where that is decided.
   `GameSession.zone`, `GameSession.inventory` (existing).
 - Produces: the `interact` input action; `World.interact_requested(tile: Vector2i)`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_input_map.gd`:
 
@@ -935,13 +935,13 @@ func test_the_interact_action_is_bound_to_a_gamepad_button() -> void:
 	assert_true(found, "interact has no gamepad binding")
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `interact is not bound to E` and
 `interact has no gamepad binding`.
 
-- [ ] **Step 3: Add the action, the signal and the route**
+- [x] **Step 3: Add the action, the signal and the route**
 
 In `project.godot`, directly after the closing `}` of `pause` and before
 `debug_place`, add (physical keycode 69 is `E`; joypad button 0 is `A`):
@@ -1038,7 +1038,7 @@ and the file's first doc line from `## WASD / Esc, once per player, ever.` to:
 ## WASD / E / Esc, once per player, ever.
 ```
 
-- [ ] **Step 4: Run the tests and every local gate**
+- [x] **Step 4: Run the tests and every local gate**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites; `test_the_movement_actions_still_exist` still
@@ -1054,7 +1054,7 @@ Run each, and expect exit 0 from all:
 ./tools/check_zone.sh                                       # Zone gate: OK
 ```
 
-- [ ] **Step 5: Prove the phase end to end**
+- [x] **Step 5: Prove the phase end to end**
 
 `main.gd` and `World` have no unit tests, so the key → signal → router →
 system → save path is proved by driving the real main scene with real key
@@ -1230,7 +1230,7 @@ description must say so. A person pressing `E` at a tree in a window is
 still worth doing once before the phase is called closed; ask the developer
 whether to do it in their real world.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add project.godot src/presentation/world.gd src/presentation/main.gd src/ui/controls_hint.gd tests/test_input_map.gd
@@ -1239,7 +1239,7 @@ git commit -m "feat: E harvests the tile the player faces
 Scripted run against a throwaway save root: <one line per step 1-5>"
 ```
 
-- [ ] **Step 7: Tick the task**
+- [x] **Step 7: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-10-03-rp1-phase9-harvesting.md
