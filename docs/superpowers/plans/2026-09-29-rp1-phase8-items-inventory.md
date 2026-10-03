@@ -1288,20 +1288,20 @@ git commit -m "docs: tick Phase 8 task 6"
 
 ## Definition of done
 
-- [ ] `ContentRegistry.CATEGORIES` ends `"sound", "item"`, and `wood` and
+- [x] `ContentRegistry.CATEGORIES` ends `"sound", "item"`, and `wood` and
       `stone` register with no errors
-- [ ] `item` has a schema validation test
-- [ ] `Inventory` refuses every removal it cannot complete, and changes
+- [x] `item` has a schema validation test
+- [x] `Inventory` refuses every removal it cannot complete, and changes
       nothing when it does
-- [ ] Inventory survives a relaunch — proved by
+- [x] Inventory survives a relaunch — proved by
       `test_the_inventory_survives_a_close_and_reopen` and Task 6 step 3
-- [ ] New World resets it — proved by `test_new_world_resets_the_inventory`
+- [x] New World resets it — proved by `test_new_world_resets_the_inventory`
       and Task 6 step 4
-- [ ] A committed Stage 1 save opens with an empty inventory and no error —
+- [x] A committed Stage 1 save opens with an empty inventory and no error —
       `test_a_stage1_save_opens_with_an_empty_inventory`
-- [ ] A corrupt `inventory.json` fails the open instead of emptying it
-- [ ] `chunk_codec` and `entity_codec` are unchanged: `git diff main --stat`
+- [x] A corrupt `inventory.json` fails the open instead of emptying it
+- [x] `chunk_codec` and `entity_codec` are unchanged: `git diff main --stat`
       shows neither file
-- [ ] All six local gates green, and CI green on the branch
+- [x] All six local gates green, and CI green on the branch
 
 Tick with `python3 tools/mark_task_done.py --section "Definition of done" --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md`.
