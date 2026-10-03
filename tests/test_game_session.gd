@@ -267,3 +267,149 @@ func test_the_gap_predicate_agrees_with_what_the_gap_save_does() -> void:
 	assert_true(s.save_gap_elapsed(), "the gap has elapsed, so a focus loss would save")
 	assert_eq(s.save_if_gap_elapsed(_registry, "focus_lost").size(), 0)
 	assert_false(s.save_gap_elapsed(), "and the save it just did resets the gap")
+
+
+# --- inventory --------------------------------------------------------
+
+func _inventory_file() -> String:
+	return InventoryCodec.path_in(_root)
+
+
+func test_a_new_world_starts_with_an_empty_inventory() -> void:
+	assert_true(_opened().inventory.is_empty())
+
+
+func test_every_save_writes_the_inventory_even_when_empty() -> void:
+	var s: GameSession = _opened()
+	assert_eq(s.save_now(_registry, "new_world").size(), 0)
+	assert_true(FileAccess.file_exists(_inventory_file()))
+
+
+func test_the_inventory_survives_a_close_and_reopen() -> void:
+	var first: GameSession = _opened()
+	first.inventory.add("wood", 12)
+	first.inventory.add("stone", 3)
+	assert_eq(first.save_now(_registry, "quit").size(), 0)
+	first.close()
+
+	var second: GameSession = _session()
+	var r: SessionOpenResult = second.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_eq(second.inventory.count_of("wood"), 12)
+	assert_eq(second.inventory.count_of("stone"), 3)
+
+
+func test_new_world_resets_the_inventory() -> void:
+	# The same session object is reused by main.gd across worlds, and the
+	# old world's inventory.json is still on disk when New World saves.
+	var s: GameSession = _opened()
+	s.inventory.add("wood", 40)
+	s.save_now(_registry, "quit")
+
+	var r: SessionOpenResult = s.open_new("res://data/zone/home", _registry)
+	assert_true(r.ok, r.error)
+	assert_true(s.inventory.is_empty(), "open_new starts from nothing")
+	var id: int = r.zone.entities.spawn(_registry.numeric_of("player"), r.player_spawn)
+	s.adopt_player(id)
+	assert_eq(s.save_now(_registry, "new_world").size(), 0)
+
+	var reopened: GameSession = _session()
+	assert_true(reopened.open_saved(_registry).ok)
+	assert_eq(reopened.inventory.count_of("wood"), 0,
+		"the overwritten world's wood did not survive into the new one")
+
+
+func test_close_empties_the_inventory() -> void:
+	var s: GameSession = _opened()
+	s.inventory.add("wood", 5)
+	s.close()
+	assert_true(s.inventory.is_empty())
+
+
+func test_a_save_with_no_inventory_file_opens_empty() -> void:
+	var first: GameSession = _opened()
+	first.save_now(_registry, "quit")
+	assert_eq(DirAccess.remove_absolute(_inventory_file()), OK)
+
+	var second: GameSession = _session()
+	var r: SessionOpenResult = second.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_true(second.inventory.is_empty())
+
+
+func test_a_malformed_inventory_fails_the_open_and_changes_nothing() -> void:
+	var first: GameSession = _opened()
+	first.save_now(_registry, "quit")
+	var f: FileAccess = FileAccess.open(_inventory_file(), FileAccess.WRITE)
+	f.store_string('{"format_version": 1, "items": {"wood": -3}}')
+	f.close()
+
+	var second: GameSession = _session()
+	second.inventory.add("marker", 1)
+	var r: SessionOpenResult = second.open_saved(_registry)
+	assert_false(r.ok, "a corrupt inventory is not quietly emptied")
+	assert_string_contains(r.error, "inventory.json")
+	assert_null(second.zone, "a failed open does not half-commit the world")
+	assert_eq(second.inventory.count_of("marker"), 1,
+		"a failed open leaves the inventory it found")
+
+
+func test_the_backup_carries_its_own_inventory() -> void:
+	var s: GameSession = _opened()
+	s.inventory.add("wood", 5)
+	s.save_now(_registry, "first")
+	s.inventory.add("wood", 2)
+	s.save_now(_registry, "second")
+
+	var restored: GameSession = _session()
+	var r: SessionOpenResult = restored.open_saved(_registry, true)
+	assert_true(r.ok, r.error)
+	assert_eq(restored.inventory.count_of("wood"), 5,
+		"the backup is the previous save, inventory included")
+
+
+func test_a_backup_with_no_inventory_opens_empty() -> void:
+	# A Stage 1 save that has been saved once by a Stage 2 build: its
+	# meta.json.bak exists, but no inventory.json.bak was ever written.
+	var s: GameSession = _opened()
+	s.save_now(_registry, "first")
+	s.save_now(_registry, "second")
+	assert_eq(DirAccess.remove_absolute(_inventory_file() + ".bak"), OK)
+
+	var restored: GameSession = _session()
+	var r: SessionOpenResult = restored.open_saved(_registry, true)
+	assert_true(r.ok, r.error)
+	assert_true(restored.inventory.is_empty())
+
+
+const STAGE1_SAVE: String = "res://tests/fixtures/stage1_save"
+
+
+func test_a_stage1_save_opens_with_an_empty_inventory() -> void:
+	# Written by the Stage 1 build at a175711, before inventories existed.
+	# "No migration needed" has to fail loudly here if it stops being true.
+	assert_false(FileAccess.file_exists(InventoryCodec.path_in(STAGE1_SAVE)),
+		"precondition: the fixture predates inventory.json")
+	var s: GameSession = GameSession.new()
+	s.save_root = STAGE1_SAVE
+	var r: SessionOpenResult = s.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_eq(r.zone.id, "home")
+	assert_true(r.zone.entities.has(r.player_entity_id))
+	assert_true(s.inventory.is_empty())
+	assert_almost_eq(s.playtime, 61.0, 0.001)
+
+
+func test_a_stage1_save_gains_an_inventory_on_its_first_stage2_save() -> void:
+	var s: GameSession = GameSession.new()
+	s.save_root = STAGE1_SAVE
+	assert_true(s.open_saved(_registry).ok)
+	# Redirected before saving: the committed fixture must never be written.
+	s.save_root = _root
+	s.needs_full_save = true
+	s.inventory.add("wood", 3)
+	assert_eq(s.save_now(_registry, "upgrade").size(), 0)
+
+	var again: GameSession = _session()
+	assert_true(again.open_saved(_registry).ok)
+	assert_eq(again.inventory.count_of("wood"), 3)

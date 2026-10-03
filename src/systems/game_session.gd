@@ -25,6 +25,10 @@ var zone: Zone = null
 var player_entity_id: int = 0
 var playtime: float = 0.0
 
+## The open world's items. Never null: replaced with an empty one on
+## open_new and close, read from inventory.json on open_saved.
+var inventory: Inventory = Inventory.new()
+
 ## The first save of a world must write every chunk. A fresh ChunkWatcher
 ## has seen nothing and changed() defaults an unseen chunk to -1, which
 ## never equals a real version, so a first save already writes every chunk
@@ -62,6 +66,7 @@ func open_new(zone_dir: String, registry: ContentRegistry) -> SessionOpenResult:
 	_save_watcher.forget()
 	player_entity_id = 0
 	playtime = 0.0
+	inventory = Inventory.new()
 	needs_full_save = true
 	_since_autosave = 0.0
 	_since_any_save = 0.0
@@ -99,7 +104,23 @@ func open_saved(registry: ContentRegistry, use_backup: bool = false) -> SessionO
 			"save names player entity %d, which is not in entities.dat"
 			% meta.player_entity_id)
 
+	# Read before anything is committed, so a corrupt inventory leaves the
+	# session exactly as a corrupt zone would. A missing file is a save
+	# from before inventories existed -- or a backup taken before the
+	# first Stage 2 save -- and means empty, not broken.
+	var inv_path: String = InventoryCodec.path_in(save_root)
+	if use_backup:
+		inv_path += ".bak"
+	var loaded_inventory: Inventory = Inventory.new()
+	if FileAccess.file_exists(inv_path):
+		var inv_result: DecodeResult = InventoryCodec.from_json_string(
+			FileAccess.get_file_as_string(inv_path))
+		if not inv_result.ok:
+			return SessionOpenResult.failure(inv_result.error)
+		loaded_inventory = inv_result.value
+
 	zone = loaded_zone
+	inventory = loaded_inventory
 	_save_watcher.forget()
 	playtime = meta.playtime
 	player_entity_id = meta.player_entity_id
@@ -124,6 +145,7 @@ func close() -> void:
 	zone = null
 	player_entity_id = 0
 	playtime = 0.0
+	inventory = Inventory.new()
 	needs_full_save = false
 	_since_autosave = 0.0
 	_since_any_save = 0.0
@@ -169,6 +191,16 @@ func save_now(registry: ContentRegistry, reason: String) -> PackedStringArray:
 	var started: int = Time.get_ticks_msec()
 	var errors: PackedStringArray = SaveManager.save_zone(
 		save_root, zone, registry, _save_watcher, needs_full_save, true)
+
+	# Every save, empty or not: New World overwrites a world whose
+	# inventory.json is still on disk, and skipping an empty write would
+	# hand the new world the old one's items. Written before meta.json so
+	# meta.json stays the last file a save touches.
+	var inv_err: String = SaveManager.atomic_write(
+		InventoryCodec.path_in(save_root),
+		InventoryCodec.to_json_string(inventory).to_utf8_buffer(), true)
+	if inv_err != "":
+		errors.append(inv_err)
 
 	var meta: WorldMeta = WorldMeta.new()
 	meta.zone_id = zone.id

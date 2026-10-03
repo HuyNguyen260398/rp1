@@ -1,0 +1,10 @@
+{
+  "ambient": "bed_meadow",
+  "biome": "temperate",
+  "display_name": "Home Valley",
+  "generation_seed": 20260911,
+  "id": "home",
+  "save_version": 1,
+  "size_x": 128,
+  "size_y": 128
+}

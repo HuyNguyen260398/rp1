@@ -1,0 +1,22 @@
+{
+  "bed_meadow": 18,
+  "bush": 4,
+  "dead_tree": 5,
+  "dirt": 1,
+  "door": 6,
+  "grass": 2,
+  "oak_tree": 7,
+  "pine_tree": 8,
+  "player": 16,
+  "rabbit": 17,
+  "rock_large": 9,
+  "rock_small": 10,
+  "roof_shingle": 11,
+  "roof_thatch": 12,
+  "step_dirt": 19,
+  "step_grass": 20,
+  "wall_stone": 13,
+  "wall_wood": 14,
+  "water": 3,
+  "window": 15
+}
