@@ -154,7 +154,7 @@ unchanged and gains tests. `World` keeps a one-line wrapper.
   neighbouring tile in that direction; it may be out of bounds, and callers
   check.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_movement_system.gd`:
 
@@ -200,13 +200,13 @@ func test_facing_tile_at_the_zone_edge_is_out_of_bounds_not_clamped() -> void:
 		Vector2i(-1, -1))
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL, exit 3 — `test_movement_system.gd` does not parse:
 `Static function "facing_tile()" not found in base "MovementSystem"`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Append to `src/systems/movement_system.gd`:
 
@@ -244,7 +244,7 @@ func _player_facing_tile() -> Vector2i:
 		zone.entities.get_facing(player_entity_id))
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
@@ -252,14 +252,14 @@ Expected: PASS, all suites.
 Run: `./tools/godot.sh --headless --path . -s tools/smoke.gd`
 Expected: `Smoke test: OK (300 iterations)`, exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/movement_system.gd src/presentation/world.gd tests/test_movement_system.gd
 git commit -m "feat: the tile a body faces, as a tested rule"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-10-03-rp1-phase9-harvesting.md
