@@ -102,11 +102,12 @@ func test_real_content_is_not_a_placeholder() -> void:
 	assert_false(_r.is_placeholder(_r.numeric_of("grass")))
 
 
-func test_sound_is_the_last_category() -> void:
+func test_item_is_the_last_category() -> void:
 	# Appended, not inserted: load_from_dir assigns numeric ids in
-	# category order, so inserting would renumber every creature and
-	# object in the build.
-	assert_eq(ContentRegistry.CATEGORIES[ContentRegistry.CATEGORIES.size() - 1], "sound")
+	# category order, so inserting would renumber every creature, object
+	# and sound in the build.
+	assert_eq(ContentRegistry.CATEGORIES[ContentRegistry.CATEGORIES.size() - 1], "item")
+	assert_eq(ContentRegistry.CATEGORIES[ContentRegistry.CATEGORIES.size() - 2], "sound")
 
 
 func test_the_real_content_loads_without_errors() -> void:

@@ -7,7 +7,7 @@ extends RefCounted
 ## numbers -- see IdMap.
 
 const ID_UNKNOWN: int = 0
-const CATEGORIES: PackedStringArray = ["terrain", "object", "creature", "sound"]
+const CATEGORIES: PackedStringArray = ["terrain", "object", "creature", "sound", "item"]
 
 var _defs: Dictionary = {}          ## numeric_id -> Dictionary
 var _numeric_by_string: Dictionary = {}
