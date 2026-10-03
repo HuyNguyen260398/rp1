@@ -504,7 +504,7 @@ what they prove.
   - `HarvestSystem.harvest(zone: Zone, tile: Vector2i, inventory: Inventory, registry: ContentRegistry) -> HarvestResult`
     — an instance method, because it uses `rng`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_harvest_system.gd`:
 
@@ -763,13 +763,13 @@ func test_a_backup_load_keeps_the_harvest_but_not_its_yield() -> void:
 	assert_eq(restored.inventory.count_of(got.item_id), 0)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL, exit 3 — `test_harvest_system.gd` and `test_game_session.gd`
 do not parse: `Could not find type "HarvestResult" in the current scope`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/systems/harvest_result.gd`:
 
@@ -858,7 +858,7 @@ func harvest(
 	return r
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
@@ -869,14 +869,14 @@ Expected: `Architecture guard: clean`.
 Run: `git status --short tests/fixtures`
 Expected: no output — no test wrote into a committed fixture.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/harvest_result.gd src/systems/harvest_result.gd.uid src/systems/harvest_system.gd tests/test_harvest_system.gd tests/test_game_session.gd
 git commit -m "feat: harvesting moves an object into the inventory, and it stays moved"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-10-03-rp1-phase9-harvesting.md
