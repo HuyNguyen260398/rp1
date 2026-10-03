@@ -99,3 +99,42 @@ func test_facing_is_held_when_velocity_is_zero() -> void:
 		MovementSystem.facing_from(Vector2.ZERO, MovementSystem.FACING_W),
 		MovementSystem.FACING_W
 	)
+
+
+func test_facing_tile_is_the_neighbour_in_each_of_the_eight_directions() -> void:
+	# Feet at (5.5, 5.75) under a half-tile-tall body: the body's centre is
+	# at (5.5, 5.5), so the character stands on tile (5, 5).
+	var feet: Vector2 = Vector2(5.5, 5.75)
+	var body: Vector2 = Vector2(0.625, 0.5)
+	var want: Dictionary = {
+		MovementSystem.FACING_S: Vector2i(5, 6),
+		MovementSystem.FACING_SE: Vector2i(6, 6),
+		MovementSystem.FACING_E: Vector2i(6, 5),
+		MovementSystem.FACING_NE: Vector2i(6, 4),
+		MovementSystem.FACING_N: Vector2i(5, 4),
+		MovementSystem.FACING_NW: Vector2i(4, 4),
+		MovementSystem.FACING_W: Vector2i(4, 5),
+		MovementSystem.FACING_SW: Vector2i(4, 6),
+	}
+	for facing: int in want:
+		assert_eq(MovementSystem.facing_tile(feet, body, facing), want[facing],
+			"facing %d" % facing)
+
+
+func test_facing_tile_measures_from_the_body_centre_not_the_feet() -> void:
+	# Feet exactly on the line between tiles (5, 5) and (5, 6). The feet
+	# point alone would say (5, 6); the body is drawn in (5, 5), and that
+	# is the tile the player believes they are standing on.
+	assert_eq(
+		MovementSystem.facing_tile(
+			Vector2(5.5, 6.0), Vector2(0.625, 0.5), MovementSystem.FACING_N),
+		Vector2i(5, 4))
+
+
+func test_facing_tile_at_the_zone_edge_is_out_of_bounds_not_clamped() -> void:
+	# Bounds are the caller's question: a clamped answer would make the
+	# player harvest the tile they are standing on.
+	assert_eq(
+		MovementSystem.facing_tile(
+			Vector2(0.5, 0.75), Vector2(0.625, 0.5), MovementSystem.FACING_NW),
+		Vector2i(-1, -1))
