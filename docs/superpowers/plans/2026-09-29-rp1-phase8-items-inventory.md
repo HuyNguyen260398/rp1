@@ -122,7 +122,7 @@ category order, so inserting it would renumber every creature and sound.
   `ContentRegistry.def_of(numeric_id) -> Dictionary`. Shipped ids: `"wood"`,
   `"stone"`.
 
-- [ ] **Step 1: Write the failing schema test**
+- [x] **Step 1: Write the failing schema test**
 
 Create `tests/test_item_schema.gd`:
 
@@ -216,14 +216,14 @@ func test_item_is_the_last_category() -> void:
 	assert_eq(ContentRegistry.CATEGORIES[ContentRegistry.CATEGORIES.size() - 2], "sound")
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `test_item_schema.gd` cannot parse `item.json` (missing),
 `test_the_shipped_items_register` finds no `wood`, and
 `test_item_is_the_last_category` sees `"sound"`.
 
-- [ ] **Step 3: Write the schema, the items, and the registry line**
+- [x] **Step 3: Write the schema, the items, and the registry line**
 
 Create `data/schema/item.json`:
 
@@ -255,21 +255,21 @@ In `src/core/content_registry.gd`, change line 10 to:
 const CATEGORIES: PackedStringArray = ["terrain", "object", "creature", "sound", "item"]
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites. `test_import_manifest.gd` and
 `test_tileset_builder.gd` skip items because items have no `sprite` and are
 not a tile category — if either fails, an item grew a field it should not have.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add data/schema/item.json data/item/ src/core/content_registry.gd tests/test_item_schema.gd tests/test_content_registry.gd
 git commit -m "feat: items, the fifth content category"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
