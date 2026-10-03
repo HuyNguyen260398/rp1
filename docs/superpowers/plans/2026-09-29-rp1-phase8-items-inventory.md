@@ -307,7 +307,7 @@ free of `"wood": 0` litter and makes `item_ids()` mean "what the player has".
   - `Inventory.item_ids() -> PackedStringArray` — held ids, sorted.
   - `Inventory.is_empty() -> bool`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_inventory.gd`:
 
@@ -439,12 +439,12 @@ func test_an_id_unknown_to_any_registry_is_held_like_any_other() -> void:
 	assert_eq(_inv.count_of("mithril"), 4)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — `Inventory` is not a known class.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/core/inventory.gd`:
 
@@ -517,19 +517,19 @@ func can_afford(cost: Dictionary) -> bool:
 	return true
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/core/inventory.gd tests/test_inventory.gd
 git commit -m "feat: an inventory of bulk counts"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-09-29-rp1-phase8-items-inventory.md
