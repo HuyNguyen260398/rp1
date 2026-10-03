@@ -28,3 +28,13 @@ func test_the_movement_actions_still_exist() -> void:
 	# [input] section can silently drop the others.
 	for action: String in ["move_up", "move_down", "move_left", "move_right"]:
 		assert_true(InputMap.has_action(action), action)
+
+
+func test_the_debug_grant_action_is_bound_to_g() -> void:
+	# DEBUG ONLY -- removed with debug_place in Phase 10.
+	assert_true(InputMap.has_action("debug_grant"))
+	var found: bool = false
+	for event: InputEvent in InputMap.action_get_events("debug_grant"):
+		if event is InputEventKey and (event as InputEventKey).physical_keycode == KEY_G:
+			found = true
+	assert_true(found, "debug_grant is not bound to G")

@@ -294,12 +294,27 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_grant"):
+		_debug_grant_wood()
+		return
 	if not event.is_action_pressed("pause"):
 		return
 	if _world == null or _confirm.visible:
 		return
 	get_viewport().set_input_as_handled()
 	_set_paused(not get_tree().paused)
+
+
+## DEBUG ONLY -- removed in Phase 10 with World._debug_place_wall. Stands
+## in for harvesting until Phase 9, so the inventory's save path can be
+## proved by hand. This node is PROCESS_MODE_ALWAYS, so the pause is
+## honoured here rather than by the tree.
+func _debug_grant_wood() -> void:
+	if _world == null or get_tree().paused:
+		return
+	get_viewport().set_input_as_handled()
+	var _added: bool = _session.inventory.add("wood", 10)
+	print("RP1 inventory: wood %d" % _session.inventory.count_of("wood"))
 
 
 # --- quitting ---------------------------------------------------------
