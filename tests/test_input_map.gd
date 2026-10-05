@@ -56,3 +56,17 @@ func test_the_interact_action_is_bound_to_a_gamepad_button() -> void:
 		if event is InputEventJoypadButton:
 			found = true
 	assert_true(found, "interact has no gamepad binding")
+
+
+func test_the_build_mode_action_is_bound_to_b() -> void:
+	assert_true(InputMap.has_action("build_mode"))
+	var found: bool = false
+	for event: InputEvent in InputMap.action_get_events("build_mode"):
+		if event is InputEventKey and (event as InputEventKey).physical_keycode == KEY_B:
+			found = true
+	assert_true(found, "build_mode is not bound to B")
+
+
+func test_the_debug_place_action_is_gone() -> void:
+	# It held B and placed a free wall. Build mode replaced it.
+	assert_false(InputMap.has_action("debug_place"))
