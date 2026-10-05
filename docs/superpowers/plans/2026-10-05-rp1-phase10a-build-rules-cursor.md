@@ -1003,7 +1003,7 @@ with the inventory to match.
   success `BuildResult.content_id` is the string id removed and
   `BuildResult.cost` is what was refunded.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_build_system.gd`:
 
@@ -1185,7 +1185,7 @@ func test_a_removal_after_the_first_save_reaches_disk() -> void:
 			"%s: the refund was saved" % item_id)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL. The new removal tests in `test_build_system.gd` fail on
@@ -1197,7 +1197,7 @@ the bounds check comes first — and
 **passes already** — Task 2 built placing, and the save path needs nothing
 new. That is the claim "nothing new is persisted" holding.
 
-- [ ] **Step 3: Implement removal**
+- [x] **Step 3: Implement removal**
 
 In `src/systems/build_system.gd`, in `check`, replace:
 
@@ -1261,7 +1261,7 @@ static func _check_remove(
 	return BuildResult.accepted(object_id, cost_of(def))
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
@@ -1269,14 +1269,14 @@ Expected: PASS, all suites.
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: `Architecture guard: clean`, exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/systems/build_system.gd tests/test_build_system.gd tests/test_game_session.gd
 git commit -m "feat: BuildSystem removes built content and refunds it"
 ```
 
-- [ ] **Step 6: Tick the task**
+- [x] **Step 6: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 3 --plan docs/superpowers/plans/2026-10-05-rp1-phase10a-build-rules-cursor.md
