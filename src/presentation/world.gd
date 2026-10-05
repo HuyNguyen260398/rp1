@@ -16,6 +16,10 @@ signal interact_requested(tile: Vector2i)
 var zone: Zone = null
 var player_entity_id: int = EntityStore.INVALID_ID
 
+## Build mode's mouse. Public so the router can connect to it and hand it
+## a probe; non-null once build() has returned.
+var build_cursor: BuildCursor = null
+
 var _registry: ContentRegistry = null
 var _animals: AnimalSystem = null
 var _renderer: ZoneRenderer = null
@@ -98,6 +102,11 @@ func build(registry: ContentRegistry, result: SessionOpenResult) -> PackedString
 	_camera.target_id = player_entity_id
 	_camera.make_current()
 
+	build_cursor = BuildCursor.new()
+	build_cursor.name = "BuildCursor"
+	add_child(build_cursor)
+	build_cursor.setup(registry)
+
 	return errors
 
 
@@ -144,7 +153,7 @@ func tick_audio(director: AudioDirector) -> void:
 	_audio.set_bed(director.bed())
 
 
-# --- debug ------------------------------------------------------------
+# --- input ------------------------------------------------------------
 
 ## World is PROCESS_MODE_PAUSABLE, so this is not heard while paused.
 func _unhandled_input(event: InputEvent) -> void:
@@ -152,35 +161,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		if zone != null and zone.entities.has(player_entity_id):
 			interact_requested.emit(_player_facing_tile())
-		return
-	if event.is_action_pressed("debug_place"):
-		get_viewport().set_input_as_handled()
-		_debug_place_wall()
-
-
-## DEBUG ONLY -- removed in Phase 10 when build mode lands. This exists to
-## prove the Phase 7 mutation spine end to end: one edit, seen by the
-## renderer, the collider and the save without any of them robbing the
-## others.
-func _debug_place_wall() -> void:
-	if zone == null or not zone.entities.has(player_entity_id):
-		return
-	var tile: Vector2i = _player_facing_tile()
-	if not zone.in_bounds(tile):
-		return
-	if zone.get_object(tile) != ContentRegistry.ID_UNKNOWN:
-		return
-	# A wall dropped across the player's own body would trap them inside a
-	# solid, which is a movement bug report rather than a spine test.
-	var feet: Vector2 = zone.entities.get_position(player_entity_id)
-	var tile_rect: Rect2 = Rect2(Vector2(tile), Vector2.ONE)
-	if tile_rect.intersects(MovementSystem.body_rect(feet, _player.body)):
-		return
-	zone.set_object(tile, _registry.numeric_of("wall_wood"))
-	# Walkability owns the walkable rule; setting the flag byte by hand
-	# would also clobber FLAG_BLOCKS_LIGHT, which shares it.
-	var _changed: int = Walkability.recompute_chunk(
-		zone.get_chunk(Coords.world_to_chunk(tile)), _registry)
 
 
 ## The tile the player faces. The rule lives in MovementSystem, where it

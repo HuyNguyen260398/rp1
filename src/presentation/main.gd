@@ -26,6 +26,7 @@ var _settings: Settings = null
 var _save_indicator: SaveIndicator = null
 var _title_card: TitleCard = null
 var _controls_hint: ControlsHint = null
+var _build_status: BuildStatus = null
 
 ## Set when a save fails on the way out, so a second attempt quits anyway.
 var _quit_was_refused: bool = false
@@ -87,6 +88,10 @@ func _ready() -> void:
 	_controls_hint = ControlsHint.new()
 	_controls_hint.name = "ControlsHint"
 	_ui.add_child(_controls_hint)
+
+	_build_status = BuildStatus.new()
+	_build_status.name = "BuildStatus"
+	_ui.add_child(_build_status)
 
 	_pause_menu = PauseMenu.new()
 	_pause_menu.name = "PauseMenu"
@@ -216,6 +221,10 @@ func _enter_world(result: SessionOpenResult) -> void:
 	_world.interact_requested.connect(_on_interact_requested)
 	for e: String in _world.build(_registry, result):
 		push_error(e)
+	_world.build_cursor.probe = _can_build
+	_world.build_cursor.build_requested.connect(_on_build_requested)
+	_world.build_cursor.mode_changed.connect(_refresh_build_status.unbind(1))
+	_world.build_cursor.selection_changed.connect(_refresh_build_status.unbind(1))
 
 	_audio_director.enter_zone(result.zone.id, result.zone.ambient)
 
@@ -233,9 +242,9 @@ func _enter_world(result: SessionOpenResult) -> void:
 
 
 ## The world said which tile the player reached for; this decides what
-## that means. Until build mode it means one thing: harvest it. A refusal
-## is silence -- there was nothing to take -- unless the content itself
-## is wrong, which is worth an error.
+## that means. It means one thing, in build mode or out of it: harvest
+## it. A refusal is silence -- there was nothing to take -- unless the
+## content itself is wrong, which is worth an error.
 func _on_interact_requested(tile: Vector2i) -> void:
 	if _world == null or _session.zone == null:
 		return
@@ -245,8 +254,41 @@ func _on_interact_requested(tile: Vector2i) -> void:
 		print("RP1 harvested %s: %s +%d (now %d)" % [
 			result.object_id, result.item_id, result.amount,
 			_session.inventory.count_of(result.item_id)])
+		# What was just chopped may be what the selection costs.
+		_refresh_build_status()
 	elif result.reason == HarvestResult.BAD_YIELD:
 		push_error("harvest refused: %s" % result.detail)
+
+
+## The cursor's question: would this command be accepted? It tints by the
+## answer. The rule is BuildSystem's; this only supplies what it needs.
+func _can_build(cmd: BuildCommand) -> bool:
+	if _session.zone == null:
+		return false
+	return BuildSystem.check(cmd, _session.zone, _session.inventory, _registry).ok
+
+
+## The cursor said what the player asked for; this is where it meets the
+## rules. A refusal is silence -- the outline already said no -- unless
+## content or code is wrong, which is worth an error.
+func _on_build_requested(cmd: BuildCommand) -> void:
+	if _world == null or _session.zone == null:
+		return
+	var result: BuildResult = BuildSystem.apply(
+		cmd, _session.zone, _session.inventory, _registry)
+	if result.ok:
+		print("RP1 build %s %s at %s" % [cmd.action, result.content_id, cmd.tile])
+		_refresh_build_status()
+	elif result.reason == BuildResult.BAD_COST or result.reason == BuildResult.BAD_COMMAND:
+		push_error("build refused: %s" % result.detail)
+
+
+func _refresh_build_status() -> void:
+	if _world == null or not _world.build_cursor.active:
+		_build_status.visible = false
+		return
+	_build_status.show_line(BuildStatus.line(
+		_world.build_cursor.selected_id(), _session.inventory, _registry))
 
 
 func _on_quit_to_menu() -> void:
@@ -267,6 +309,8 @@ func _on_quit_to_menu() -> void:
 	_audio_director.enter_zone("", "")
 	_world.queue_free()
 	_world = null
+	# Build mode lived on the world's cursor and went with it.
+	_build_status.visible = false
 	_session.close()
 	_show_main_menu()
 
@@ -316,27 +360,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("debug_grant"):
-		_debug_grant_wood()
-		return
 	if not event.is_action_pressed("pause"):
 		return
 	if _world == null or _confirm.visible:
 		return
 	get_viewport().set_input_as_handled()
 	_set_paused(not get_tree().paused)
-
-
-## DEBUG ONLY -- removed in Phase 10 with World._debug_place_wall. Stands
-## in for harvesting until Phase 9, so the inventory's save path can be
-## proved by hand. This node is PROCESS_MODE_ALWAYS, so the pause is
-## honoured here rather than by the tree.
-func _debug_grant_wood() -> void:
-	if _world == null or get_tree().paused:
-		return
-	get_viewport().set_input_as_handled()
-	var _added: bool = _session.inventory.add("wood", 10)
-	print("RP1 inventory: wood %d" % _session.inventory.count_of("wood"))
 
 
 # --- quitting ---------------------------------------------------------

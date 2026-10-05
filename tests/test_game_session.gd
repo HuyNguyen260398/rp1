@@ -487,3 +487,79 @@ func test_a_backup_load_keeps_the_harvest_but_not_its_yield() -> void:
 	assert_true(r.ok, r.error)
 	assert_eq(restored.zone.get_object(tile), ContentRegistry.ID_UNKNOWN)
 	assert_eq(restored.inventory.count_of(got.item_id), 0)
+
+
+# --- building ---------------------------------------------------------
+
+func _place_cmd(tile: Vector2i, content_id: String) -> BuildCommand:
+	return BuildCommand.place(tile, BuildCommand.LAYER_OBJECT, content_id)
+
+
+## Credits `times` multiples of what `content_id` costs, and returns the
+## cost of one.
+func _grant_cost(s: GameSession, content_id: String, times: int) -> Dictionary:
+	var cost: Dictionary = BuildSystem.cost_of(
+		_registry.def_of(_registry.numeric_of(content_id)))
+	for item_id: String in cost:
+		var _added: bool = s.inventory.add(item_id, int(cost[item_id]) * times)
+	return cost
+
+
+## The first tile of the authored zone where `content_id` may be placed.
+func _first_buildable(s: GameSession, content_id: String) -> Vector2i:
+	for y: int in range(s.zone.size_tiles.y):
+		for x: int in range(s.zone.size_tiles.x):
+			var tile: Vector2i = Vector2i(x, y)
+			if BuildSystem.check(
+					_place_cmd(tile, content_id), s.zone, s.inventory, _registry).ok:
+				return tile
+	return Vector2i(-1, -1)
+
+
+func test_a_placed_object_survives_a_relaunch_and_its_cost_stays_spent() -> void:
+	# The phase's "done when": place, relaunch, still there, still paid for.
+	var first: GameSession = _opened()
+	var content_id: String = BuildSystem.placeables(_registry)[0]
+	var cost: Dictionary = _grant_cost(first, content_id, 3)
+	var tile: Vector2i = _first_buildable(first, content_id)
+	assert_true(first.zone.in_bounds(tile), "the authored zone has somewhere to build")
+	var got: BuildResult = BuildSystem.apply(
+		_place_cmd(tile, content_id), first.zone, first.inventory, _registry)
+	assert_true(got.ok, got.reason)
+	assert_eq(first.save_now(_registry, "quit").size(), 0)
+	first.close()
+
+	var second: GameSession = _session()
+	var r: SessionOpenResult = second.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_eq(_registry.string_of(second.zone.get_object(tile)), content_id,
+		"the placed object is still there")
+	for item_id: String in cost:
+		assert_eq(second.inventory.count_of(item_id), int(cost[item_id]) * 2,
+			"%s: one cost of three was spent" % item_id)
+
+
+func test_a_removal_after_the_first_save_reaches_disk() -> void:
+	# The first save writes every chunk. The second is incremental: it must
+	# write the edited chunk because its version moved again.
+	var first: GameSession = _opened()
+	var content_id: String = BuildSystem.placeables(_registry)[0]
+	var cost: Dictionary = _grant_cost(first, content_id, 3)
+	var tile: Vector2i = _first_buildable(first, content_id)
+	assert_true(BuildSystem.apply(
+		_place_cmd(tile, content_id), first.zone, first.inventory, _registry).ok)
+	assert_eq(first.save_now(_registry, "new_world").size(), 0)
+	var removed: BuildResult = BuildSystem.apply(
+		BuildCommand.remove(tile, BuildCommand.LAYER_OBJECT),
+		first.zone, first.inventory, _registry)
+	assert_true(removed.ok, removed.reason)
+	assert_eq(first.save_now(_registry, "autosave").size(), 0)
+	first.close()
+
+	var second: GameSession = _session()
+	assert_true(second.open_saved(_registry).ok)
+	assert_eq(second.zone.get_object(tile), ContentRegistry.ID_UNKNOWN,
+		"the removed object did not come back")
+	for item_id: String in cost:
+		assert_eq(second.inventory.count_of(item_id), int(cost[item_id]) * 3,
+			"%s: the refund was saved" % item_id)

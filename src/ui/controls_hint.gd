@@ -1,6 +1,6 @@
 class_name ControlsHint
 extends Control
-## WASD / E / Esc, once per player, ever.
+## WASD / E / B / Esc, once per player, ever.
 ##
 ## Exists for the clean-machine test, where there is nobody to ask which
 ## keys move. Whether it has been shown is settings.json's business; this
@@ -17,7 +17,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	_label = Label.new()
-	_label.text = "WASD or arrows to move    E to harvest    Esc to pause"
+	_label.text = "WASD or arrows to move    E to harvest    B to build    Esc to pause"
 	_label.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
