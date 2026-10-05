@@ -131,6 +131,12 @@ pays for up front, deliberately.
 change that added `"sound"` in Phase 6, and the same rule applies: never
 `match` over categories, look them up.
 
+*Amended 2026-10-05.* Stage 1 left the `floor_id` column with no content to
+put in it: no category, no definition, no sprite. Phase 10b adds `"floor"` as
+a **sixth** category, with `data/schema/floor.json`, a schema validation test
+and its first definitions. Floors are cosmetic — walkability still comes from
+terrain and objects alone, so `Walkability`'s rule does not change.
+
 Placeable content gains an optional `cost`:
 
 ```json
@@ -184,7 +190,7 @@ here and in `IDEAS.md` as a known Stage 6 cost, accepted knowingly.
 
 ## 4. Delivery phases
 
-Five phases, in the shape Stage 1 used: spine, then content, then the loop,
+Five phases (the fourth later split in two), in the shape Stage 1 used: spine, then content, then the loop,
 then polish.
 
 ### Phase 7 — The mutation spine, and one tile that stays
@@ -219,7 +225,24 @@ Mouse → tile, mode toggle, a palette of placeable content, place and remove
 across floor/wall/object layers, `cost` deducted on place and refunded on
 remove.
 
-*Done when:* chop → wood → place wall, entirely with the mouse.
+*Amended 2026-10-05.* Split in two, as Phases 3 and 4 were:
+
+- **Phase 10a — build rules and the cursor.** `cost` on content,
+  `BuildCommand`/`BuildSystem`, the mode toggle, the mouse cursor, place and
+  remove on the object layer, a one-line status readout. Both debug keys go.
+- **Phase 10b — palette, inventory display, floors.** A clickable palette
+  replacing 10a's wheel selection, a visible inventory, and the `floor`
+  category of §3.3 with place and remove on the floor layer.
+
+*Done when (10a):* chop a tree with `E`, then place and remove a wall with
+the mouse, and both survive a relaunch.
+
+*Done when (10b):* the same loop, choosing what to build from the palette,
+with a floor laid under it.
+
+Chopping stays on `E`. The original line read "entirely with the mouse";
+what it meant, and what is built, is that *building* needs only the mouse
+once build mode is on.
 
 ### Phase 11 — Greedy meshing, and closing Stage 2
 
