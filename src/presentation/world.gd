@@ -7,6 +7,12 @@ extends Node2D
 ## Everything here was main.gd's _ready() before Phase 5 gave main.gd a
 ## menu to show first.
 
+## Emitted when the player presses interact, carrying the tile they face.
+## The world only says where. What interacting there means is the
+## router's decision -- Stage 2 design 3.5: presentation emits, the
+## router decides -- so no presentation node writes to the Zone for it.
+signal interact_requested(tile: Vector2i)
+
 var zone: Zone = null
 var player_entity_id: int = EntityStore.INVALID_ID
 
@@ -142,6 +148,11 @@ func tick_audio(director: AudioDirector) -> void:
 
 ## World is PROCESS_MODE_PAUSABLE, so this is not heard while paused.
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		get_viewport().set_input_as_handled()
+		if zone != null and zone.entities.has(player_entity_id):
+			interact_requested.emit(_player_facing_tile())
+		return
 	if event.is_action_pressed("debug_place"):
 		get_viewport().set_input_as_handled()
 		_debug_place_wall()
@@ -172,16 +183,10 @@ func _debug_place_wall() -> void:
 		zone.get_chunk(Coords.world_to_chunk(tile)), _registry)
 
 
-## The tile one step from the player in the direction they face. Facing
-## is an octant index from MovementSystem.facing_from(): 0 is south and
-## each step turns a quarter of PI toward east, so this is its inverse.
-## Diagonal facings yield the diagonal neighbour.
+## The tile the player faces. The rule lives in MovementSystem, where it
+## is tested; this only supplies the player's row.
 func _player_facing_tile() -> Vector2i:
-	var feet: Vector2 = zone.entities.get_position(player_entity_id)
-	# Position is the bottom-centre of the body; the tile the player stands
-	# on is the one under the body's centre, not under its bottom edge.
-	var centre: Vector2 = feet - Vector2(0.0, _player.body.y * 0.5)
-	var standing: Vector2i = Vector2i(floori(centre.x), floori(centre.y))
-	var octant: int = zone.entities.get_facing(player_entity_id)
-	var dir: Vector2 = Vector2.from_angle(PI * 0.5 - octant * PI * 0.25)
-	return standing + Vector2i(roundi(dir.x), roundi(dir.y))
+	return MovementSystem.facing_tile(
+		zone.entities.get_position(player_entity_id),
+		_player.body,
+		zone.entities.get_facing(player_entity_id))

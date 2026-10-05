@@ -38,3 +38,21 @@ func test_the_debug_grant_action_is_bound_to_g() -> void:
 		if event is InputEventKey and (event as InputEventKey).physical_keycode == KEY_G:
 			found = true
 	assert_true(found, "debug_grant is not bound to G")
+
+
+func test_the_interact_action_is_bound_to_e() -> void:
+	assert_true(InputMap.has_action("interact"))
+	var found: bool = false
+	for event: InputEvent in InputMap.action_get_events("interact"):
+		if event is InputEventKey and (event as InputEventKey).physical_keycode == KEY_E:
+			found = true
+	assert_true(found, "interact is not bound to E")
+
+
+func test_the_interact_action_is_bound_to_a_gamepad_button() -> void:
+	# A real action, not a debug one: it gets a gamepad binding like pause.
+	var found: bool = false
+	for event: InputEvent in InputMap.action_get_events("interact"):
+		if event is InputEventJoypadButton:
+			found = true
+	assert_true(found, "interact has no gamepad binding")

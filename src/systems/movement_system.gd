@@ -103,3 +103,20 @@ static func facing_from(velocity: Vector2, current: int) -> int:
 	# other way, starting at south, so subtract from PI/2 and wrap.
 	var octant: int = roundi((PI * 0.5 - atan2(velocity.y, velocity.x)) / (PI * 0.25))
 	return posmod(octant, 8)
+
+
+## The tile one step from a body in the direction it faces.
+##
+## `pos` is the feet point, the bottom-centre of the body; the tile a
+## character stands on is the one under the body's centre, not under its
+## bottom edge. `facing` is an octant index from facing_from(): 0 is south
+## and each step turns a quarter of PI toward east, so this is its inverse.
+## A diagonal facing yields the diagonal neighbour.
+##
+## The result is not clamped. At a zone edge it is out of bounds, and the
+## caller asks Zone.in_bounds().
+static func facing_tile(pos: Vector2, body: Vector2, facing: int) -> Vector2i:
+	var centre: Vector2 = pos - Vector2(0.0, body.y * 0.5)
+	var standing: Vector2i = Vector2i(floori(centre.x), floori(centre.y))
+	var dir: Vector2 = Vector2.from_angle(PI * 0.5 - facing * PI * 0.25)
+	return standing + Vector2i(roundi(dir.x), roundi(dir.y))

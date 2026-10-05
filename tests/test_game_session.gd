@@ -413,3 +413,77 @@ func test_a_stage1_save_gains_an_inventory_on_its_first_stage2_save() -> void:
 	var again: GameSession = _session()
 	assert_true(again.open_saved(_registry).ok)
 	assert_eq(again.inventory.count_of("wood"), 3)
+
+
+# --- harvesting -------------------------------------------------------
+
+## The first tile of the authored zone holding anything harvestable.
+func _first_harvestable(zone: Zone) -> Vector2i:
+	for y: int in range(zone.size_tiles.y):
+		for x: int in range(zone.size_tiles.x):
+			var tile: Vector2i = Vector2i(x, y)
+			if _registry.def_of(zone.get_object(tile)).has("harvestable"):
+				return tile
+	return Vector2i(-1, -1)
+
+
+func _harvest(s: GameSession, tile: Vector2i) -> HarvestResult:
+	var h: HarvestSystem = HarvestSystem.new()
+	h.rng.seed = 1
+	return h.harvest(s.zone, tile, s.inventory, _registry)
+
+
+func test_a_harvested_object_stays_gone_and_its_yield_stays_counted() -> void:
+	# The phase's "done when": chop, relaunch, still gone, still counted.
+	var first: GameSession = _opened()
+	var tile: Vector2i = _first_harvestable(first.zone)
+	assert_true(first.zone.in_bounds(tile), "the authored zone has something to harvest")
+	var got: HarvestResult = _harvest(first, tile)
+	assert_true(got.ok, got.detail)
+	assert_eq(first.save_now(_registry, "quit").size(), 0)
+	first.close()
+
+	var second: GameSession = _session()
+	var r: SessionOpenResult = second.open_saved(_registry)
+	assert_true(r.ok, r.error)
+	assert_eq(second.zone.get_object(tile), ContentRegistry.ID_UNKNOWN,
+		"the harvested object did not come back")
+	assert_eq(second.inventory.count_of(got.item_id), got.amount)
+
+
+func test_a_harvest_after_the_first_save_reaches_disk() -> void:
+	# The first save writes every chunk. This one is incremental: it must
+	# write the harvested chunk because its version moved, and only that.
+	var first: GameSession = _opened()
+	assert_eq(first.save_now(_registry, "new_world").size(), 0)
+	var tile: Vector2i = _first_harvestable(first.zone)
+	var got: HarvestResult = _harvest(first, tile)
+	assert_true(got.ok, got.detail)
+	assert_eq(first.save_now(_registry, "autosave").size(), 0)
+	first.close()
+
+	var second: GameSession = _session()
+	assert_true(second.open_saved(_registry).ok)
+	assert_eq(second.zone.get_object(tile), ContentRegistry.ID_UNKNOWN)
+	assert_eq(second.inventory.count_of(got.item_id), got.amount)
+
+
+func test_a_backup_load_keeps_the_harvest_but_not_its_yield() -> void:
+	# KNOWN GAP, pinned on purpose -- see the Phase 9 plan. Chunks have no
+	# backup (save_manager.gd: "A Stage 2 that makes chunks mutable must
+	# rotate them too"), while inventory.json does. So the backup is the
+	# live chunks with the previous inventory: the object is gone and its
+	# yield is not counted. When chunk backups land this test must change,
+	# and the right assertion is that both come back together.
+	var s: GameSession = _opened()
+	assert_eq(s.save_now(_registry, "first").size(), 0)
+	var tile: Vector2i = _first_harvestable(s.zone)
+	var got: HarvestResult = _harvest(s, tile)
+	assert_true(got.ok, got.detail)
+	assert_eq(s.save_now(_registry, "second").size(), 0)
+
+	var restored: GameSession = _session()
+	var r: SessionOpenResult = restored.open_saved(_registry, true)
+	assert_true(r.ok, r.error)
+	assert_eq(restored.zone.get_object(tile), ContentRegistry.ID_UNKNOWN)
+	assert_eq(restored.inventory.count_of(got.item_id), 0)
