@@ -197,7 +197,7 @@ content must fail CI, not a player.
   - `BuildSystem.placeables(registry: ContentRegistry) -> PackedStringArray`
     — sorted string ids.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_build_system.gd`:
 
@@ -312,13 +312,13 @@ func test_the_shipped_build_has_something_to_place() -> void:
 	assert_gt(BuildSystem.placeables(r).size(), 0)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — exit 3, `a test script failed to load`, because
 `BuildSystem` does not exist yet.
 
-- [ ] **Step 3: Write `BuildSystem`'s content half**
+- [x] **Step 3: Write `BuildSystem`'s content half**
 
 Create `src/systems/build_system.gd`:
 
@@ -390,7 +390,7 @@ static func placeables(registry: ContentRegistry) -> PackedStringArray:
 	return out
 ```
 
-- [ ] **Step 4: Make `cost` legal and author it**
+- [x] **Step 4: Make `cost` legal and author it**
 
 In `data/schema/object.json`, change the `optional` block to:
 
@@ -428,7 +428,7 @@ each becomes:
 `roof_shingle.json` and `roof_thatch.json` are deliberately left alone
 (decision 3).
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites. `test_every_shipped_cost_resolves` checks four
@@ -439,7 +439,7 @@ To see the schema change is load-bearing, temporarily remove `"cost":
 `test_every_shipped_cost_resolves` (and in every other test that loads
 `res://data`) with four `unknown field 'cost'` errors. Restore it.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/systems/build_system.gd src/systems/build_system.gd.uid \
@@ -449,7 +449,7 @@ git add src/systems/build_system.gd src/systems/build_system.gd.uid \
 git commit -m "feat: placeable content declares its cost"
 ```
 
-- [ ] **Step 7: Tick the task**
+- [x] **Step 7: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 1 --plan docs/superpowers/plans/2026-10-05-rp1-phase10a-build-rules-cursor.md
