@@ -1324,7 +1324,7 @@ cursor hears nothing while paused and does not exist at the menu.
   - signals `build_requested(cmd: BuildCommand)`, `mode_changed(active: bool)`,
     `selection_changed(content_id: String)`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_build_cursor.gd`:
 
@@ -1519,13 +1519,13 @@ func test_the_debug_place_action_is_gone() -> void:
 	assert_false(InputMap.has_action("debug_place"))
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — exit 3, `a test script failed to load`, because
 `BuildCursor` does not exist yet.
 
-- [ ] **Step 3: Write the cursor**
+- [x] **Step 3: Write the cursor**
 
 Create `src/presentation/build_cursor.gd`:
 
@@ -1667,7 +1667,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		step_selection(-1)
 ```
 
-- [ ] **Step 4: Bind the key, and give the world its cursor**
+- [x] **Step 4: Bind the key, and give the world its cursor**
 
 In `project.godot`, replace the whole `debug_place={ … }` block (five lines,
 from `debug_place={` to its closing `}`) with — same key, physical keycode
@@ -1721,7 +1721,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 `_player_facing_tile` below it stays exactly as it is.
 
-- [ ] **Step 5: Park what this phase declines**
+- [x] **Step 5: Park what this phase declines**
 
 In `IDEAS.md`, directly before `## Unsorted`, add:
 
@@ -1741,7 +1741,7 @@ In `IDEAS.md`, directly before `## Unsorted`, add:
 
 ```
 
-- [ ] **Step 6: Run the tests and every local gate**
+- [x] **Step 6: Run the tests and every local gate**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites; `test_the_movement_actions_still_exist` and
@@ -1764,7 +1764,7 @@ Run each, and expect exit 0 from all:
 ./tools/check_zone.sh                                       # Zone gate: OK
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/presentation/build_cursor.gd src/presentation/build_cursor.gd.uid \
@@ -1773,7 +1773,7 @@ git add src/presentation/build_cursor.gd src/presentation/build_cursor.gd.uid \
 git commit -m "feat: B toggles a build cursor that turns clicks into commands"
 ```
 
-- [ ] **Step 8: Tick the task**
+- [x] **Step 8: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 4 --plan docs/superpowers/plans/2026-10-05-rp1-phase10a-build-rules-cursor.md
