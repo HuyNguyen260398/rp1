@@ -495,7 +495,7 @@ first, so there is exactly one copy of every rule.
   - In this task a `REMOVE` command is refused with `BAD_COMMAND`; Task 3
     replaces that.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_build_system.gd`:
 
@@ -752,13 +752,13 @@ func test_the_player_definition_carries_the_body_the_player_node_uses() -> void:
 		player.body)
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — exit 3, `a test script failed to load`, because
 `BuildCommand` and `BuildResult` do not exist yet.
 
-- [ ] **Step 3: Write the two value objects**
+- [x] **Step 3: Write the two value objects**
 
 Create `src/systems/build_command.gd`:
 
@@ -853,7 +853,7 @@ static func accepted(p_content_id: String, p_cost: Dictionary) -> BuildResult:
 	return r
 ```
 
-- [ ] **Step 4: Write `check` and `apply`**
+- [x] **Step 4: Write `check` and `apply`**
 
 Append to `src/systems/build_system.gd`:
 
@@ -944,7 +944,7 @@ static func _entity_on(zone: Zone, tile: Vector2i, registry: ContentRegistry) ->
 	return false
 ```
 
-- [ ] **Step 5: Give the player definition its body**
+- [x] **Step 5: Give the player definition its body**
 
 Replace `data/creature/player.json` with (the values are `Player.body`'s
 defaults, `Vector2(0.625, 0.5)`):
@@ -955,7 +955,7 @@ defaults, `Vector2(0.625, 0.5)`):
  "body_width": 0.625, "body_height": 0.5, "tags": ["player"]}
 ```
 
-- [ ] **Step 6: Run the tests to verify they pass**
+- [x] **Step 6: Run the tests to verify they pass**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites — including every existing animal, player-spawn
@@ -965,7 +965,7 @@ nothing that reads it today.
 Run: `./tools/godot.sh --headless --path . -s tools/guard.gd`
 Expected: `Architecture guard: clean`, exit 0.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/systems/build_command.gd src/systems/build_command.gd.uid \
@@ -974,7 +974,7 @@ git add src/systems/build_command.gd src/systems/build_command.gd.uid \
 git commit -m "feat: BuildSystem places content and spends its cost"
 ```
 
-- [ ] **Step 8: Tick the task**
+- [x] **Step 8: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 2 --plan docs/superpowers/plans/2026-10-05-rp1-phase10a-build-rules-cursor.md
