@@ -1808,7 +1808,7 @@ key. Then it proves chop → wood → wall across a real relaunch.
   - `static BuildStatus.line(content_id: String, inventory: Inventory, registry: ContentRegistry) -> String`
   - `BuildStatus.show_line(text: String) -> void`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_build_status.gd`:
 
@@ -1864,13 +1864,13 @@ func test_the_debug_grant_action_is_gone() -> void:
 	assert_false(InputMap.has_action("debug_grant"))
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `./tools/run_tests.sh`
 Expected: FAIL — exit 3, `a test script failed to load`, because
 `BuildStatus` does not exist yet.
 
-- [ ] **Step 3: Write the readout**
+- [x] **Step 3: Write the readout**
 
 Create `src/ui/build_status.gd`:
 
@@ -1936,7 +1936,7 @@ func show_line(text: String) -> void:
 	visible = true
 ```
 
-- [ ] **Step 4: Route the cursor, and remove the last debug key**
+- [x] **Step 4: Route the cursor, and remove the last debug key**
 
 In `project.godot`, delete the whole `debug_grant={ … }` block (five lines,
 from `debug_grant={` to its closing `}`).
@@ -2058,7 +2058,7 @@ and the file's first doc line to:
 ## WASD / E / B / Esc, once per player, ever.
 ```
 
-- [ ] **Step 5: Run the tests and every local gate**
+- [x] **Step 5: Run the tests and every local gate**
 
 Run: `./tools/run_tests.sh`
 Expected: PASS, all suites.
@@ -2084,7 +2084,7 @@ Run each, and expect exit 0 from all:
 ./tools/check_zone.sh                                       # Zone gate: OK
 ```
 
-- [ ] **Step 6: Prove the phase end to end**
+- [x] **Step 6: Prove the phase end to end**
 
 `main.gd`, `World` and the routing between them have no unit tests, so the
 key → cursor → router → system → save path is proved by driving the real
@@ -2372,7 +2372,7 @@ go, and that the status line reads correctly — is still required once
 before the phase is called closed; ask the developer whether to do it in
 their real world.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/ui/build_status.gd src/ui/build_status.gd.uid \
@@ -2383,7 +2383,7 @@ git commit -m "feat: build mode places and removes walls with the mouse
 Scripted run against a throwaway save root: <one line per step 0-12>"
 ```
 
-- [ ] **Step 8: Tick the task**
+- [x] **Step 8: Tick the task**
 
 ```bash
 python3 tools/mark_task_done.py 5 --plan docs/superpowers/plans/2026-10-05-rp1-phase10a-build-rules-cursor.md
