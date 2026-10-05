@@ -77,6 +77,8 @@ static func check(
 			BuildResult.BAD_COMMAND, "unknown layer '%s'" % cmd.layer)
 	if cmd.action == BuildCommand.PLACE:
 		return _check_place(cmd, zone, inventory, registry)
+	if cmd.action == BuildCommand.REMOVE:
+		return _check_remove(cmd, zone, registry)
 	return BuildResult.refusal(
 		BuildResult.BAD_COMMAND, "unknown action '%s'" % cmd.action)
 
@@ -94,10 +96,17 @@ static func apply(
 	var result: BuildResult = check(cmd, zone, inventory, registry)
 	if not result.ok:
 		return result
-	for item_id: String in result.cost:
-		# Cannot refuse: check() proved the whole cost affordable.
-		var _spent: bool = inventory.remove(item_id, int(result.cost[item_id]))
-	zone.set_object(cmd.tile, registry.numeric_of(cmd.content_id))
+	if cmd.action == BuildCommand.PLACE:
+		for item_id: String in result.cost:
+			# Cannot refuse: check() proved the whole cost affordable.
+			var _spent: bool = inventory.remove(item_id, int(result.cost[item_id]))
+		zone.set_object(cmd.tile, registry.numeric_of(cmd.content_id))
+	else:
+		zone.set_object(cmd.tile, ContentRegistry.ID_UNKNOWN)
+		for item_id: String in result.cost:
+			# Cannot refuse: cost_error guaranteed an id and an amount of
+			# at least 1.
+			var _refunded: bool = inventory.add(item_id, int(result.cost[item_id]))
 	# Walkability owns the walkable rule; setting the flag byte by hand
 	# would also clobber FLAG_BLOCKS_LIGHT, which shares it.
 	var _changed: int = Walkability.recompute_chunk(
@@ -132,6 +141,28 @@ static func _check_place(
 	if not inventory.can_afford(cost):
 		return BuildResult.refusal(BuildResult.CANT_AFFORD)
 	return BuildResult.accepted(cmd.content_id, cost)
+
+
+
+
+## Only what build mode could have placed can be removed by it: content
+## that declares a cost. A tree leaves the world through HarvestSystem,
+## which is where its yield is decided.
+static func _check_remove(
+	cmd: BuildCommand, zone: Zone, registry: ContentRegistry
+) -> BuildResult:
+	var obj: int = zone.get_object(cmd.tile)
+	if obj == ContentRegistry.ID_UNKNOWN:
+		return BuildResult.refusal(BuildResult.NOTHING_THERE)
+	var def: Dictionary = registry.def_of(obj)
+	if registry.is_placeholder(obj) or not def.has("cost"):
+		return BuildResult.refusal(BuildResult.NOT_REMOVABLE)
+	var object_id: String = registry.string_of(obj)
+	var problem: String = cost_error(def["cost"], registry)
+	if problem != "":
+		return BuildResult.refusal(
+			BuildResult.BAD_COST, "%s: %s" % [object_id, problem])
+	return BuildResult.accepted(object_id, cost_of(def))
 
 
 ## Whether any entity's body overlaps `tile`. A solid dropped across a

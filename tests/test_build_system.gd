@@ -356,3 +356,97 @@ func test_the_player_definition_carries_the_body_the_player_node_uses() -> void:
 	assert_eq(
 		Vector2(float(def.get("body_width", 0.0)), float(def.get("body_height", 0.0))),
 		player.body)
+
+
+# --- removing ---------------------------------------------------------
+
+func _remove(tile: Vector2i) -> BuildCommand:
+	return BuildCommand.remove(tile, BuildCommand.LAYER_OBJECT)
+
+
+func test_removing_clears_the_object_and_refunds_its_cost() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var inv: Inventory = Inventory.new()
+	var result: BuildResult = BuildSystem.apply(_remove(BUILT), zone, inv, r)
+	assert_true(result.ok, result.reason)
+	assert_eq(zone.get_object(BUILT), ContentRegistry.ID_UNKNOWN)
+	assert_eq(inv.count_of("wood"), 2)
+	assert_eq(result.content_id, "wall")
+	assert_eq(result.cost, {"wood": 2})
+
+
+func test_the_cleared_tile_becomes_walkable() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	assert_false(zone.is_walkable(BUILT), "precondition: the wall blocks")
+	var _res: BuildResult = BuildSystem.apply(_remove(BUILT), zone, Inventory.new(), r)
+	assert_true(zone.is_walkable(BUILT))
+
+
+func test_place_then_remove_leaves_everything_as_it_was() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var inv: Inventory = _rich()
+	var before: Dictionary = _counts(inv)
+	assert_true(BuildSystem.apply(_place(EMPTY, "window"), zone, inv, r).ok)
+	assert_true(BuildSystem.apply(_remove(EMPTY), zone, inv, r).ok)
+	assert_eq(zone.get_object(EMPTY), ContentRegistry.ID_UNKNOWN)
+	assert_true(zone.is_walkable(EMPTY))
+	assert_eq(_counts(inv), before)
+
+
+func test_removing_needs_nothing_in_the_inventory() -> void:
+	# A removal is never unaffordable, and its check says so without writing.
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var before: int = _version(zone)
+	assert_true(BuildSystem.check(_remove(BUILT), zone, Inventory.new(), r).ok)
+	assert_eq(_version(zone), before)
+	assert_eq(zone.get_object(BUILT), r.numeric_of("wall"))
+
+
+func test_an_empty_tile_has_nothing_to_remove() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var _res: BuildResult = _assert_refused(
+		_remove(EMPTY), BuildResult.NOTHING_THERE, zone, _rich(), r)
+
+
+func test_a_tree_is_harvested_not_removed() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var _res: BuildResult = _assert_refused(
+		_remove(TREE), BuildResult.NOT_REMOVABLE, zone, _rich(), r)
+	assert_eq(zone.get_object(TREE), r.numeric_of("tree"))
+
+
+func test_content_this_build_cannot_name_is_not_removable() -> void:
+	# A placeholder keeps its tile so the save round-trips; build mode
+	# deleting it would be the silent zeroing the save rules forbid.
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var ghost: int = r.register_placeholder("ghost_wall")
+	zone.set_object(EMPTY, ghost)
+	var _res: BuildResult = _assert_refused(
+		_remove(EMPTY), BuildResult.NOT_REMOVABLE, zone, _rich(), r)
+	assert_eq(zone.get_object(EMPTY), ghost)
+
+
+func test_a_malformed_cost_refunds_nothing() -> void:
+	var r: ContentRegistry = _registry()
+	var broken: int = r.register({"id": "broken", "category": "object",
+		"display_name": "Broken", "sprite": "res://none.png", "cost": {"wood": -3}})
+	var zone: Zone = _zone(r)
+	zone.set_object(EMPTY, broken)
+	var result: BuildResult = _assert_refused(
+		_remove(EMPTY), BuildResult.BAD_COST, zone, _rich(), r)
+	assert_string_contains(result.detail, "broken")
+	assert_eq(zone.get_object(EMPTY), broken)
+
+
+func test_removing_outside_the_zone_is_refused() -> void:
+	var r: ContentRegistry = _registry()
+	var zone: Zone = _zone(r)
+	var _res: BuildResult = _assert_refused(
+		_remove(Vector2i(-1, 0)), BuildResult.OUT_OF_BOUNDS, zone, _rich(), r)
